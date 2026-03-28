@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+API="${SEER_API_URL:-http://localhost:4000}"
+PRETTY=false
+
+die() { echo "Error: $*" >&2; exit 1; }
+
+# ── HTTP helper ──────────────────────────────────────────────────────
+fetch() {
+  local path="$1"
+  local url="${API}${path}"
+  local body http_code
+
+  body=$(curl -sS -w '\n%{http_code}' "$url") || die "Cannot connect to Seer API at $API"
+  http_code=$(echo "$body" | tail -n1)
+  body=$(echo "$body" | sed '$d')
+
+  if [[ "$http_code" -lt 200 || "$http_code" -ge 300 ]]; then
+    die "$http_code — $path"$'\n'"$body"
+  fi
+
+  if $PRETTY; then
+    echo "$body" | python3 -m json.tool
+  else
+    echo "$body"
+  fi
+}
+
+# ── Query string builder ────────────────────────────────────────────
+# Usage: qs key1=val1 key2=val2 ...  (skips empty values)
+qs() {
+  local params=""
+  for pair in "$@"; do
+    local key="${pair%%=*}"
+    local val="${pair#*=}"
+    [[ -z "$val" ]] && continue
+    if [[ -z "$params" ]]; then
+      params="?${key}=$(urlencode "$val")"
+    else
+      params="${params}&${key}=$(urlencode "$val")"
+    fi
+  done
+  echo "$params"
+}
+
+urlencode() {
+  python3 -c "import urllib.parse; print(urllib.parse.quote('$1', safe=''))"
+}
+
+# ── Parse args ───────────────────────────────────────────────────────
+CMD=""
+POSITIONAL=()
+declare -A FLAGS=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --pretty) PRETTY=true; shift ;;
+    --*)
+      key="${1#--}"
+      if [[ $# -ge 2 && ! "$2" =~ ^-- ]]; then
+        FLAGS["$key"]="$2"; shift 2
+      else
+        FLAGS["$key"]="true"; shift
+      fi
+      ;;
+    *)
+      if [[ -z "$CMD" ]]; then
+        CMD="$1"
+      else
+        POSITIONAL+=("$1")
+      fi
+      shift
+      ;;
+  esac
+done
+
+flag() { echo "${FLAGS[$1]:-}"; }
+
+# ── Help ─────────────────────────────────────────────────────────────
+HELP="seer-q — Seer market intelligence CLI
+
+Usage: seer-q <command> [args] [flags]
+
+Commands:
+  search <query>       Fuzzy search topics, threads, assets
+  market               Global regime + all topics
+  topics               List all topics
+  topic <id>           Topic detail + threads
+  threads              List threads (--topic ID, --status S)
+  thread <id>          Thread detail + claims
+  claims               List claims (--thread ID, --source ID, --status S, --mode M)
+  sources              List sources (--decision D, --tier N)
+  snapshot             Latest global snapshot (--history, --limit N)
+  usage                Token usage (--since P)
+  decisions            Decision log (--stage S, --run ID, --entity-type T, --entity-id I, --limit N)
+  health               Health check
+
+Flags:
+  --pretty             Pretty-print JSON output
+
+Environment:
+  SEER_API_URL         API base URL (default: http://localhost:4000)"
+
+# ── Commands ─────────────────────────────────────────────────────────
+case "$CMD" in
+  search)
+    [[ ${#POSITIONAL[@]} -eq 0 ]] && die "Usage: seer-q search <query>"
+    fetch "/api/search?q=$(urlencode "${POSITIONAL[0]}")"
+    ;;
+  market)
+    fetch "/api/market"
+    ;;
+  topics)
+    fetch "/api/topics"
+    ;;
+  topic)
+    [[ ${#POSITIONAL[@]} -eq 0 ]] && die "Usage: seer-q topic <id>"
+    fetch "/api/topics/$(urlencode "${POSITIONAL[0]}")"
+    ;;
+  threads)
+    fetch "/api/threads$(qs "topic_id=$(flag topic)" "status=$(flag status)")"
+    ;;
+  thread)
+    [[ ${#POSITIONAL[@]} -eq 0 ]] && die "Usage: seer-q thread <id>"
+    fetch "/api/threads/$(urlencode "${POSITIONAL[0]}")"
+    ;;
+  claims)
+    fetch "/api/claims$(qs "thread_id=$(flag thread)" "source_id=$(flag source)" "status=$(flag status)" "claim_mode=$(flag mode)")"
+    ;;
+  sources)
+    fetch "/api/sources$(qs "decision=$(flag decision)" "tier=$(flag tier)")"
+    ;;
+  snapshot)
+    if [[ "$(flag history)" == "true" ]]; then
+      fetch "/api/global/snapshots$(qs "limit=$(flag limit)")"
+    else
+      fetch "/api/global/snapshot"
+    fi
+    ;;
+  usage)
+    fetch "/api/usage$(qs "since=$(flag since)")"
+    ;;
+  decisions)
+    run="$(flag run)"
+    stage="$(flag stage)"
+    etype="$(flag entity-type)"
+    eid="$(flag entity-id)"
+    limit="$(flag limit)"
+    # --run with no other filters → dedicated sub-route
+    if [[ -n "$run" && -z "$stage" && -z "$etype" && -z "$eid" ]]; then
+      fetch "/api/decisions/run/$(urlencode "$run")"
+    else
+      fetch "/api/decisions$(qs "stage=$stage" "entity_type=$etype" "entity_id=$eid" "pipeline_run_id=$run" "limit=$limit")"
+    fi
+    ;;
+  health)
+    fetch "/api/health"
+    ;;
+  *)
+    echo "$HELP"
+    [[ -n "$CMD" ]] && exit 1
+    exit 0
+    ;;
+esac
