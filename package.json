@@ -1,5 +1,5 @@
 {
-  "name": "cli",
+  "name": "seer-q",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -7,10 +7,9 @@
     "seer-q": "./bin/seer-q.js"
   },
   "scripts": {
-    "search": "tsx src/index.ts search",
-    "market": "tsx src/index.ts market",
-    "topic": "tsx src/index.ts topic",
-    "thread": "tsx src/index.ts thread"
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "prepublishOnly": "tsc"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
