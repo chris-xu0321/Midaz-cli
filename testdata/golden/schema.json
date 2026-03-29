@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "data": {
+    "commands": [
+      { "name": "search", "description": "Fuzzy search across topics, threads, assets", "args": ["query"] },
+      { "name": "market", "description": "Global regime + all topics with thread counts" },
+      { "name": "topics", "description": "List all topics with thread counts" },
+      { "name": "topic", "description": "Topic detail + threads", "args": ["id"] },
+      { "name": "threads", "description": "List threads", "flags": ["--topic", "--status"] },
+      { "name": "thread", "description": "Thread detail + claims + market links", "args": ["id"] },
+      { "name": "claims", "description": "List claims", "flags": ["--thread", "--source", "--status", "--mode"] },
+      { "name": "sources", "description": "List ingested sources", "flags": ["--decision", "--tier"] },
+      { "name": "snapshot", "description": "Global regime snapshot", "flags": ["--history", "--limit"] },
+      { "name": "usage", "description": "Token usage and cost summary", "flags": ["--since"] },
+      { "name": "decisions", "description": "Decision audit log", "flags": ["--stage", "--run", "--entity-type", "--entity-id", "--limit"] },
+      { "name": "health", "description": "API health check" },
+      { "name": "version", "description": "CLI version info" },
+      { "name": "doctor", "description": "Diagnostic checks" },
+      { "name": "config", "description": "Configuration management" },
+      { "name": "schema", "description": "Command contract introspection" },
+      { "name": "agent", "description": "Agent resource management" }
+    ]
+  },
+  "meta": {
+    "count": 17
+  }
+}

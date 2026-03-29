@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "data": {
+    "name": "search",
+    "description": "Fuzzy search across topics, threads, assets",
+    "args": [
+      { "name": "query", "required": true, "type": "string" }
+    ],
+    "flags": [],
+    "api_endpoint": "GET /api/search?q={query}",
+    "data_shape": "SearchResult[] — unwrapped from API { results: [...] }",
+    "meta_shape": "{ count: int }"
+  },
+  "meta": {}
+}

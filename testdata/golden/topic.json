@@ -1,0 +1,32 @@
+{
+  "ok": true,
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "AI Infrastructure Buildout",
+    "standing_thesis": "Hyperscaler capex acceleration and GPU supply chain dynamics",
+    "standing_digest": "Massive capital deployment into AI infrastructure",
+    "key_assets": ["NVDA", "MSFT", "GOOGL", "AMD"],
+    "bias": "bullish",
+    "snapshot": {},
+    "version": 2,
+    "last_synthesized_at": "2026-03-28T14:00:00Z",
+    "threads": [
+      {
+        "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+        "topic_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "title": "NVIDIA Data Center Revenue Acceleration",
+        "thesis": "Data center segment growing 150%+ YoY driven by AI training demand",
+        "bias": "bullish",
+        "status": "active",
+        "snapshot": {},
+        "version": 1,
+        "last_material_update": "2026-03-27T10:00:00Z",
+        "view_url": "http://localhost:3000/threads/b2c3d4e5-f6a7-8901-bcde-f12345678901"
+      }
+    ]
+  },
+  "meta": {
+    "view_url": "http://localhost:3000/topics/a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "thread_count": 1
+  }
+}

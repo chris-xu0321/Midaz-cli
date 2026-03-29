@@ -1,0 +1,8 @@
+{
+  "ok": false,
+  "error": {
+    "code": "validation",
+    "message": "Missing required argument: query",
+    "hint": "usage: seer-q search <query>"
+  }
+}

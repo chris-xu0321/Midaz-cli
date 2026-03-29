@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "data": {
+    "checks": [
+      { "name": "api_url", "status": "pass", "message": "http://localhost:4000" },
+      { "name": "api_reachable", "status": "pass", "message": "GET /api/health returned ok" },
+      { "name": "frontend_url", "status": "warn", "message": "not configured" },
+      { "name": "token", "status": "warn", "message": "not configured" },
+      { "name": "config_file", "status": "fail", "message": "not found at C:\\Users\\Chris\\AppData\\Roaming\\seer\\config.json" }
+    ]
+  },
+  "meta": {
+    "passed": 2,
+    "failed": 1,
+    "warned": 2
+  }
+}

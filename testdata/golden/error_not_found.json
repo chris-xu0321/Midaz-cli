@@ -1,0 +1,8 @@
+{
+  "ok": false,
+  "error": {
+    "code": "not_found",
+    "message": "Thread not found",
+    "hint": "check the thread ID with: seer-q threads"
+  }
+}

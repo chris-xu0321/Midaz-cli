@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "data": {
+    "version": "0.2.0",
+    "go_version": "go1.26.1",
+    "os": "windows",
+    "arch": "amd64"
+  },
+  "meta": {}
+}
