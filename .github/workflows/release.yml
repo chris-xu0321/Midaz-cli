@@ -24,7 +24,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Verify tag matches package.json
         run: |
@@ -70,6 +69,4 @@ jobs:
 
       # Publish to public npm registry (uses npm Trusted Publishing via OIDC)
       - name: Publish npm package
-        run: |
-          unset NODE_AUTH_TOKEN
-          npm publish --provenance --access public
+        run: npm publish --provenance --access public --registry https://registry.npmjs.org
