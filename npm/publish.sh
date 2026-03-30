@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Publish @midaz/seer-cli to npm registry.
+# Publish @midaz/cli to npm registry.
 # Binaries must be available on GitHub Releases (via goreleaser).
 # The npm package uses a postinstall hook to download the binary.
 
@@ -37,10 +37,10 @@ GORELEASER_CURRENT_TAG="v${VERSION}" goreleaser release --clean
 
 # Step 2: Publish npm package
 echo ""
-echo "=== Publishing @midaz/seer-cli ==="
+echo "=== Publishing @midaz/cli ==="
 cd "$CLI_DIR"
 npm publish --access restricted $DRY_RUN
 
 echo ""
-echo "=== Done: @midaz/seer-cli@${VERSION} ==="
-echo "  Install: npm install -g @midaz/seer-cli"
+echo "=== Done: @midaz/cli@${VERSION} ==="
+echo "  Install: npm install -g @midaz/cli"

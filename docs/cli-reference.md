@@ -25,7 +25,7 @@ Alternatively, add to your `~/.npmrc`:
 ### Step 1: Install CLI
 
 ```bash
-GITHUB_TOKEN=<your-pat> npm install -g @midaz/seer-cli
+GITHUB_TOKEN=<your-pat> npm install -g @midaz/cli
 ```
 
 `GITHUB_TOKEN` is needed to download the binary from GitHub Releases during install.

@@ -1,5 +1,5 @@
 {
-  "name": "@midaz/seer-cli",
+  "name": "@midaz/cli",
   "version": "0.2.0",
   "description": "Seer Market Intelligence CLI",
   "bin": {
