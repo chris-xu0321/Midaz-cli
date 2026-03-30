@@ -65,9 +65,9 @@ fi
 # Include Claude command wrapper as a target-specific asset
 # Skill installers ignore files outside skills/; manual install uses this
 COMMANDS_DEST="$TARGET/commands/claude"
-if [ -f "$CLI_DIR/agent/cmd/seer.md" ]; then
+if [ -f "$CLI_DIR/commands/claude/seer.md" ]; then
   mkdir -p "$COMMANDS_DEST"
-  cp "$CLI_DIR/agent/cmd/seer.md" "$COMMANDS_DEST/seer.md"
+  cp "$CLI_DIR/commands/claude/seer.md" "$COMMANDS_DEST/seer.md"
   echo "  synced: commands/claude/seer.md"
 fi
 

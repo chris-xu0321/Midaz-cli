@@ -31,7 +31,7 @@ See [docs/cli-reference.md](docs/cli-reference.md) for the full command referenc
 ## Skills for AI Agents
 
 ```bash
-npx skills add SparkssL/seer-skills --all -y
+npx skills add chris-xu0321/Midaz-cli --all -y
 ```
 
 See [docs/target-compatibility.md](docs/target-compatibility.md) for agent platform setup.

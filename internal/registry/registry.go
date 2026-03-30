@@ -3,7 +3,6 @@
 package registry
 
 import (
-	"github.com/chris-xu0321/Midaz-cli/internal/cmd/agent"
 	cmdconfig "github.com/chris-xu0321/Midaz-cli/internal/cmd/config"
 	"github.com/chris-xu0321/Midaz-cli/internal/cmd/claims"
 	"github.com/chris-xu0321/Midaz-cli/internal/cmd/decisions"
@@ -147,10 +146,5 @@ var Commands = []CommandDef{
 		Name:        "schema",
 		Description: "Command contract introspection",
 		NewCmd:      schema.NewCmdSchema,
-	},
-	{
-		Name:        "agent",
-		Description: "Agent resource management [deprecated]",
-		NewCmd:      agent.NewCmdAgent,
 	},
 }

@@ -55,13 +55,6 @@ check "claims"        "$BIN" claims
 check "sources"       "$BIN" sources
 check "usage"         "$BIN" usage
 
-# Agent commands (deprecated but should still work)
-AGENT_TMPDIR=$(mktemp -d)
-check "agent install"   "$BIN" agent install claude --workspace "$AGENT_TMPDIR"
-check "agent doctor"    "$BIN" agent doctor --workspace "$AGENT_TMPDIR"
-check "agent uninstall" "$BIN" agent uninstall claude --workspace "$AGENT_TMPDIR"
-rm -rf "$AGENT_TMPDIR"
-
 echo ""
 if [ "$ERRORS" -eq 0 ]; then
   echo "=== ALL PASSED ==="

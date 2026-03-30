@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0 — 2026-03-30
+
+### Removed
+- `seer-q agent install/uninstall/doctor` bridge commands — use `npx skills add chris-xu0321/Midaz-cli --all -y` instead
+- Embedded skills/agent Go packages (`agent/`, `skills/embed.go`)
+- `npm/skills-repo-template/` (skills distributed from this repo directly)
+
+### Changed
+- `/seer` command wrapper moved from `agent/cmd/seer.md` to `commands/claude/seer.md`
+- Skills install references updated from `SparkssL/seer-skills` to `chris-xu0321/Midaz-cli`
+- Consistency tests now read skills from disk instead of embedded FS
+
 ## 0.2.0 — 2026-03-30
 
 Initial release from standalone repository. Bootstrapped from [SparkssL/Seer](https://github.com/SparkssL/Seer) `apps/cli/` subtree.

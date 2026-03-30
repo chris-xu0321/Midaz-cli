@@ -33,7 +33,7 @@ Requires Node.js >= 16. Supported platforms: Windows, macOS, Linux (x64, arm64).
 ### Step 2: Install Skills for Claude Code
 
 ```bash
-npx skills add SparkssL/seer-skills --all -y
+npx skills add chris-xu0321/Midaz-cli --all -y
 ```
 
 Requires GitHub access to the private skills repository.
@@ -145,18 +145,6 @@ seer-q config path              # Show config file path
 Config precedence: CLI flags > env vars > config file > defaults.
 
 Config file: `%APPDATA%\seer\config.json` (Windows), `~/.config/seer/config.json` (Linux), `~/Library/Application Support/seer/config.json` (macOS).
-
-### Agent Management [deprecated]
-
-The `agent` subcommand is a compatibility bridge. Prefer installing skills through your agent platform's skill installer. See `docs/target-compatibility.md`.
-
-```bash
-seer-q agent install claude     # Install embedded skills to .claude/ [deprecated]
-seer-q agent uninstall claude   # Remove installed files [deprecated]
-seer-q agent doctor             # Check file status [deprecated]
-```
-
-Commands still work but output includes `"deprecated": true` in meta.
 
 ### Full Contract
 

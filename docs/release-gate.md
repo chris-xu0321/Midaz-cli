@@ -41,7 +41,3 @@ Last updated: 2026-03-30
 - [ ] Claude Code: skills discovered from `.claude/skills/*/SKILL.md`
 - [ ] Claude Code: `seer-q search` callable from agent context
 - [ ] Codex: PASS or DEFER (if deferred: document rationale in release notes, track in target-compatibility.md)
-
-### Bridge status
-- [ ] `seer-q agent install claude` still works (compatibility bridge, deprecated)
-- [ ] Bridge removal criteria tracked in `docs/bridge-removal.md`

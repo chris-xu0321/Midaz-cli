@@ -32,7 +32,7 @@ INSTALL:
     npm config set @midaz:registry https://npm.pkg.github.com
     npm login --registry=https://npm.pkg.github.com
     npm install -g @midaz/seer-cli
-    npx skills add SparkssL/seer-skills --all -y
+    npx skills add chris-xu0321/Midaz-cli --all -y
 
     Full setup: https://github.com/chris-xu0321/Midaz-cli#installation`,
 		Version: build.Version,

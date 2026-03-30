@@ -6,7 +6,7 @@ Last updated: 2026-03-30
 
 | Target | Status | Install Method |
 |--------|--------|----------------|
-| Claude Code | Supported | `npx skills add SparkssL/seer-skills --all -y` |
+| Claude Code | Supported | `npx skills add chris-xu0321/Midaz-cli --all -y` |
 | Codex | Planned | Blocked on Codex environment availability for testing |
 
 ## Claude Code
@@ -22,7 +22,7 @@ npm login --registry=https://npm.pkg.github.com  # use GitHub PAT with read:pack
 npm install -g @midaz/seer-cli
 
 # Step 2: Skills
-npx skills add SparkssL/seer-skills --all -y
+npx skills add chris-xu0321/Midaz-cli --all -y
 ```
 
 Requires GitHub access to the private skills repository.
@@ -32,7 +32,7 @@ Skills are discovered from `.claude/skills/*/SKILL.md`. YAML frontmatter provide
 **Fallback** (if skill installer does not support private repos):
 
 ```bash
-git clone git@github.com:SparkssL/seer-skills.git /tmp/seer-skills
+git clone git@github.com:chris-xu0321/Midaz-cli.git /tmp/seer-skills
 cp -r /tmp/seer-skills/skills/* .claude/skills/
 ```
 
