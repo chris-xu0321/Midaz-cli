@@ -46,8 +46,6 @@ make release     # Cross-platform build via goreleaser
 make qa-release  # Full QA including npm package verification
 ```
 
-> **Note**: The Go module path is currently `github.com/SparkssL/seer-cli`. This will be updated to match the canonical repo in a follow-up.
-
 ## License
 
 Private — see repository access controls.

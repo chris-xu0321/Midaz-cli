@@ -6,9 +6,9 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	skillsdata "github.com/SparkssL/seer-cli/skills"
-	"github.com/SparkssL/seer-cli/internal/cmdutil"
-	"github.com/SparkssL/seer-cli/internal/output"
+	skillsdata "github.com/chris-xu0321/Midaz-cli/skills"
+	"github.com/chris-xu0321/Midaz-cli/internal/cmdutil"
+	"github.com/chris-xu0321/Midaz-cli/internal/output"
 	"github.com/spf13/cobra"
 )
 

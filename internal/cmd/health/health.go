@@ -1,7 +1,7 @@
 package health
 
 import (
-	"github.com/SparkssL/seer-cli/internal/cmdutil"
+	"github.com/chris-xu0321/Midaz-cli/internal/cmdutil"
 	"github.com/spf13/cobra"
 )
 

@@ -6,13 +6,13 @@ import (
 	"io"
 	"os"
 
-	"github.com/SparkssL/seer-cli/internal/build"
-	"github.com/SparkssL/seer-cli/internal/client"
-	"github.com/SparkssL/seer-cli/internal/cmd/schema"
-	"github.com/SparkssL/seer-cli/internal/cmdutil"
-	"github.com/SparkssL/seer-cli/internal/config"
-	"github.com/SparkssL/seer-cli/internal/output"
-	"github.com/SparkssL/seer-cli/internal/registry"
+	"github.com/chris-xu0321/Midaz-cli/internal/build"
+	"github.com/chris-xu0321/Midaz-cli/internal/client"
+	"github.com/chris-xu0321/Midaz-cli/internal/cmd/schema"
+	"github.com/chris-xu0321/Midaz-cli/internal/cmdutil"
+	"github.com/chris-xu0321/Midaz-cli/internal/config"
+	"github.com/chris-xu0321/Midaz-cli/internal/output"
+	"github.com/chris-xu0321/Midaz-cli/internal/registry"
 	"github.com/spf13/cobra"
 )
 
@@ -29,14 +29,11 @@ func Execute() int {
 		Long: `Seer market intelligence CLI.
 
 INSTALL:
-    Step 1 — Install the CLI:
-        npm install -g @midaz/seer-cli
+    npm config set @midaz:registry https://npm.pkg.github.com
+    npm install -g @midaz/seer-cli
+    npx skills add SparkssL/seer-skills --all -y
 
-    Step 2 — Install skills for Claude Code:
-        npx skills add SparkssL/seer-skills --all -y
-
-    Requires GitHub access to the private skills repository.
-    For other agent ecosystems, see docs/target-compatibility.md.`,
+    Full setup: https://github.com/chris-xu0321/Midaz-cli#installation`,
 		Version: build.Version,
 	}
 	rootCmd.SilenceErrors = true

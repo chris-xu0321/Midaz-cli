@@ -24,7 +24,7 @@ Requires GitHub access to the private skills repository.
 
 ### Other Ecosystems
 
-See [target-compatibility.md](https://github.com/SparkssL/seer-cli/blob/main/docs/target-compatibility.md) in the CLI repository.
+See [target-compatibility.md](https://github.com/chris-xu0321/Midaz-cli/blob/main/docs/target-compatibility.md) in the CLI repository.
 
 ## Updating
 

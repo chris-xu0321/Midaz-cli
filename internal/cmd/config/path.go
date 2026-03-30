@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/SparkssL/seer-cli/internal/cmdutil"
-	cfgpkg "github.com/SparkssL/seer-cli/internal/config"
-	"github.com/SparkssL/seer-cli/internal/output"
+	"github.com/chris-xu0321/Midaz-cli/internal/cmdutil"
+	cfgpkg "github.com/chris-xu0321/Midaz-cli/internal/config"
+	"github.com/chris-xu0321/Midaz-cli/internal/output"
 	"github.com/spf13/cobra"
 )
 

@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	agentres "github.com/SparkssL/seer-cli/agent"
-	skillsdata "github.com/SparkssL/seer-cli/skills"
-	"github.com/SparkssL/seer-cli/internal/registry"
+	agentres "github.com/chris-xu0321/Midaz-cli/agent"
+	skillsdata "github.com/chris-xu0321/Midaz-cli/skills"
+	"github.com/chris-xu0321/Midaz-cli/internal/registry"
 )
 
 // allSkillContent returns the combined content of all SKILL.md files

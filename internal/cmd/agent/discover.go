@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 
-	skillsdata "github.com/SparkssL/seer-cli/skills"
+	skillsdata "github.com/chris-xu0321/Midaz-cli/skills"
 )
 
 // discoveredSkill represents a skill found via tree-walking skills.FS.

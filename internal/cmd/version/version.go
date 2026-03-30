@@ -1,9 +1,9 @@
 package version
 
 import (
-	"github.com/SparkssL/seer-cli/internal/build"
-	"github.com/SparkssL/seer-cli/internal/cmdutil"
-	"github.com/SparkssL/seer-cli/internal/output"
+	"github.com/chris-xu0321/Midaz-cli/internal/build"
+	"github.com/chris-xu0321/Midaz-cli/internal/cmdutil"
+	"github.com/chris-xu0321/Midaz-cli/internal/output"
 	"github.com/spf13/cobra"
 )
 

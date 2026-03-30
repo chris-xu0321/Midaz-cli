@@ -7,7 +7,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X github.com/SparkssL/seer-cli/internal/build.Version={{ .Version }}
+      - -s -w -X github.com/chris-xu0321/Midaz-cli/internal/build.Version={{ .Version }}
     goos:
       - darwin
       - linux

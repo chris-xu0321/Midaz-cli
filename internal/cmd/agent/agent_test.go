@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	agentres "github.com/SparkssL/seer-cli/agent"
-	skillsdata "github.com/SparkssL/seer-cli/skills"
-	"github.com/SparkssL/seer-cli/internal/cmdutil"
-	"github.com/SparkssL/seer-cli/internal/config"
-	"github.com/SparkssL/seer-cli/internal/output"
+	agentres "github.com/chris-xu0321/Midaz-cli/agent"
+	skillsdata "github.com/chris-xu0321/Midaz-cli/skills"
+	"github.com/chris-xu0321/Midaz-cli/internal/cmdutil"
+	"github.com/chris-xu0321/Midaz-cli/internal/config"
+	"github.com/chris-xu0321/Midaz-cli/internal/output"
 )
 
 func testFactory(out, errOut *bytes.Buffer) *cmdutil.Factory {

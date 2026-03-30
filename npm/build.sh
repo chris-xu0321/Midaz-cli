@@ -57,7 +57,7 @@ for npm_key in "${!PLATFORMS[@]}"; do
   if [ ! -f "$archive" ]; then
     echo "ERROR: archive not found: $archive"
     echo "  Expected from goreleaser name_template: seer-q-VERSION-OS-ARCH"
-    echo "  Run 'make release' in apps/cli/ first"
+    echo "  Run 'make release' first"
     exit 1
   fi
 

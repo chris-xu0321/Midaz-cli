@@ -25,7 +25,7 @@ echo "  registry: ${REGISTRY}"
 if [[ "$REGISTRY" == "https://registry.npmjs.org" || -z "$REGISTRY" ]]; then
   echo "ERROR: publishConfig.registry must point to a private registry"
   echo "  Current: ${REGISTRY:-<empty>}"
-  echo "  Set it in apps/cli/npm/package.json -> publishConfig.registry"
+  echo "  Set it in npm/package.json -> publishConfig.registry"
   exit 1
 fi
 

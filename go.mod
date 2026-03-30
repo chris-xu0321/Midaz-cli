@@ -1,4 +1,4 @@
-module github.com/SparkssL/seer-cli
+module github.com/chris-xu0321/Midaz-cli
 
 go 1.26
 

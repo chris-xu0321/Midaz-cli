@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/SparkssL/seer-cli/internal/cli"
+	"github.com/chris-xu0321/Midaz-cli/internal/cli"
 )
 
 func main() {
