@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.0 — 2026-03-30
+
+### Changed
+- Switched to lark-style npm distribution: single package with `postinstall` binary download from GitHub Releases (replaces 7-package platform model)
+- Root `package.json` + `scripts/install.js` + `scripts/run.js` (like lark-cli)
+- README rewritten with lark-style installer-facing sections (Why, Install, Quick Start for humans + AI agents)
+- `test/skills-dist-test.sh` validates skills directly (no longer depends on publish-skills.sh)
+
+### Removed
+- `npm/build.sh`, `npm/platform-template/`, `npm/verify.sh` (platform-package build pipeline)
+- `npm/publish-skills.sh` (skills install directly from repo)
+- `commands/claude/seer.md` (skills handle agent integration)
+- `test/npm-install-test.sh` (platform-package test)
+
+### Added
+- `make install` target with PREFIX support
+- `.github/workflows/lint.yml` (golangci-lint)
+
 ## 0.3.0 — 2026-03-30
 
 ### Removed

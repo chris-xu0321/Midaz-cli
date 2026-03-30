@@ -5,9 +5,9 @@
   "bin": {
     "seer-q": "scripts/run.js"
   },
-  "files": [
-    "scripts/run.js"
-  ],
+  "scripts": {
+    "postinstall": "node scripts/install.js"
+  },
   "os": [
     "darwin",
     "linux",
@@ -27,5 +27,9 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
-  "private": false
+  "files": [
+    "scripts/install.js",
+    "scripts/run.js",
+    "CHANGELOG.md"
+  ]
 }

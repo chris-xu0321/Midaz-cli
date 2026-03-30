@@ -30,9 +30,9 @@ jobs:
       - name: Verify tag matches package.json
         run: |
           TAG_VERSION="${GITHUB_REF_NAME#v}"
-          PKG_VERSION="$(node -p "require('./npm/package.json').version")"
+          PKG_VERSION="$(node -p "require('./package.json').version")"
           if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
-            echo "::error::Tag version ($TAG_VERSION) does not match npm/package.json version ($PKG_VERSION). Update package.json before tagging."
+            echo "::error::Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION). Update package.json before tagging."
             exit 1
           fi
 
@@ -48,19 +48,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Package binaries into npm platform packages
-      - name: Package npm
-        run: bash npm/build.sh
-
-      - name: Verify npm packages
-        run: bash npm/verify.sh
-
-      # Publish npm packages (platform packages first, then meta)
-      - name: Publish npm packages
-        run: |
-          for pkg_dir in dist/npm/@midaz/seer-cli-*/; do
-            cd "$pkg_dir" && npm publish --access restricted && cd -
-          done
-          cd dist/npm/meta && npm publish --access restricted
+      # Publish single npm package (postinstall downloads binary from GitHub Releases)
+      - name: Publish npm package
+        run: npm publish --access restricted
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

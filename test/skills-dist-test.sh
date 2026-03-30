@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Test: skills distribution artifact is complete and valid.
+# Test: validate skill files are complete and well-formed.
 # Usage: bash skills-dist-test.sh
 set -euo pipefail
 
@@ -7,15 +7,11 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CLI_DIR="$(dirname "$SCRIPT_DIR")"
 ERRORS=0
 
-echo "=== Skills Distribution Test ==="
+echo "=== Skills Validation Test ==="
 
-# Publish to temp directory
-TMPDIR=$(mktemp -d)
-bash "$CLI_DIR/npm/publish-skills.sh" "$TMPDIR" 0.0.0-test 2>&1 | tail -5
-
-# Check expected skills
+# Check expected skills exist
 for skill in seer-shared seer-market seer-api-explorer; do
-  if [ -f "$TMPDIR/skills/$skill/SKILL.md" ]; then
+  if [ -f "$CLI_DIR/skills/$skill/SKILL.md" ]; then
     echo "PASS: $skill/SKILL.md exists"
   else
     echo "FAIL: $skill/SKILL.md missing"
@@ -23,24 +19,17 @@ for skill in seer-shared seer-market seer-api-explorer; do
   fi
 done
 
-# Check command wrapper (advisory — target-specific, not required)
-if [ -f "$TMPDIR/commands/claude/seer.md" ]; then
-  echo "PASS: commands/claude/seer.md exists"
-else
-  echo "WARN: commands/claude/seer.md missing (optional Claude asset)"
-fi
-
-# Check no Go files leaked
-GO_COUNT=$(find "$TMPDIR" -name "*.go" | wc -l)
+# Check no Go files leaked into skills/
+GO_COUNT=$(find "$CLI_DIR/skills" -name "*.go" | wc -l)
 if [ "$GO_COUNT" -eq 0 ]; then
-  echo "PASS: no .go files in artifact"
+  echo "PASS: no .go files in skills/"
 else
-  echo "FAIL: $GO_COUNT .go files found"
+  echo "FAIL: $GO_COUNT .go files found in skills/"
   ERRORS=$((ERRORS + 1))
 fi
 
 # Check frontmatter consistency
-for md in "$TMPDIR"/skills/*/SKILL.md; do
+for md in "$CLI_DIR"/skills/*/SKILL.md; do
   name=$(grep "^name:" "$md" | head -1 | awk '{print $2}')
   dir=$(basename "$(dirname "$md")")
   if [ "$name" = "$dir" ]; then
@@ -51,7 +40,6 @@ for md in "$TMPDIR"/skills/*/SKILL.md; do
   fi
 done
 
-rm -rf "$TMPDIR"
 echo ""
 if [ "$ERRORS" -eq 0 ]; then
   echo "=== ALL PASSED ==="

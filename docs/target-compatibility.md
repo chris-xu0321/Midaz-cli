@@ -36,14 +36,6 @@ git clone git@github.com:chris-xu0321/Midaz-cli.git /tmp/seer-skills
 cp -r /tmp/seer-skills/skills/* .claude/skills/
 ```
 
-### Optional: Claude command wrapper
-
-The `/seer` slash command shortcut is available in the skills repo:
-
-```bash
-cp /tmp/seer-skills/commands/claude/seer.md .claude/cmd/seer.md
-```
-
 ### Verify
 
 ```bash
