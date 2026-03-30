@@ -1,0 +1,29 @@
+version: 2
+
+builds:
+  - binary: seer-q
+    dir: .
+    main: ./cmd/seer-q/
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/SparkssL/seer-cli/internal/build.Version={{ .Version }}
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - name_template: "seer-q-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  disable: true

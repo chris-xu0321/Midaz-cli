@@ -27,17 +27,33 @@ func newCmdUninstall(f *cmdutil.Factory) *cobra.Command {
 				}
 			}
 
+			skills, err := discoverSkills()
+			if err != nil {
+				return output.ErrConfig("skill discovery failed: %s", err)
+			}
+
 			var removed []string
-			for _, t := range targets {
-				dest := filepath.Join(workspace, ".claude", t.RelPath)
+
+			// Remove skill directories (discovered from tree)
+			for _, skill := range skills {
+				skillDir := filepath.Join(workspace, ".claude", "skills", skill.Dir)
+				dest := filepath.Join(skillDir, "SKILL.md")
 				if err := os.Remove(dest); err != nil && !os.IsNotExist(err) {
 					return output.ErrConfig("failed to remove file: %s", err)
 				}
-				removed = append(removed, ".claude/"+t.RelPath)
+				os.Remove(skillDir)
+				removed = append(removed, ".claude/skills/"+skill.Dir+"/SKILL.md")
 			}
 
+			// Remove Claude command file
+			dest := filepath.Join(workspace, ".claude", cmdTarget.RelPath)
+			if err := os.Remove(dest); err != nil && !os.IsNotExist(err) {
+				return output.ErrConfig("failed to remove file: %s", err)
+			}
+			removed = append(removed, ".claude/"+cmdTarget.RelPath)
+
 			data := map[string]any{"removed": removed}
-			meta := map[string]any{"workspace": workspace}
+			meta := map[string]any{"workspace": workspace, "deprecated": true}
 			return output.WriteSuccess(opts.Out, data, meta, opts.Format)
 		},
 	}

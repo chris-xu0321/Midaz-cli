@@ -1,0 +1,27 @@
+{
+  "name": "@midaz/seer-cli",
+  "version": "0.2.0",
+  "description": "Seer Market Intelligence CLI",
+  "bin": {
+    "seer-q": "scripts/run.js"
+  },
+  "files": [
+    "scripts/run.js"
+  ],
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "private": false
+}

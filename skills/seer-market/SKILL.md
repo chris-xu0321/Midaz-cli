@@ -1,29 +1,13 @@
 ---
 name: seer-market
 version: 0.2.0
-description: Query Seer market intelligence system — search topics/threads, list claims/sources, get market overview, topic detail, thread analysis with deep link URLs
-metadata: {"openclaw":{"requires":{"bins":["seer-q"]}}}
+description: Search, browse, and analyze topics, threads, claims, and market regime
+metadata: {"requires":{"bins":["seer-q"]}}
 ---
 
 # Seer Market Intelligence
 
-You have access to Seer, a market thesis intelligence system. It tracks:
-
-- **Claims** — atomic evidence statements extracted from sources (the raw events/facts)
-- **Threads** — tradable angles / sub-theses built from clusters of claims
-- **Topics** — narrative domains that group related threads (e.g., "AI Infrastructure", "Energy Transition")
-- **Global snapshot** — overall market regime derived from top drivers across all topics
-
-All queries use the `seer-q` CLI.
-
-## Response Format
-
-All commands return JSON:
-- **Success** (stdout): `{ "ok": true, "data": <payload>, "meta": { "view_url": "...", "count": N } }`
-- **Errors** (stderr): `{ "ok": false, "error": { "code": "...", "message": "..." } }`
-
-Access the payload via `.data`. The `meta` field contains `view_url` and count hints.
-For raw API output (no envelope), use `--raw`.
+> Read [seer-shared](../seer-shared/SKILL.md) for response format and common rules.
 
 ## Command Reference
 
@@ -65,17 +49,6 @@ seer-q snapshot --history --limit 5  # Limit history count
 ```bash
 seer-q usage                    # Token usage summary (--since P, default 24h)
 seer-q decisions                # Decision log (--stage S, --run ID, --entity-type T, --entity-id I, --limit N)
-seer-q health                   # API health check
-```
-
-### Diagnostics
-
-```bash
-seer-q version                  # CLI version, Go version, OS/arch
-seer-q doctor                   # Verify API connectivity and config
-seer-q config list              # Show active configuration
-seer-q schema <command>         # Describe a command's input/output contract
-seer-q agent install claude     # Install agent files to workspace
 ```
 
 ## Query Strategy
@@ -97,13 +70,6 @@ Map the user's question to the right command sequence:
 | Market regime history / trend | `seer-q snapshot --history` |
 | Global regime details | `seer-q snapshot` |
 | Threads in a topic | `seer-q threads --topic ID` or `seer-q topic ID` (which includes threads) |
-
-**Rules:**
-1. Use `seer-q search` first whenever the user mentions a specific entity, asset, or theme
-2. ALWAYS include the `view_url` from `.data` or `.meta` as a link for the user
-3. Synthesize data into natural language — don't dump raw JSON
-4. For multi-entity questions (e.g., "analyze NVIDIA"), make multiple calls to build a complete picture
-5. When claims are asked about, note their `claim_mode`, `thread_role` (support/contradiction), and `event_date`
 
 ## Key Response Fields
 

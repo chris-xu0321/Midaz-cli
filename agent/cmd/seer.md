@@ -56,7 +56,6 @@ seer-q version                  # CLI version info
 seer-q doctor                   # Check API connectivity and config
 seer-q config list              # Show active configuration
 seer-q schema <command>         # Describe a command's contract
-seer-q agent install claude     # Install agent files to workspace
 ```
 
 All commands output JSON. Use `--format pretty` for indented output.

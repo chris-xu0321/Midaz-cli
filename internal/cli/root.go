@@ -24,8 +24,19 @@ func Execute() int {
 	}
 
 	rootCmd := &cobra.Command{
-		Use:     "seer-q",
-		Short:   "Seer market intelligence CLI",
+		Use:   "seer-q",
+		Short: "Seer market intelligence CLI",
+		Long: `Seer market intelligence CLI.
+
+INSTALL:
+    Step 1 — Install the CLI:
+        npm install -g @midaz/seer-cli
+
+    Step 2 — Install skills for Claude Code:
+        npx skills add SparkssL/seer-skills --all -y
+
+    Requires GitHub access to the private skills repository.
+    For other agent ecosystems, see docs/target-compatibility.md.`,
 		Version: build.Version,
 	}
 	rootCmd.SilenceErrors = true

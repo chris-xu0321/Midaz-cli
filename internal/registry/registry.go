@@ -150,7 +150,7 @@ var Commands = []CommandDef{
 	},
 	{
 		Name:        "agent",
-		Description: "Agent resource management",
+		Description: "Agent resource management [deprecated]",
 		NewCmd:      agent.NewCmdAgent,
 	},
 }
