@@ -16,8 +16,10 @@ Query CLI for the [Seer](https://github.com/SparkssL/Seer) market intelligence s
 ```bash
 npm config set @midaz:registry https://npm.pkg.github.com
 npm login --registry=https://npm.pkg.github.com  # GitHub PAT with read:packages scope
-npm install -g @midaz/seer-cli
+GITHUB_TOKEN=<your-pat> npm install -g @midaz/seer-cli
 ```
+
+`GITHUB_TOKEN` is needed to download the binary from GitHub Releases during install.
 
 ### From source
 

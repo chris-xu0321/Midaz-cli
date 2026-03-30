@@ -31,7 +31,7 @@ func Execute() int {
 INSTALL:
     npm config set @midaz:registry https://npm.pkg.github.com
     npm login --registry=https://npm.pkg.github.com
-    npm install -g @midaz/seer-cli
+    GITHUB_TOKEN=<pat> npm install -g @midaz/seer-cli
     npx skills add chris-xu0321/Midaz-cli --all -y
 
     Full setup: https://github.com/chris-xu0321/Midaz-cli#installation`,

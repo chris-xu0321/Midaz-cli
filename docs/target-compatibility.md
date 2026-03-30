@@ -18,8 +18,8 @@ Last updated: 2026-03-30
 npm config set @midaz:registry https://npm.pkg.github.com
 npm login --registry=https://npm.pkg.github.com  # use GitHub PAT with read:packages scope
 
-# Step 1: CLI
-npm install -g @midaz/seer-cli
+# Step 1: CLI (GITHUB_TOKEN needed to download binary from GitHub Releases)
+GITHUB_TOKEN=<your-pat> npm install -g @midaz/seer-cli
 
 # Step 2: Skills
 npx skills add chris-xu0321/Midaz-cli --all -y

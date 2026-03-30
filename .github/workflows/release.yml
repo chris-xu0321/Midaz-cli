@@ -57,6 +57,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Smoke test: verify postinstall can download binary from the just-created release
+      - name: Smoke test postinstall
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TMPDIR=$(mktemp -d)
+          cd "$TMPDIR"
+          npm init -y > /dev/null 2>&1
+          npm pack "$GITHUB_WORKSPACE" > /dev/null 2>&1
+          TARBALL=$(ls midaz-seer-cli-*.tgz)
+          npm install "$TARBALL"
+          ./node_modules/.bin/seer-q version
+          rm -rf "$TMPDIR"
+
       # Publish single npm package (postinstall downloads binary from GitHub Releases)
       - name: Publish npm package
         run: npm publish --access restricted
