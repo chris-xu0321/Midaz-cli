@@ -46,9 +46,6 @@ function download(url, destPath) {
       path: parsed.pathname + parsed.search,
       headers: { "User-Agent": "seer-q-installer" },
     };
-    if (process.env.GITHUB_TOKEN) {
-      options.headers["Authorization"] = `token ${process.env.GITHUB_TOKEN}`;
-    }
     const client = url.startsWith("https") ? https : require("http");
     client
       .get(options, (res) => {

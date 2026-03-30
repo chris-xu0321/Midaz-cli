@@ -23,13 +23,6 @@ npx skills add chris-xu0321/Midaz-cli --all -y
 
 Skills are discovered from `.claude/skills/*/SKILL.md`. YAML frontmatter provides metadata.
 
-**Fallback** (if skill installer does not support private repos):
-
-```bash
-git clone git@github.com:chris-xu0321/Midaz-cli.git /tmp/seer-skills
-cp -r /tmp/seer-skills/skills/* .claude/skills/
-```
-
 ### Verify
 
 ```bash

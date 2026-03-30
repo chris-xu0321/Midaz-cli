@@ -1,6 +1,6 @@
 {
   "name": "@midaz/cli",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "description": "Seer Market Intelligence CLI",
   "bin": {
     "seer-q": "scripts/run.js"
@@ -24,6 +24,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/chris-xu0321/Midaz-cli.git"
+  },
+  "homepage": "https://github.com/chris-xu0321/Midaz-cli#readme",
+  "bugs": {
+    "url": "https://github.com/chris-xu0321/Midaz-cli/issues"
   },
   "files": [
     "scripts/install.js",
