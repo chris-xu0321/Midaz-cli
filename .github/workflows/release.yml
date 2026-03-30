@@ -27,6 +27,15 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
           scope: '@midaz'
 
+      - name: Verify tag matches package.json
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION="$(node -p "require('./npm/package.json').version")"
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag version ($TAG_VERSION) does not match npm/package.json version ($PKG_VERSION). Update package.json before tagging."
+            exit 1
+          fi
+
       - name: Run tests
         run: make test
 

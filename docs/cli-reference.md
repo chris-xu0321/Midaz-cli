@@ -4,6 +4,24 @@ Last updated: 2026-03-30
 
 ## Installation
 
+### Prerequisites: GitHub Packages registry
+
+The CLI is published to GitHub Packages, not the public npm registry. Configure npm once:
+
+```bash
+npm config set @midaz:registry https://npm.pkg.github.com
+npm login --registry=https://npm.pkg.github.com
+```
+
+When prompted, use your GitHub username and a personal access token with `read:packages` scope as the password.
+
+Alternatively, add to your `~/.npmrc`:
+
+```
+@midaz:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
+```
+
 ### Step 1: Install CLI
 
 ```bash

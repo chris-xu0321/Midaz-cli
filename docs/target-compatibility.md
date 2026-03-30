@@ -14,6 +14,10 @@ Last updated: 2026-03-30
 ### Install
 
 ```bash
+# Prerequisites: configure npm for GitHub Packages (one-time)
+npm config set @midaz:registry https://npm.pkg.github.com
+npm login --registry=https://npm.pkg.github.com  # use GitHub PAT with read:packages scope
+
 # Step 1: CLI
 npm install -g @midaz/seer-cli
 

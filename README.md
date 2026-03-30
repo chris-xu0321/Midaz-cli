@@ -4,11 +4,15 @@ Query CLI for the [Seer](https://github.com/SparkssL/Seer) market intelligence s
 
 ## Installation
 
+Packages are hosted on GitHub Packages. Configure npm before installing:
+
 ```bash
+npm config set @midaz:registry https://npm.pkg.github.com
+npm login --registry=https://npm.pkg.github.com  # use GitHub PAT with read:packages scope
 npm install -g @midaz/seer-cli
 ```
 
-Requires Node.js >= 16. Supported platforms: Windows, macOS, Linux (x64, arm64).
+Requires Node.js >= 16. Supported platforms: Windows, macOS, Linux (x64, arm64). See [docs/cli-reference.md](docs/cli-reference.md) for full setup details.
 
 ## Quick Start
 
