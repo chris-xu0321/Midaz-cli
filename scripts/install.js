@@ -40,9 +40,18 @@ fs.mkdirSync(binDir, { recursive: true });
 
 function download(url, destPath) {
   return new Promise((resolve, reject) => {
+    const parsed = new URL(url);
+    const options = {
+      hostname: parsed.hostname,
+      path: parsed.pathname + parsed.search,
+      headers: { "User-Agent": "seer-q-installer" },
+    };
+    if (process.env.GITHUB_TOKEN) {
+      options.headers["Authorization"] = `token ${process.env.GITHUB_TOKEN}`;
+    }
     const client = url.startsWith("https") ? https : require("http");
     client
-      .get(url, (res) => {
+      .get(options, (res) => {
         if (res.statusCode === 302 || res.statusCode === 301) {
           return download(res.headers.location, destPath).then(
             resolve,

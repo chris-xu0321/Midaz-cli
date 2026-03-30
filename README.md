@@ -5,7 +5,7 @@ Query CLI for the [Seer](https://github.com/SparkssL/Seer) market intelligence s
 ## Why seer-q?
 
 - **Structured market intelligence** — topics, threads, claims, snapshots, global regime verdicts
-- **Agent-native** — 3 skills for Claude Code and 40+ other AI agents via `npx skills add`
+- **Agent-native** — 3 skills for Claude Code and other AI agents via `npx skills add`
 - **JSON envelope output** — machine-readable with `view_url` links, exit codes, error hints
 - **Single binary** — Go, cross-platform, zero runtime dependencies
 
@@ -46,7 +46,7 @@ All commands return JSON envelopes. Use `--format pretty` for indented output or
 npx skills add chris-xu0321/Midaz-cli --all -y
 ```
 
-Skills provide structured guidance for querying the Seer API. Installed to 40+ agent platforms including Claude Code, Cursor, Codex, and more.
+Skills provide structured guidance for querying the Seer API. See [target compatibility](docs/target-compatibility.md) for supported platforms.
 
 ## Skills
 

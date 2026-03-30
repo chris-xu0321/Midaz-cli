@@ -15,10 +15,10 @@ Last updated: 2026-03-30
 - [ ] `bash test/skills-dist-test.sh` — artifact is complete
   - Skills present, frontmatter valid, no leaked files
 
-### npm packages (when releasing CLI)
-- [ ] `bash npm/verify.sh` — all 7 packages valid
-  - Requires: goreleaser build completed
-- [ ] `bash test/npm-install-test.sh` — install + bin shim works
+### npm package (when releasing CLI)
+- [ ] `npm pack --dry-run` — package contains scripts/install.js, scripts/run.js, CHANGELOG.md
+- [ ] GitHub Release has binary archives for all 6 platform targets
+- [ ] `npm install -g @midaz/seer-cli` downloads and runs binary (requires GITHUB_TOKEN for private repo)
 
 ## Manual (per release)
 
@@ -28,9 +28,8 @@ Last updated: 2026-03-30
 - [ ] No Bash or Python dependency for end users
 
 ### Skill independence
-- [ ] Skills install without requiring CLI source repo access
-- [ ] Skills work when installed from the private skills repo
-- [ ] New skills can be added to the skills repo without CLI rebuild
+- [ ] `npx skills add chris-xu0321/Midaz-cli --all -y` installs all skills
+- [ ] Skills work when installed via skill installer
 
 ### Cross-platform (when releasing CLI)
 - [ ] Windows: `seer-q version` returns correct OS/arch

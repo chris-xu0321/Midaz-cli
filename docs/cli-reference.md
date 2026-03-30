@@ -43,10 +43,8 @@ For other agent ecosystems, see `docs/target-compatibility.md`.
 ### Release (maintainers)
 
 ```bash
-# CLI release
-cd npm
-bash publish.sh              # build + package + publish all 7 npm packages
-bash publish.sh --dry-run    # test without publishing
+bash npm/publish.sh              # goreleaser + npm publish (single package)
+bash npm/publish.sh --dry-run    # test without publishing
 ```
 
 Skills are installed directly from this repo via `npx skills add chris-xu0321/Midaz-cli --all -y`. No separate skills publish step required.

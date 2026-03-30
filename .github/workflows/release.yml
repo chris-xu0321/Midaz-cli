@@ -39,6 +39,15 @@ jobs:
       - name: Run tests
         run: make test
 
+      - name: Verify npm package contents
+        run: |
+          PACK=$(npm pack --dry-run 2>&1)
+          echo "$PACK"
+          echo "$PACK" | grep "scripts/install.js" || { echo "::error::install.js missing from package"; exit 1; }
+          echo "$PACK" | grep "scripts/run.js" || { echo "::error::run.js missing from package"; exit 1; }
+          node -c scripts/install.js
+          node -c scripts/run.js
+
       # Build binaries + create GitHub release (with binary downloads)
       - name: Build and release
         uses: goreleaser/goreleaser-action@v6
