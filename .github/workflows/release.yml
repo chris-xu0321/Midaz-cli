@@ -70,4 +70,6 @@ jobs:
 
       # Publish to public npm registry (uses npm Trusted Publishing via OIDC)
       - name: Publish npm package
-        run: npm publish --provenance --access public
+        run: |
+          unset NODE_AUTH_TOKEN
+          npm publish --provenance --access public
