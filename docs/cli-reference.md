@@ -4,31 +4,11 @@ Last updated: 2026-03-30
 
 ## Installation
 
-### Prerequisites: GitHub Packages registry
-
-The CLI is published to GitHub Packages, not the public npm registry. Configure npm once:
-
-```bash
-npm config set @midaz:registry https://npm.pkg.github.com
-npm login --registry=https://npm.pkg.github.com
-```
-
-When prompted, use your GitHub username and a personal access token with `read:packages` scope as the password.
-
-Alternatively, add to your `~/.npmrc`:
-
-```
-@midaz:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
-```
-
 ### Step 1: Install CLI
 
 ```bash
-GITHUB_TOKEN=<your-pat> npm install -g @midaz/cli
+npm install -g @midaz/cli
 ```
-
-`GITHUB_TOKEN` is needed to download the binary from GitHub Releases during install.
 
 Requires Node.js >= 16. Supported platforms: Windows, macOS, Linux (x64, arm64).
 
@@ -37,8 +17,6 @@ Requires Node.js >= 16. Supported platforms: Windows, macOS, Linux (x64, arm64).
 ```bash
 npx skills add chris-xu0321/Midaz-cli --all -y
 ```
-
-Requires GitHub access to the private skills repository.
 
 For other agent ecosystems, see `docs/target-compatibility.md`.
 

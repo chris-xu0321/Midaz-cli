@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  packages: write
 
 jobs:
   release:
@@ -24,8 +23,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@midaz'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Verify tag matches package.json
         run: |
@@ -59,20 +57,18 @@ jobs:
 
       # Smoke test: verify postinstall can download binary from the just-created release
       - name: Smoke test postinstall
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TMPDIR=$(mktemp -d)
           cd "$TMPDIR"
           npm init -y > /dev/null 2>&1
           npm pack "$GITHUB_WORKSPACE" > /dev/null 2>&1
-          TARBALL=$(ls midaz-seer-cli-*.tgz)
+          TARBALL=$(ls midaz-cli-*.tgz)
           npm install "$TARBALL"
           ./node_modules/.bin/seer-q version
           rm -rf "$TMPDIR"
 
-      # Publish single npm package (postinstall downloads binary from GitHub Releases)
+      # Publish to public npm registry
       - name: Publish npm package
-        run: npm publish --access restricted
+        run: npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -18,7 +18,7 @@ Last updated: 2026-03-30
 ### npm package (when releasing CLI)
 - [ ] `npm pack --dry-run` — package contains scripts/install.js, scripts/run.js, CHANGELOG.md
 - [ ] GitHub Release has binary archives for all 6 platform targets
-- [ ] `npm install -g @midaz/cli` downloads and runs binary (requires GITHUB_TOKEN for private repo)
+- [ ] `npm install -g @midaz/cli` downloads and runs binary successfully
 
 ## Manual (per release)
 

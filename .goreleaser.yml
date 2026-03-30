@@ -18,6 +18,10 @@ builds:
 
 archives:
   - name_template: "seer-q-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    files:
+      - README.md
+      - LICENSE
+      - CHANGELOG.md
     format_overrides:
       - goos: windows
         format: zip

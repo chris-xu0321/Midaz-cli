@@ -14,18 +14,12 @@ Last updated: 2026-03-30
 ### Install
 
 ```bash
-# Prerequisites: configure npm for GitHub Packages (one-time)
-npm config set @midaz:registry https://npm.pkg.github.com
-npm login --registry=https://npm.pkg.github.com  # use GitHub PAT with read:packages scope
-
-# Step 1: CLI (GITHUB_TOKEN needed to download binary from GitHub Releases)
-GITHUB_TOKEN=<your-pat> npm install -g @midaz/cli
+# Step 1: CLI
+npm install -g @midaz/cli
 
 # Step 2: Skills
 npx skills add chris-xu0321/Midaz-cli --all -y
 ```
-
-Requires GitHub access to the private skills repository.
 
 Skills are discovered from `.claude/skills/*/SKILL.md`. YAML frontmatter provides metadata.
 

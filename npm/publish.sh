@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Publish @midaz/cli to npm registry.
+# Publish @midaz/cli to the public npm registry.
 # Binaries must be available on GitHub Releases (via goreleaser).
 # The npm package uses a postinstall hook to download the binary.
 
@@ -16,18 +16,8 @@ CLI_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 DRY_RUN="${1:-}"  # pass "--dry-run" for testing
 
 VERSION="$(node -p "require('$CLI_DIR/package.json').version")"
-REGISTRY="$(node -p "require('$CLI_DIR/package.json').publishConfig.registry")"
 
 echo "=== seer-q npm release v${VERSION} ==="
-echo "  registry: ${REGISTRY}"
-
-# Guard: refuse to publish to public npm
-if [[ "$REGISTRY" == "https://registry.npmjs.org" || -z "$REGISTRY" ]]; then
-  echo "ERROR: publishConfig.registry must point to a private registry"
-  echo "  Current: ${REGISTRY:-<empty>}"
-  echo "  Set it in package.json -> publishConfig.registry"
-  exit 1
-fi
 
 # Step 1: Cross-compile (goreleaser creates GitHub Release with binaries)
 echo ""
@@ -39,7 +29,7 @@ GORELEASER_CURRENT_TAG="v${VERSION}" goreleaser release --clean
 echo ""
 echo "=== Publishing @midaz/cli ==="
 cd "$CLI_DIR"
-npm publish --access restricted $DRY_RUN
+npm publish --access public $DRY_RUN
 
 echo ""
 echo "=== Done: @midaz/cli@${VERSION} ==="

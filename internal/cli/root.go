@@ -29,9 +29,7 @@ func Execute() int {
 		Long: `Seer market intelligence CLI.
 
 INSTALL:
-    npm config set @midaz:registry https://npm.pkg.github.com
-    npm login --registry=https://npm.pkg.github.com
-    GITHUB_TOKEN=<pat> npm install -g @midaz/cli
+    npm install -g @midaz/cli
     npx skills add chris-xu0321/Midaz-cli --all -y
 
     Full setup: https://github.com/chris-xu0321/Midaz-cli#installation`,
