@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@midaz'
+
+      - name: Run tests
+        run: make test
+
+      # Build binaries + create GitHub release (with binary downloads)
+      - name: Build and release
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Package binaries into npm platform packages
+      - name: Package npm
+        run: bash npm/build.sh
+
+      - name: Verify npm packages
+        run: bash npm/verify.sh
+
+      # Publish npm packages (platform packages first, then meta)
+      - name: Publish npm packages
+        run: |
+          for pkg_dir in dist/npm/@midaz/seer-cli-*/; do
+            cd "$pkg_dir" && npm publish --access restricted && cd -
+          done
+          cd dist/npm/meta && npm publish --access restricted
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

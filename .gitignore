@@ -1,0 +1,31 @@
+# Go build output (Makefile produces `seer-q` on Unix, `seer-q.exe` on Windows)
+seer-q
+seer-q.exe
+bin/
+dist/
+skills-dist/
+
+# npm build artifacts
+npm/.npm-cache/
+npm/bin/
+
+# Node
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
