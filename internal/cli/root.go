@@ -30,6 +30,7 @@ func Execute() int {
 
 INSTALL:
     npm config set @midaz:registry https://npm.pkg.github.com
+    npm login --registry=https://npm.pkg.github.com
     npm install -g @midaz/seer-cli
     npx skills add SparkssL/seer-skills --all -y
 

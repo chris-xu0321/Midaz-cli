@@ -2,7 +2,7 @@
 
 Private skill source for the Seer market intelligence CLI.
 
-Requires the `seer-q` CLI installed first (`npm install -g @midaz/seer-cli`).
+Requires the `seer-q` CLI installed first. See [installation](https://github.com/chris-xu0321/Midaz-cli#installation).
 
 ## Available Skills
 
