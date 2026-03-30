@@ -47,10 +47,9 @@ For other agent ecosystems, see `docs/target-compatibility.md`.
 cd npm
 bash publish.sh              # build + package + publish all 7 npm packages
 bash publish.sh --dry-run    # test without publishing
-
-# Skills release
-bash publish-skills.sh /path/to/seer-skills 0.2.0
 ```
+
+Skills are installed directly from this repo via `npx skills add chris-xu0321/Midaz-cli --all -y`. No separate skills publish step required.
 
 ---
 
