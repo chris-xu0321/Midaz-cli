@@ -6,8 +6,10 @@ Last updated: 2026-03-30
 
 | Target | Status | Install Method |
 |--------|--------|----------------|
-| Claude Code | Supported | `npx skills add chris-xu0321/Midaz-cli --all -y` |
-| Codex | Planned | Blocked on Codex environment availability for testing |
+| Claude Code | Supported | `npx skills add chris-xu0321/Midaz-cli -y -g` |
+| Codex | Supported | `npx skills add chris-xu0321/Midaz-cli -y -g` |
+
+Midaz keeps skills in the GitHub repo under `skills/`, and agents install them with `npx skills add chris-xu0321/Midaz-cli -y -g`.
 
 ## Claude Code
 
@@ -18,10 +20,8 @@ Last updated: 2026-03-30
 npm install -g @midaz/cli
 
 # Step 2: Skills
-npx skills add chris-xu0321/Midaz-cli --all -y
+npx skills add chris-xu0321/Midaz-cli -y -g
 ```
-
-Skills are discovered from `.claude/skills/*/SKILL.md`. YAML frontmatter provides metadata.
 
 ### Verify
 
@@ -30,20 +30,28 @@ seer-q doctor
 seer-q search "test"
 ```
 
-## Codex (Planned)
+## Codex
 
-The Seer skill tree (`skills/*/SKILL.md`) uses standard YAML frontmatter and markdown content. Codex compatibility is planned but blocked on:
+### Install
 
-- No Codex environment available for testing
-- Codex skill directory convention not yet verified
-- `seer-q` binary availability on Codex PATH not tested
+```bash
+# Step 1: CLI
+npm install -g @midaz/cli
 
-The skill format is architecturally compatible. End-to-end testing is required before marking as supported.
+# Step 2: Skills
+npx skills add chris-xu0321/Midaz-cli -y -g
+```
+
+### Verify
+
+```bash
+seer-q version
+seer-q doctor
+```
 
 ## Adding a New Target
 
-1. Verify `seer-q` runs on the target's supported platforms
-2. Determine the target's skill directory convention
-3. Install skills from the Seer skill source per that convention
-4. Verify the target discovers and uses the skill content
-5. Update this matrix with tested results
+1. Verify `seer-q` runs on the target's supported platforms.
+2. Confirm the target works with `npx skills add chris-xu0321/Midaz-cli -y -g`.
+3. Verify the target discovers and uses the skill content.
+4. Update this matrix with tested results.

@@ -30,7 +30,7 @@ func Execute() int {
 
 INSTALL:
     npm install -g @midaz/cli
-    npx skills add chris-xu0321/Midaz-cli --all -y
+    npx skills add chris-xu0321/Midaz-cli -y -g
 
     Full setup: https://github.com/chris-xu0321/Midaz-cli#installation`,
 		Version: build.Version,

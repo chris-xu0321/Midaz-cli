@@ -5,18 +5,18 @@ Last updated: 2026-03-30
 ## Automated (must all pass)
 
 ### Go tests
-- [ ] `go test ./...` — all 35+ tests pass
+- [ ] `go test ./...` - all 35+ tests pass
 
 ### Smoke test
-- [ ] `bash test/smoke-test.sh` — all commands return ok:true
-  - Requires: API running at localhost:4000
+- [ ] `bash test/smoke-test.sh` - all commands return `ok:true`
+- [ ] API running at `localhost:4000`
 
 ### Skills distribution
-- [ ] `bash test/skills-dist-test.sh` — artifact is complete
-  - Skills present, frontmatter valid, no leaked files
+- [ ] `bash test/skills-dist-test.sh` - artifact is complete
+- [ ] Skills present, frontmatter valid, no leaked files
 
 ### npm package (when releasing CLI)
-- [ ] `npm pack --dry-run` — package contains scripts/install.js, scripts/run.js, CHANGELOG.md
+- [ ] `npm pack --dry-run` - package contains `scripts/install.js`, `scripts/run.js`, and `CHANGELOG.md`
 - [ ] GitHub Release has binary archives for all 6 platform targets
 - [ ] `npm install -g @midaz/cli` downloads and runs binary successfully
 
@@ -28,8 +28,8 @@ Last updated: 2026-03-30
 - [ ] No Bash or Python dependency for end users
 
 ### Skill independence
-- [ ] `npx skills add chris-xu0321/Midaz-cli --all -y` installs all skills
-- [ ] Skills work when installed via skill installer
+- [ ] `npx skills add chris-xu0321/Midaz-cli -y -g` installs all skills
+- [ ] Skills work when installed via `npx skills add chris-xu0321/Midaz-cli -y -g`
 
 ### Cross-platform (when releasing CLI)
 - [ ] Windows: `seer-q version` returns correct OS/arch
@@ -37,6 +37,7 @@ Last updated: 2026-03-30
 - [ ] Linux: verify binary runs (if available)
 
 ### Agent compatibility
-- [ ] Claude Code: skills discovered from `.claude/skills/*/SKILL.md`
+- [ ] Claude Code: skills installed via `npx skills add chris-xu0321/Midaz-cli -y -g`
 - [ ] Claude Code: `seer-q search` callable from agent context
-- [ ] Codex: PASS or DEFER (if deferred: document rationale in release notes, track in target-compatibility.md)
+- [ ] Codex: skills installed via `npx skills add chris-xu0321/Midaz-cli -y -g`
+- [ ] Codex: `seer-q search` callable from agent context
