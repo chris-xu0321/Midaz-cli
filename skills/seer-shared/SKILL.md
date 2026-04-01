@@ -26,7 +26,7 @@ All commands return JSON:
 - **Success** (stdout): `{ "ok": true, "data": <payload>, "meta": { "view_url": "...", "count": N } }`
 - **Errors** (stderr): `{ "ok": false, "error": { "code": "...", "message": "..." } }`
 
-Access the payload via `.data`. The `meta` field contains `view_url` and count hints.
+Access the payload via `.data`. The page-level `view_url` is always in `.meta.view_url` — read it from `.meta`, not `.data`. Per-entity URLs (e.g., each topic or thread) appear as `view_url` fields on objects inside `.data`.
 For raw API output (no envelope), use `--raw`.
 
 ### Global Flags
@@ -54,7 +54,7 @@ seer-q health                   # API health check
 ## Common Rules
 
 1. Use `seer-q search` first whenever the user mentions a specific entity, asset, or theme
-2. ALWAYS include the `view_url` from `.data` or `.meta` as a link for the user
+2. ALWAYS include `view_url` links. The page-level URL is in `.meta.view_url`. Per-entity URLs (topics, threads) are on each object inside `.data`. Share every view_url you find — never skip them.
 3. Synthesize data into natural language — don't dump raw JSON
 4. For multi-entity questions, make multiple calls to build a complete picture
 5. When claims are asked about, note their `claim_mode`, `thread_role` (support/contradiction), and `event_date`

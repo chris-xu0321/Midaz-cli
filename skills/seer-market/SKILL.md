@@ -114,7 +114,8 @@ Map the user's question to the right command sequence:
 User: "how's the market"
 -> `seer-q market`
 -> Summarize regime_summary, verdict, top topics by thread count
--> Include market view_url
+-> Read `.meta.view_url` and share it as a clickable link
+-> Read each topic's `.data.topics[].view_url` and share those too
 
 User: "latest 10 events"
 -> `seer-q claims`

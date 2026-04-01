@@ -1,6 +1,6 @@
 {
   "name": "@midaz/cli",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Seer Market Intelligence CLI",
   "bin": {
     "seer-q": "scripts/run.js"
