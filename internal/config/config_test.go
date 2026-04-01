@@ -8,8 +8,11 @@ import (
 
 func TestDefaults(t *testing.T) {
 	cfg := Defaults()
-	if cfg.APIURL != "http://localhost:4000" {
+	if cfg.APIURL != "https://www.midaz.xyz" {
 		t.Errorf("expected default APIURL, got %q", cfg.APIURL)
+	}
+	if cfg.FrontendURL != "https://www.midaz.xyz" {
+		t.Errorf("expected default FrontendURL, got %q", cfg.FrontendURL)
 	}
 	if cfg.Format != "json" {
 		t.Errorf("expected default format 'json', got %q", cfg.Format)
@@ -22,7 +25,7 @@ func TestLoadFromFile_Missing(t *testing.T) {
 		t.Fatal(err)
 	}
 	// Should return defaults when file is missing
-	if cfg.APIURL != "http://localhost:4000" {
+	if cfg.APIURL != "https://www.midaz.xyz" {
 		t.Errorf("expected default APIURL for missing file, got %q", cfg.APIURL)
 	}
 }

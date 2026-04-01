@@ -2,7 +2,7 @@
   "ok": false,
   "error": {
     "code": "network",
-    "message": "Cannot connect to Seer API at http://localhost:4000",
+    "message": "Cannot connect to Seer API at https://www.midaz.xyz",
     "hint": "check your API URL with: seer-q config get api_url"
   }
 }

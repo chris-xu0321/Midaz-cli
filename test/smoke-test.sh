@@ -5,7 +5,7 @@
 set -euo pipefail
 
 BIN="${1:-seer-q}"
-API_URL="${2:-http://localhost:4000}"
+API_URL="${2:-https://www.midaz.xyz}"
 
 # Hermetic environment: temp config with valid empty JSON, explicit API URL
 export SEER_CONFIG_PATH="$(mktemp)"

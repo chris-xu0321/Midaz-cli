@@ -34,12 +34,12 @@
         "version": 2,
         "last_synthesized_at": "2026-03-28T14:00:00Z",
         "thread_count": 8,
-        "view_url": "http://localhost:3000/topics/a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        "view_url": "https://www.midaz.xyz/topics/a1b2c3d4-e5f6-7890-abcd-ef1234567890"
       }
     ]
   },
   "meta": {
-    "view_url": "http://localhost:3000/market",
+    "view_url": "https://www.midaz.xyz/market",
     "topic_count": 1
   }
 }

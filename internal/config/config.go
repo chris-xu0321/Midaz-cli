@@ -12,8 +12,8 @@
 //
 // Env var mapping:
 //
-//	SEER_API_URL       → api_url      (default: http://localhost:4000)
-//	SEER_FRONTEND_URL  → frontend_url (default: empty)
+//	SEER_API_URL       → api_url      (default: https://www.midaz.xyz)
+//	SEER_FRONTEND_URL  → frontend_url (default: https://www.midaz.xyz)
 //	SEER_FORMAT        → format       (default: json)
 package config
 
@@ -38,8 +38,9 @@ var ValidKeys = []string{"api_url", "frontend_url", "format"}
 // Defaults returns a Config with default values.
 func Defaults() *Config {
 	return &Config{
-		APIURL: "http://localhost:4000",
-		Format: "json",
+		APIURL:      "https://www.midaz.xyz",
+		FrontendURL: "https://www.midaz.xyz",
+		Format:      "json",
 	}
 }
 

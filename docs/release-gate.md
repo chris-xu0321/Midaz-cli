@@ -9,7 +9,7 @@ Last updated: 2026-03-30
 
 ### Smoke test
 - [ ] `bash test/smoke-test.sh` - all commands return `ok:true`
-- [ ] API running at `localhost:4000`
+- [ ] API reachable at `https://www.midaz.xyz` (production) or `localhost:4000` (local)
 
 ### Skills distribution
 - [ ] `bash test/skills-dist-test.sh` - artifact is complete

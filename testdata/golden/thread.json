@@ -49,8 +49,8 @@
     "contradicting_count": 0
   },
   "meta": {
-    "view_url": "http://localhost:3000/threads/b2c3d4e5-f6a7-8901-bcde-f12345678901",
-    "topic_url": "http://localhost:3000/topics/a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "view_url": "https://www.midaz.xyz/threads/b2c3d4e5-f6a7-8901-bcde-f12345678901",
+    "topic_url": "https://www.midaz.xyz/topics/a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "claim_count": 1,
     "supporting_count": 1,
     "contradicting_count": 0,
