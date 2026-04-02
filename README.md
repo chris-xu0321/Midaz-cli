@@ -5,7 +5,7 @@ Query CLI for the [Seer](https://github.com/SparkssL/Seer) market intelligence s
 ## Why seer-q?
 
 - **Structured market intelligence** - topics, threads, claims, snapshots, and global regime verdicts
-- **Agent-native** - 3 skills installed directly from this repo via `npx skills add SparkssL/Midaz-cli -y -g`
+- **Agent-native** - 3 skills bundled in the binary, installed via `seer-q setup`
 - **JSON envelope output** - machine-readable responses with `view_url` links, exit codes, and error hints
 - **Single binary** - Go, cross-platform, zero runtime dependencies
 

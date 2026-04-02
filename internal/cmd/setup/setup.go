@@ -161,11 +161,33 @@ func resolveTargets(targetName string) []target {
 
 func detectTargets(known []target) []target {
 	var detected []target
+	seen := map[string]bool{}
+
+	// Phase 1: runtime env signals
+	if os.Getenv("CLAUDECODE") == "1" {
+		for _, t := range known {
+			if t.Name == "claude" {
+				detected = append(detected, t)
+				seen["claude"] = true
+			}
+		}
+	}
+	if os.Getenv("AGENT") == "codex" {
+		for _, t := range known {
+			if t.Name == "codex" {
+				detected = append(detected, t)
+				seen["codex"] = true
+			}
+		}
+	}
+
+	// Phase 2: existing directories (skip already-detected)
 	for _, t := range known {
-		if dirExists(t.RootDir) {
+		if !seen[t.Name] && dirExists(t.RootDir) {
 			detected = append(detected, t)
 		}
 	}
+
 	return detected
 }
 

@@ -38,7 +38,7 @@ bash npm/publish.sh              # goreleaser + npm publish (single package)
 bash npm/publish.sh --dry-run    # test without publishing
 ```
 
-Skills are installed directly from this repo via `npx skills add SparkssL/Midaz-cli -y -g`. No separate skills publish step is required.
+Skills are embedded in the binary. The `npx skills add` method is retained for backwards compatibility. No separate skills publish step is required.
 
 ---
 
