@@ -64,7 +64,7 @@ seer-q health                   # API health check
 ## Common Rules
 
 1. Use `seer-q search` first whenever the user mentions a specific entity, asset, or theme
-2. **Always include `view_url` links and mention what the user will see there.** The page-level URL is in `.meta.view_url`. Per-entity URLs (topics, threads) are on each object inside `.data`. Don't just paste the URL — briefly note that it opens an interactive map where they can click around and explore visually (e.g., "You can explore this topic and its threads on the interactive map → [url]").
+2. **Always include `view_url` as clickable markdown links.** The page-level URL is in `.meta.view_url`. Per-entity URLs (topics, threads) are on each object inside `.data`. Format as `[descriptive text](url)` — never paste raw URLs. Example: `[Explore this topic on the interactive map](https://www.midaz.xyz/market?topic=abc123)`.
 3. Synthesize data into natural language — don't dump raw JSON
 4. For multi-entity questions, make multiple calls to build a complete picture
 5. When claims are asked about, note their `claim_mode`, `thread_role` (support/contradiction), and `event_date`
