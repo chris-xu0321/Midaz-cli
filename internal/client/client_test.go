@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/chris-xu0321/Midaz-cli/internal/output"
+	"github.com/SparkssL/Midaz-cli/internal/output"
 )
 
 func TestGet_Success(t *testing.T) {

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chris-xu0321/Midaz-cli/internal/registry"
+	"github.com/SparkssL/Midaz-cli/internal/registry"
 )
 
 // allSkillContent returns the combined content of all SKILL.md files

@@ -6,7 +6,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/chris-xu0321/Midaz-cli/internal/output"
+	"github.com/SparkssL/Midaz-cli/internal/output"
 )
 
 func TestHandleRootError_ExitError(t *testing.T) {

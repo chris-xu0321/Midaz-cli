@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/chris-xu0321/Midaz-cli/internal/cmdutil"
-	cfgpkg "github.com/chris-xu0321/Midaz-cli/internal/config"
-	"github.com/chris-xu0321/Midaz-cli/internal/output"
+	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
+	cfgpkg "github.com/SparkssL/Midaz-cli/internal/config"
+	"github.com/SparkssL/Midaz-cli/internal/output"
 	"github.com/spf13/cobra"
 )
 

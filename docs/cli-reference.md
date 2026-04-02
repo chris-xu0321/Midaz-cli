@@ -17,10 +17,10 @@ Requires Node.js >= 16. Supported platforms: Windows, macOS, Linux (x64, arm64).
 Install all skills:
 
 ```bash
-npx skills add chris-xu0321/Midaz-cli -y -g
+npx skills add SparkssL/Midaz-cli -y -g
 ```
 
-Skills are installed directly from this repo via `npx skills add chris-xu0321/Midaz-cli -y -g`.
+Skills are installed directly from this repo via `npx skills add SparkssL/Midaz-cli -y -g`.
 
 ### Release (maintainers)
 
@@ -29,7 +29,7 @@ bash npm/publish.sh              # goreleaser + npm publish (single package)
 bash npm/publish.sh --dry-run    # test without publishing
 ```
 
-Skills are installed directly from this repo via `npx skills add chris-xu0321/Midaz-cli -y -g`. No separate skills publish step is required.
+Skills are installed directly from this repo via `npx skills add SparkssL/Midaz-cli -y -g`. No separate skills publish step is required.
 
 ---
 

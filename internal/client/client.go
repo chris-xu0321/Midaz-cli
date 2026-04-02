@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chris-xu0321/Midaz-cli/internal/output"
+	"github.com/SparkssL/Midaz-cli/internal/output"
 )
 
 // Response holds a parsed HTTP response.

@@ -1,5 +1,5 @@
 BINARY      := seer-q
-MODULE      := github.com/chris-xu0321/Midaz-cli
+MODULE      := github.com/SparkssL/Midaz-cli
 VERSION     := $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 NPM_VERSION := $(shell node -p "require('./package.json').version" 2>/dev/null || echo dev)
 LDFLAGS     := -s -w -X $(MODULE)/internal/build.Version=$(VERSION)

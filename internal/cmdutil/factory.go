@@ -6,8 +6,8 @@ import (
 	"context"
 	"io"
 
-	"github.com/chris-xu0321/Midaz-cli/internal/client"
-	"github.com/chris-xu0321/Midaz-cli/internal/config"
+	"github.com/SparkssL/Midaz-cli/internal/client"
+	"github.com/SparkssL/Midaz-cli/internal/config"
 	"github.com/spf13/cobra"
 )
 

@@ -1,4 +1,4 @@
-module github.com/chris-xu0321/Midaz-cli
+module github.com/SparkssL/Midaz-cli
 
 go 1.26
 

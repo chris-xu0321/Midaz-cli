@@ -5,7 +5,7 @@ Query CLI for the [Seer](https://github.com/SparkssL/Seer) market intelligence s
 ## Why seer-q?
 
 - **Structured market intelligence** - topics, threads, claims, snapshots, and global regime verdicts
-- **Agent-native** - 3 skills installed directly from this repo via `npx skills add chris-xu0321/Midaz-cli -y -g`
+- **Agent-native** - 3 skills installed directly from this repo via `npx skills add SparkssL/Midaz-cli -y -g`
 - **JSON envelope output** - machine-readable responses with `view_url` links, exit codes, and error hints
 - **Single binary** - Go, cross-platform, zero runtime dependencies
 
@@ -20,7 +20,7 @@ npm install -g @midaz/cli
 ### From source
 
 ```bash
-git clone https://github.com/chris-xu0321/Midaz-cli.git
+git clone https://github.com/SparkssL/Midaz-cli.git
 cd Midaz-cli
 make install
 ```
@@ -45,7 +45,7 @@ Install all skills:
 
 ```bash
 npm install -g @midaz/cli
-npx skills add chris-xu0321/Midaz-cli -y -g
+npx skills add SparkssL/Midaz-cli -y -g
 ```
 
 Skills provide structured guidance for querying the Seer API. See [target compatibility](docs/target-compatibility.md) for platform-specific notes.

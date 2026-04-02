@@ -5,7 +5,7 @@ const { execSync } = require("child_process");
 const os = require("os");
 
 const VERSION = require("../package.json").version;
-const REPO = "chris-xu0321/Midaz-cli";
+const REPO = "SparkssL/Midaz-cli";
 const NAME = "seer-q";
 
 const PLATFORM_MAP = {

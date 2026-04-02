@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/chris-xu0321/Midaz-cli/internal/cmdutil"
-	"github.com/chris-xu0321/Midaz-cli/internal/output"
+	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
+	"github.com/SparkssL/Midaz-cli/internal/output"
 	"github.com/spf13/cobra"
 )
 

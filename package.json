@@ -23,11 +23,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chris-xu0321/Midaz-cli.git"
+    "url": "https://github.com/SparkssL/Midaz-cli.git"
   },
-  "homepage": "https://github.com/chris-xu0321/Midaz-cli#readme",
+  "homepage": "https://github.com/SparkssL/Midaz-cli#readme",
   "bugs": {
-    "url": "https://github.com/chris-xu0321/Midaz-cli/issues"
+    "url": "https://github.com/SparkssL/Midaz-cli/issues"
   },
   "files": [
     "scripts/install.js",

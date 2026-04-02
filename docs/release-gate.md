@@ -28,8 +28,8 @@ Last updated: 2026-03-30
 - [ ] No Bash or Python dependency for end users
 
 ### Skill independence
-- [ ] `npx skills add chris-xu0321/Midaz-cli -y -g` installs all skills
-- [ ] Skills work when installed via `npx skills add chris-xu0321/Midaz-cli -y -g`
+- [ ] `npx skills add SparkssL/Midaz-cli -y -g` installs all skills
+- [ ] Skills work when installed via `npx skills add SparkssL/Midaz-cli -y -g`
 
 ### Cross-platform (when releasing CLI)
 - [ ] Windows: `seer-q version` returns correct OS/arch
@@ -37,7 +37,7 @@ Last updated: 2026-03-30
 - [ ] Linux: verify binary runs (if available)
 
 ### Agent compatibility
-- [ ] Claude Code: skills installed via `npx skills add chris-xu0321/Midaz-cli -y -g`
+- [ ] Claude Code: skills installed via `npx skills add SparkssL/Midaz-cli -y -g`
 - [ ] Claude Code: `seer-q search` callable from agent context
-- [ ] Codex: skills installed via `npx skills add chris-xu0321/Midaz-cli -y -g`
+- [ ] Codex: skills installed via `npx skills add SparkssL/Midaz-cli -y -g`
 - [ ] Codex: `seer-q search` callable from agent context

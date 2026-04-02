@@ -6,13 +6,13 @@ import (
 	"io"
 	"os"
 
-	"github.com/chris-xu0321/Midaz-cli/internal/build"
-	"github.com/chris-xu0321/Midaz-cli/internal/client"
-	"github.com/chris-xu0321/Midaz-cli/internal/cmd/schema"
-	"github.com/chris-xu0321/Midaz-cli/internal/cmdutil"
-	"github.com/chris-xu0321/Midaz-cli/internal/config"
-	"github.com/chris-xu0321/Midaz-cli/internal/output"
-	"github.com/chris-xu0321/Midaz-cli/internal/registry"
+	"github.com/SparkssL/Midaz-cli/internal/build"
+	"github.com/SparkssL/Midaz-cli/internal/client"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/schema"
+	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
+	"github.com/SparkssL/Midaz-cli/internal/config"
+	"github.com/SparkssL/Midaz-cli/internal/output"
+	"github.com/SparkssL/Midaz-cli/internal/registry"
 	"github.com/spf13/cobra"
 )
 
@@ -30,9 +30,9 @@ func Execute() int {
 
 INSTALL:
     npm install -g @midaz/cli
-    npx skills add chris-xu0321/Midaz-cli -y -g
+    npx skills add SparkssL/Midaz-cli -y -g
 
-    Full setup: https://github.com/chris-xu0321/Midaz-cli#installation`,
+    Full setup: https://github.com/SparkssL/Midaz-cli#installation`,
 		Version: build.Version,
 	}
 	rootCmd.SilenceErrors = true

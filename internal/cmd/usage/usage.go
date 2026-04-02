@@ -3,7 +3,7 @@ package usage
 import (
 	"net/url"
 
-	"github.com/chris-xu0321/Midaz-cli/internal/cmdutil"
+	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
 	"github.com/spf13/cobra"
 )
 
