@@ -4,23 +4,32 @@ Last updated: 2026-03-30
 
 ## Installation
 
-### Step 1: Install CLI
+### One-line install (recommended)
+
+**macOS / Linux:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.sh | sh
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.ps1 | iex
+```
+
+This installs the binary and runs `seer-q setup all --yes` to install skills.
+
+### Via npm
 
 ```bash
 npm install -g @midaz/cli
+seer-q setup all --yes
 ```
 
-Requires Node.js >= 16. Supported platforms: Windows, macOS, Linux (x64, arm64).
-
-### Step 2: Install Skills
-
-Install all skills:
+### Via npx (skills only, legacy)
 
 ```bash
 npx skills add SparkssL/Midaz-cli -y -g
 ```
-
-Skills are installed directly from this repo via `npx skills add SparkssL/Midaz-cli -y -g`.
 
 ### Release (maintainers)
 
@@ -102,6 +111,25 @@ seer-q usage                    # Token usage summary (--since P, default 24h)
 seer-q decisions                # Decision log (--stage S, --run ID, --entity-type T, --entity-id I, --limit N)
 seer-q health                   # API health check
 ```
+
+### Setup
+
+```bash
+seer-q setup auto --yes            # Install skills to detected agent directories
+seer-q setup claude --yes          # Install to Claude Code
+seer-q setup codex --yes           # Install to Codex
+seer-q setup all --yes             # Install to all known targets
+seer-q setup auto --dry-run        # Preview without writing
+seer-q setup all --yes --force     # Overwrite existing skill files
+seer-q setup all --yes --skill-dir /path/to/skills  # Custom directory
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--yes` | false | Required for non-dry-run (CLI never prompts) |
+| `--force` | false | Overwrite existing files |
+| `--dry-run` | false | Preview actions without writing |
+| `--skill-dir` | (auto) | Custom skill directory |
 
 ### Diagnostics
 

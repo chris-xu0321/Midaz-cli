@@ -1,27 +1,30 @@
 # Target Compatibility
 
-Last updated: 2026-03-30
+Last updated: 2026-04-02
 
 ## Support Matrix
 
 | Target | Status | Install Method |
 |--------|--------|----------------|
-| Claude Code | Supported | `npx skills add SparkssL/Midaz-cli -y -g` |
-| Codex | Supported | `npx skills add SparkssL/Midaz-cli -y -g` |
+| Claude Code | Supported | `seer-q setup claude --yes` |
+| Codex | Supported | `seer-q setup codex --yes` |
 
-Midaz keeps skills in the GitHub repo under `skills/`, and agents install them with `npx skills add SparkssL/Midaz-cli -y -g`.
+Skills are embedded in the `seer-q` binary and installed via `seer-q setup`. The legacy `npx skills add SparkssL/Midaz-cli -y -g` method also works for users with npm.
 
 ## Claude Code
 
 ### Install
 
 ```bash
-# Step 1: CLI
-npm install -g @midaz/cli
+# One-line (recommended):
+curl -fsSL https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.sh | sh
 
-# Step 2: Skills
-npx skills add SparkssL/Midaz-cli -y -g
+# Or manually:
+npm install -g @midaz/cli
+seer-q setup claude --yes
 ```
+
+Skills are written to `~/.claude/skills/`. If existing symlinks point to `~/.agents/skills/`, writes are transparently resolved to the symlink target.
 
 ### Verify
 
@@ -35,12 +38,15 @@ seer-q search "test"
 ### Install
 
 ```bash
-# Step 1: CLI
-npm install -g @midaz/cli
+# One-line (recommended):
+curl -fsSL https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.sh | sh
 
-# Step 2: Skills
-npx skills add SparkssL/Midaz-cli -y -g
+# Or manually:
+npm install -g @midaz/cli
+seer-q setup codex --yes
 ```
+
+Skills are written to `~/.codex/skills/`.
 
 ### Verify
 
@@ -51,7 +57,7 @@ seer-q doctor
 
 ## Adding a New Target
 
-1. Verify `seer-q` runs on the target's supported platforms.
-2. Confirm the target works with `npx skills add SparkssL/Midaz-cli -y -g`.
-3. Verify the target discovers and uses the skill content.
+1. Add the target to `resolveTargets()` in `internal/cmd/setup/setup.go`.
+2. Verify `seer-q` runs on the target's supported platforms.
+3. Run `seer-q setup <target> --yes` and verify skills are discovered by the agent.
 4. Update this matrix with tested results.

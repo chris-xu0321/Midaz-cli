@@ -47,6 +47,18 @@ For raw API output (no envelope), use `--raw`.
 | `--raw` | false | Raw API response (no envelope) |
 | `--api-url` | from config | Override API base URL |
 
+## Setup
+
+Install skills to agent directories (no npm required):
+
+```bash
+seer-q setup auto --yes            # Install to detected agent directories
+seer-q setup claude --yes          # Install to Claude Code
+seer-q setup codex --yes           # Install to Codex
+seer-q setup all --yes             # Install to all known targets
+seer-q setup auto --dry-run        # Preview without writing
+```
+
 ## Config & Diagnostics
 
 ```bash

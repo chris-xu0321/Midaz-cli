@@ -29,8 +29,10 @@ func Execute() int {
 		Long: `Seer market intelligence CLI.
 
 INSTALL:
-    npm install -g @midaz/cli
-    npx skills add SparkssL/Midaz-cli -y -g
+    curl -fsSL https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.sh | sh
+    (Windows: irm .../install.ps1 | iex)
+
+    Or via npm: npm install -g @midaz/cli && npx skills add SparkssL/Midaz-cli -y -g
 
     Full setup: https://github.com/SparkssL/Midaz-cli#installation`,
 		Version: build.Version,

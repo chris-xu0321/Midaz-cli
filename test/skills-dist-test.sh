@@ -20,7 +20,7 @@ for skill in seer-shared seer-market seer-api-explorer; do
 done
 
 # Check no Go files leaked into skills/
-GO_COUNT=$(find "$CLI_DIR/skills" -name "*.go" | wc -l)
+GO_COUNT=$(find "$CLI_DIR/skills" -name "*.go" ! -name "embed.go" | wc -l)
 if [ "$GO_COUNT" -eq 0 ]; then
   echo "PASS: no .go files in skills/"
 else

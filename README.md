@@ -11,10 +11,25 @@ Query CLI for the [Seer](https://github.com/SparkssL/Seer) market intelligence s
 
 ## Installation
 
-### From npm (recommended)
+### One-line install (recommended)
+
+**macOS / Linux:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.sh | sh
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.ps1 | iex
+```
+
+This installs the `seer-q` binary and runs `seer-q setup all --yes` to install skills for all supported agents.
+
+### From npm
 
 ```bash
 npm install -g @midaz/cli
+seer-q setup all --yes
 ```
 
 ### From source
@@ -23,6 +38,7 @@ npm install -g @midaz/cli
 git clone https://github.com/SparkssL/Midaz-cli.git
 cd Midaz-cli
 make install
+seer-q setup all --yes
 ```
 
 ## Quick Start
@@ -41,11 +57,18 @@ All commands return JSON envelopes. Use `--format pretty` for indented output or
 
 ### AI Agents
 
-Install all skills:
+Install CLI + skills with one command:
 
 ```bash
-npm install -g @midaz/cli
-npx skills add SparkssL/Midaz-cli -y -g
+curl -fsSL https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.sh | sh
+```
+
+Or install skills separately after installing the CLI:
+
+```bash
+seer-q setup all --yes          # Install to all agent directories
+seer-q setup claude --yes       # Claude Code only
+seer-q setup auto --yes         # Detected agents only
 ```
 
 Skills provide structured guidance for querying the Seer API. See [target compatibility](docs/target-compatibility.md) for platform-specific notes.

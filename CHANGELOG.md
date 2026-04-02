@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.5.0 — 2026-04-02
+
+### Added
+- `seer-q setup` command — install embedded skills to agent directories (claude, codex, auto, all)
+- `install.sh` — zero-dependency installer for macOS/Linux (downloads binary + installs skills)
+- `install.ps1` — zero-dependency installer for Windows
+- Skills embedded in binary via `go:embed` (`skills/embed.go`)
+- `--yes`, `--force`, `--dry-run`, `--skill-dir` flags on setup command
+
+### Changed
+- Primary install method is now `curl | sh` / `irm | iex` (no npm required)
+- npm install remains supported as secondary option
+- Updated all documentation to reflect new install flow
+- `test/skills-dist-test.sh` updated to allow `embed.go` in skills/
+
 ## 0.4.0 — 2026-03-30
 
 ### Changed

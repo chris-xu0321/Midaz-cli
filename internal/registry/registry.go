@@ -11,6 +11,7 @@ import (
 	"github.com/SparkssL/Midaz-cli/internal/cmd/market"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/schema"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/search"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/setup"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/snapshot"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/sources"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/thread"
@@ -146,5 +147,12 @@ var Commands = []CommandDef{
 		Name:        "schema",
 		Description: "Command contract introspection",
 		NewCmd:      schema.NewCmdSchema,
+	},
+	{
+		Name:        "setup",
+		Description: "Install skills to agent directories",
+		Args:        []ArgDef{{Name: "target", Required: false}},
+		Flags:       []FlagDef{{Name: "yes"}, {Name: "force"}, {Name: "dry-run"}, {Name: "skill-dir"}},
+		NewCmd:      setup.NewCmdSetup,
 	},
 }
