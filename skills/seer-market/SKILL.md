@@ -1,13 +1,13 @@
 ---
 name: seer-market
-version: 0.2.0
+version: 0.3.0
 description: Search, browse, and analyze topics, threads, claims, and market regime
 metadata: {"requires":{"bins":["seer-q"]}}
 ---
 
 # Seer Market Intelligence
 
-> Read [seer-shared](../seer-shared/SKILL.md) for response format and common rules.
+> Read [seer-shared](../seer-shared/SKILL.md) for response format, the web UI, and common rules.
 
 ## Command Reference
 
@@ -79,14 +79,14 @@ Map the user's question to the right command sequence:
 - `standing_digest` — topic summary
 - `bias` — bullish/bearish/neutral/mixed/unclear
 - `thread_count` — number of threads in topic
-- `view_url` — deep link (ALWAYS share)
+- `view_url` — link to the interactive map (always share — opens the topic on a 3D sphere the user can click around)
 
 **Threads:**
 - `thesis` — thread thesis
 - `bias`, `status` — current stance and lifecycle
 - `snapshot` — detailed analysis: `assessment`, `conviction`, `catalysts`, `outcomes`, `risk_case`, `what_breaks_it`, `assets_exposed`, `top_contradiction`
 - `supporting_count`, `contradicting_count` — evidence balance
-- `view_url` — deep link (ALWAYS share)
+- `view_url` — link to the interactive map (always share — opens the map focused on this thread in its topic context)
 
 **Claims:**
 - `statement` — the claim text
@@ -114,34 +114,34 @@ Map the user's question to the right command sequence:
 User: "how's the market"
 -> `seer-q market`
 -> Summarize regime_summary, verdict, top topics by thread count
--> Read `.meta.view_url` and share it as a clickable link
--> Read each topic's `.data.topics[].view_url` and share those too
+-> Share the market view_url — mention they can click into topics and explore the driver network there
+-> Share each topic's view_url as you mention them
 
 User: "latest 10 events"
 -> `seer-q claims`
 -> Take first 10 from response (already sorted newest-first)
 -> Summarize each claim: statement, event_date, asset_mentions
--> Note: no view_url on individual claims
+-> No view_url on individual claims
 
 User: "hottest topic right now"
 -> `seer-q topics`
 -> Find topic with highest thread_count or most recent thread activity
 -> `seer-q topic ID` for detail
 -> Summarize thesis, bias, top threads
--> Include topic view_url
+-> Share the topic view_url — the user can explore all its threads visually on the map
 
 User: "analyze NVIDIA"
 -> `seer-q search "NVIDIA"`
 -> Fetch each relevant topic and thread
 -> Synthesize: bull case (supporting threads), bear case (contradicting/risk), key catalysts
--> Include all view_urls
+-> Include view_urls as you go so the user can click into any angle that interests them
 
 User: "what's the bear case for AI"
 -> `seer-q search "AI"`
 -> Find bearish/weakening threads
 -> `seer-q thread ID` for the most relevant
 -> Focus on risk_case, what_breaks_it, contradicting claims
--> Include thread view_url
+-> Share thread view_url — the map shows the evidence balance visually
 
 User: "recent sources"
 -> `seer-q sources`
@@ -157,3 +157,4 @@ User: "what claims support thread X"
 -> `seer-q claims --thread ID`
 -> Filter/highlight claims with thread_role=support
 -> Summarize key supporting evidence
+-> Share thread view_url if available
