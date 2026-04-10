@@ -30,10 +30,11 @@ type Config struct {
 	APIURL      string `json:"api_url,omitempty"`
 	FrontendURL string `json:"frontend_url,omitempty"`
 	Format      string `json:"format,omitempty"`
+	APIKey      string `json:"api_key,omitempty"`
 }
 
 // ValidKeys are the recognized config keys.
-var ValidKeys = []string{"api_url", "frontend_url", "format"}
+var ValidKeys = []string{"api_url", "frontend_url", "format", "api_key"}
 
 // Defaults returns a Config with default values.
 func Defaults() *Config {
@@ -91,6 +92,9 @@ func Load(flagAPIURL, flagFormat string) (*Config, error) {
 	if v := os.Getenv("SEER_FORMAT"); v != "" {
 		cfg.Format = v
 	}
+	if v := os.Getenv("SEER_API_KEY"); v != "" {
+		cfg.APIKey = v
+	}
 
 	// Flags override env
 	if flagAPIURL != "" {
@@ -136,6 +140,8 @@ func SetKey(key, value string) error {
 		cfg.FrontendURL = value
 	case "format":
 		cfg.Format = value
+	case "api_key":
+		cfg.APIKey = value
 	}
 
 	return Save(cfg)
@@ -155,6 +161,8 @@ func Source(key, flagValue string) string {
 		envKey = "SEER_FRONTEND_URL"
 	case "format":
 		envKey = "SEER_FORMAT"
+	case "api_key":
+		envKey = "SEER_API_KEY"
 	}
 	if envKey != "" && os.Getenv(envKey) != "" {
 		return "env"
@@ -176,6 +184,10 @@ func Source(key, flagValue string) string {
 				}
 			case "format":
 				if fileCfg.Format != "" {
+					return "file"
+				}
+			case "api_key":
+				if fileCfg.APIKey != "" {
 					return "file"
 				}
 			}

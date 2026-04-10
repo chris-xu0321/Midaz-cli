@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/SparkssL/Midaz-cli/internal/client"
 	"github.com/SparkssL/Midaz-cli/internal/output"
 )
 
@@ -35,6 +36,55 @@ func RunAPICommand(f *Factory, opts *RunOpts, spec *APISpec) error {
 	}
 
 	data, meta, err := spec.Normalize(resp.Body)
+	if err != nil {
+		return output.Errorf(output.ExitInternal, "internal", "failed to parse response: %s", err)
+	}
+
+	return output.WriteSuccess(opts.Out, data, meta, opts.Format)
+}
+
+// MutatingAPISpec describes a write (POST/PUT/DELETE) API call.
+type MutatingAPISpec struct {
+	Method    string // "POST", "PUT", "DELETE"
+	Path      string
+	Body      []byte      // JSON body (nil for DELETE)
+	Normalize NormalizeFn // optional — if nil, uses NormalizePassthrough
+}
+
+// RunMutatingAPICommand executes a write API call and writes the result.
+func RunMutatingAPICommand(f *Factory, opts *RunOpts, spec *MutatingAPISpec) error {
+	c, err := f.Client()
+	if err != nil {
+		return err
+	}
+
+	var resp *client.Response
+	switch spec.Method {
+	case "POST":
+		resp, err = c.Post(opts.Ctx, spec.Path, spec.Body)
+	case "PUT":
+		resp, err = c.Put(opts.Ctx, spec.Path, spec.Body)
+	case "PATCH":
+		resp, err = c.Patch(opts.Ctx, spec.Path, spec.Body)
+	case "DELETE":
+		resp, err = c.Delete(opts.Ctx, spec.Path)
+	default:
+		return output.Errorf(output.ExitInternal, "internal", "unknown method: %s", spec.Method)
+	}
+	if err != nil {
+		return err
+	}
+
+	if opts.Raw {
+		return output.WriteRaw(opts.Out, resp.Body, opts.Format)
+	}
+
+	normalize := spec.Normalize
+	if normalize == nil {
+		normalize = NormalizePassthrough
+	}
+
+	data, meta, err := normalize(resp.Body)
 	if err != nil {
 		return output.Errorf(output.ExitInternal, "internal", "failed to parse response: %s", err)
 	}

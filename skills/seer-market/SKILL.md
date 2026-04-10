@@ -1,160 +1,107 @@
 ---
 name: seer-market
-version: 0.3.0
-description: Search, browse, and analyze topics, threads, claims, and market regime
+version: 1.1.0
+description: Help traders read markets, manage their workspace, and push intel — via seer-q CLI
 metadata: {"requires":{"bins":["seer-q"]}}
 ---
 
 # Seer Market Intelligence
 
-> Read [seer-shared](../seer-shared/SKILL.md) for response format, the web UI, and common rules.
+> Read [seer-shared](../seer-shared/SKILL.md) first for auth and behavior rules.
 
-## Command Reference
+## Commands
 
-### Entity lookup
+### Read the market (public, no auth)
 
-```bash
-seer-q search "QUERY"           # Fuzzy search across topics, threads, assets
-seer-q topic TOPIC_ID           # Topic detail: thesis, bias, all threads within it
-seer-q thread THREAD_ID         # Thread detail: snapshot, all claims, evidence counts
-```
+| What | Command |
+|------|---------|
+| Full market overview | `seer-q market` |
+| Search anything | `seer-q search "QUERY"` |
+| All topics | `seer-q topics` |
+| One topic + its threads | `seer-q topic ID` |
+| List threads | `seer-q threads [--topic ID] [--status active]` |
+| One thread + evidence | `seer-q thread ID` |
+| Global regime snapshot | `seer-q snapshot [--history] [--limit N]` |
 
-### List / browse
+### My workspace (auth required)
 
-```bash
-seer-q market                   # Global regime + all topics with thread counts
-seer-q topics                   # List all topics with thread counts
-seer-q threads                  # List all threads (newest activity first)
-seer-q threads --topic ID       # Threads in a specific topic
-seer-q threads --status active  # Filter by status (active/weakening/divided/resolved)
-seer-q claims                   # Latest 100 claims (newest first)
-seer-q claims --thread ID       # Claims for a specific thread
-seer-q claims --status current  # Filter by status (pending/current/stale/discarded)
-seer-q claims --mode observed   # Filter by mode (observed/interpreted/forecast/attributed)
-seer-q sources                  # Latest 100 ingested sources
-seer-q sources --decision process  # Only processed sources
-seer-q sources --tier 1         # Only tier-1 sources
-```
+| What | Command |
+|------|---------|
+| My desk | `seer-q ws` |
+| First-time onboarding | `seer-q ws onboard --radar @file.md --playbook @file.md` |
+| Update my watchlist | `seer-q ws radar "TEXT"` or `seer-q ws radar @file.md` |
+| Update my trading rules | `seer-q ws playbook "TEXT"` or `seer-q ws playbook @file.md` |
+| My personal market view | `seer-q ws view` |
+| See someone's shared view | `seer-q ws view <workspace_id>` |
+| My alerts (unread) | `seer-q ws alerts` |
+| My alerts (incl. read) | `seer-q ws alerts --all` |
+| Mark alert read | `seer-q ws alerts read <alert_id>` |
+| Share my view publicly | `seer-q ws share` |
+| Revoke public sharing | `seer-q ws unshare` |
 
-### Snapshots
+> **Share model:** `ws share` flips `workspaces.shared = true` via
+> `PATCH /api/ws`. There are no share tokens — your `workspace_id` IS
+> the share handle. Give it to another trader; they must be logged in
+> themselves and run `seer-q ws view <workspace_id>`, which hits the
+> auth-required `/api/workspaces/:workspace_id/view` endpoint. Members
+> can read their own workspace regardless of the `shared` flag.
 
-```bash
-seer-q snapshot                 # Latest global regime snapshot
-seer-q snapshot --history       # Regime snapshot history (default 10)
-seer-q snapshot --history --limit 5  # Limit history count
-```
+### My intel (auth required)
 
-### Usage & audit
+| What | Command |
+|------|---------|
+| Push intel | `seer-q intel "CONTENT"` or `seer-q intel "CONTENT" -t "Title"` |
+| Push from file | `seer-q intel @article.md` |
+| List my intel | `seer-q intel list` |
+| Delete intel | `seer-q intel rm ID` |
 
-```bash
-seer-q usage                    # Token usage summary (--since P, default 24h)
-seer-q decisions                # Decision log (--stage S, --run ID, --entity-type T, --entity-id I, --limit N)
-```
+## What the trader says → what you do
 
-## Query Strategy
-
-Map the user's question to the right command sequence:
-
-| User intent | Commands |
+| Trader says | You do |
 |---|---|
-| Overall market / "how's the market" | `seer-q market` |
-| List all topics | `seer-q topics` |
-| Hottest/most active topic | `seer-q topics` → pick highest `thread_count` or most recent activity |
-| Specific sector deep-dive (e.g., "AI infra") | `seer-q search "KEYWORDS"` → `seer-q topic ID` |
-| Specific angle/trade (e.g., "NVIDIA bear case") | `seer-q search "KEYWORDS"` → `seer-q thread ID` |
-| Analyze an asset (e.g., "analyze NVIDIA") | `seer-q search "ASSET"` → fetch relevant topic + multiple thread details |
-| Latest events / recent claims | `seer-q claims` → summarize the newest entries |
-| Claims for a thread | `seer-q claims --thread ID` |
-| Recent sources / what was ingested | `seer-q sources` |
-| Bull/bear case for X | `seer-q search "X"` → `seer-q thread ID` → focus on `risk_case`, contradicting claims |
-| Market regime history / trend | `seer-q snapshot --history` |
-| Global regime details | `seer-q snapshot` |
-| Threads in a topic | `seer-q threads --topic ID` or `seer-q topic ID` (which includes threads) |
+| "how's the market" / "what's going on" | `seer-q market` → briefing with regime, top movers, key risks |
+| "tell me about oil" / "what's happening with X" | `seer-q search "X"` → `seer-q topic ID` or `seer-q thread ID` |
+| "what's the bear case for AI" | `seer-q search "AI"` → find bearish threads → focus on risk_case, contradictions |
+| "analyze NVDA" | `seer-q search "NVDA"` → fetch relevant threads → synthesize bull/bear/catalysts |
+| "what changed recently" | `seer-q snapshot --history` → compare regime shifts |
+| "I heard OPEC might cut" | `seer-q intel "Hearing OPEC+ may cut 500k bpd"` → confirm pushed |
+| "saw this article about China PMI" | `seer-q intel "China PMI came in at 49.2, below expectations" -t "China PMI Miss"` |
+| "I'm watching oil, rates, and BTC" | `seer-q ws radar "Oil supply | Fed rate path | BTC ETF flows"` |
+| "I swing trade, max 3% risk" | `seer-q ws playbook "Swing 2-10d. Max 3% position risk. Scale in on breakouts."` |
+| "show me my view" / "my market" | `seer-q ws view` |
+| "what's my setup" | `seer-q ws` |
+| "any new alerts?" | `seer-q ws alerts` |
+| "share my view with Alex" | `seer-q ws share` → give them the `workspace_id` returned |
+| "let me see Alex's view" | `seer-q ws view <workspace_id>` (requires Alex to have run `ws share`) |
+| "what intel have I saved" | `seer-q intel list` |
 
-## Key Response Fields
+## Key fields to highlight
 
-**Market/Topics:**
-- `regime_summary` — one-line market regime
-- `standing_thesis` — topic thesis
-- `standing_digest` — topic summary
-- `bias` — bullish/bearish/neutral/mixed/unclear
-- `thread_count` — number of threads in topic
-- `view_url` — link to the interactive map (always share — opens the topic on a 3D sphere the user can click around)
+**When briefing on market regime:**
+- `regime_summary` — the one-liner
+- `verdict.stance` + `verdict.confidence` — bullish/bearish + how sure
+- `major_drivers` — what's driving the market
+- `key_uncertainties` — what could change everything
 
-**Threads:**
-- `thesis` — thread thesis
-- `bias`, `status` — current stance and lifecycle
-- `snapshot` — detailed analysis: `assessment`, `conviction`, `catalysts`, `outcomes`, `risk_case`, `what_breaks_it`, `assets_exposed`, `top_contradiction`
-- `supporting_count`, `contradicting_count` — evidence balance
-- `view_url` — link to the interactive map (always share — opens the map focused on this thread in its topic context)
+**When analyzing a thread:**
+- `thesis` + `bias` — what the thread says and which way it leans
+- `snapshot.assessment` — full analysis
+- `snapshot.risk_case` + `snapshot.what_breaks_it` — the counterargument
+- `snapshot.assets_exposed` — what trades are affected
+- `snapshot.top_contradiction` — the strongest evidence against
 
-**Claims:**
-- `statement` — the claim text
-- `claim_mode` — observed/interpreted/forecast/attributed
-- `thread_role` — support/contradiction
-- `event_date` — when the event occurred
-- `status` — pending/current/stale/discarded
-- `asset_mentions` — related assets
-- `source_id` — link to source
+**When showing workspace view:**
+- `profile.radar` — what they told you they watch
+- `global_snapshot` — the current regime
+- `topics` — filtered/ranked by relevance to their radar (future)
+- `view` — L4-synthesized personal market cognitive view (nullable if not yet computed)
+- `has_view` — presence flag; `false` does NOT mean "running", just "no row for current refresh"
+- `alerts_unread` — how many unread alerts are queued
 
-**Sources:**
-- `title`, `url` — source identity
-- `source_tier` — 1 (highest) to 3
-- `gate_decision` — process/drop
-- `published_at`, `ingested_at` — timing
-
-**Global snapshot:**
-- `regime_summary` — one-liner
-- `snapshot.verdict` — stance + rationale
-- `snapshot.major_drivers` — key market drivers
-- `snapshot.key_uncertainties` — what could change
-
-## Examples
-
-User: "how's the market"
--> `seer-q market`
--> Summarize regime_summary, verdict, top topics by thread count
--> Share the market view_url — mention they can click into topics and explore the driver network there
--> Share each topic's view_url as you mention them
-
-User: "latest 10 events"
--> `seer-q claims`
--> Take first 10 from response (already sorted newest-first)
--> Summarize each claim: statement, event_date, asset_mentions
--> No view_url on individual claims
-
-User: "hottest topic right now"
--> `seer-q topics`
--> Find topic with highest thread_count or most recent thread activity
--> `seer-q topic ID` for detail
--> Summarize thesis, bias, top threads
--> Share the topic view_url — the user can explore all its threads visually on the map
-
-User: "analyze NVIDIA"
--> `seer-q search "NVIDIA"`
--> Fetch each relevant topic and thread
--> Synthesize: bull case (supporting threads), bear case (contradicting/risk), key catalysts
--> Include view_urls as you go so the user can click into any angle that interests them
-
-User: "what's the bear case for AI"
--> `seer-q search "AI"`
--> Find bearish/weakening threads
--> `seer-q thread ID` for the most relevant
--> Focus on risk_case, what_breaks_it, contradicting claims
--> Share thread view_url — the map shows the evidence balance visually
-
-User: "recent sources"
--> `seer-q sources`
--> Summarize: title, tier, published_at, gate_decision
--> Group by decision (processed vs dropped) if useful
-
-User: "how has the market regime changed"
--> `seer-q snapshot --history`
--> Show regime_summary progression over time
--> Note any shifts in stance
-
-User: "what claims support thread X"
--> `seer-q claims --thread ID`
--> Filter/highlight claims with thread_role=support
--> Summarize key supporting evidence
--> Share thread view_url if available
+**When reading alerts:**
+- `level` — urgency tier
+- `headline` — short summary
+- `detail` — full context
+- `asset` — related ticker/topic
+- `source_thread_id` — thread the alert was generated from
+- `read_at` — null if unread

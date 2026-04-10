@@ -3,11 +3,15 @@
 package registry
 
 import (
+	"github.com/SparkssL/Midaz-cli/internal/cmd/apikey"
 	cmdconfig "github.com/SparkssL/Midaz-cli/internal/cmd/config"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/claims"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/decisions"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/doctor"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/health"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/intel"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/login"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/logout"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/market"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/schema"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/search"
@@ -20,6 +24,7 @@ import (
 	"github.com/SparkssL/Midaz-cli/internal/cmd/topics"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/usage"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/version"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/ws"
 	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
 	"github.com/spf13/cobra"
 )
@@ -47,18 +52,19 @@ type CommandDef struct {
 
 // Commands is the canonical list of all seer-q commands.
 var Commands = []CommandDef{
+	// ─── Market (public base layer) ───
+	{
+		Name:        "market",
+		Description: "Global regime + all topics with thread counts",
+		Endpoints:   []string{"GET /api/market"},
+		NewCmd:      market.NewCmdMarket,
+	},
 	{
 		Name:        "search",
 		Description: "Fuzzy search across topics, threads, assets",
 		Args:        []ArgDef{{Name: "query", Required: true}},
 		Endpoints:   []string{"GET /api/search?q={query}"},
 		NewCmd:      search.NewCmdSearch,
-	},
-	{
-		Name:        "market",
-		Description: "Global regime + all topics with thread counts",
-		Endpoints:   []string{"GET /api/market"},
-		NewCmd:      market.NewCmdMarket,
 	},
 	{
 		Name:        "topics",
@@ -88,6 +94,49 @@ var Commands = []CommandDef{
 		NewCmd:      thread.NewCmdThread,
 	},
 	{
+		Name:        "snapshot",
+		Description: "Global regime snapshot",
+		Flags:       []FlagDef{{Name: "history"}, {Name: "limit"}},
+		Endpoints:   []string{"GET /api/global/snapshot", "GET /api/global/snapshots"},
+		NewCmd:      snapshot.NewCmdSnapshot,
+	},
+
+	// ─── Workspace (private desk) ───
+	{
+		Name:        "ws",
+		Description: "Your workspace — identity, radar, playbook, view, share",
+		Endpoints:   []string{"GET /api/ws", "PATCH /api/ws/radar", "PATCH /api/ws/playbook", "GET /api/ws/view"},
+		NewCmd:      ws.NewCmdWs,
+	},
+	{
+		Name:        "intel",
+		Description: "Push, list, or delete private intel",
+		Args:        []ArgDef{{Name: "content", Required: false}},
+		Flags:       []FlagDef{{Name: "title"}, {Name: "url"}},
+		Endpoints:   []string{"POST /api/intel", "GET /api/intel", "DELETE /api/intel/{id}"},
+		NewCmd:      intel.NewCmdIntel,
+	},
+
+	// ─── Auth ───
+	{
+		Name:        "login",
+		Description: "Authenticate with Seer via browser",
+		Flags:       []FlagDef{{Name: "status"}},
+		NewCmd:      login.NewCmdLogin,
+	},
+	{
+		Name:        "logout",
+		Description: "Clear stored Seer credentials",
+		NewCmd:      logout.NewCmdLogout,
+	},
+	{
+		Name:        "api-key",
+		Description: "Manage Seer API keys",
+		NewCmd:      apikey.NewCmdAPIKey,
+	},
+
+	// ─── Operational (debug/audit) ───
+	{
 		Name:        "claims",
 		Description: "List claims",
 		Flags:       []FlagDef{{Name: "thread"}, {Name: "source"}, {Name: "status"}, {Name: "mode"}},
@@ -100,13 +149,6 @@ var Commands = []CommandDef{
 		Flags:       []FlagDef{{Name: "decision"}, {Name: "tier"}},
 		Endpoints:   []string{"GET /api/sources"},
 		NewCmd:      sources.NewCmdSources,
-	},
-	{
-		Name:        "snapshot",
-		Description: "Global regime snapshot",
-		Flags:       []FlagDef{{Name: "history"}, {Name: "limit"}},
-		Endpoints:   []string{"GET /api/global/snapshot", "GET /api/global/snapshots"},
-		NewCmd:      snapshot.NewCmdSnapshot,
 	},
 	{
 		Name:        "usage",
@@ -128,6 +170,8 @@ var Commands = []CommandDef{
 		Endpoints:   []string{"GET /api/health"},
 		NewCmd:      health.NewCmdHealth,
 	},
+
+	// ─── Utility ───
 	{
 		Name:        "version",
 		Description: "CLI version info",

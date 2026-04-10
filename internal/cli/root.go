@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/SparkssL/Midaz-cli/internal/auth"
 	"github.com/SparkssL/Midaz-cli/internal/build"
 	"github.com/SparkssL/Midaz-cli/internal/client"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/schema"
@@ -64,7 +65,10 @@ INSTALL:
 		if err != nil {
 			return nil, err
 		}
-		return client.New(cfg.APIURL), nil
+		c := client.New(cfg.APIURL)
+		// Inject auth token: env > config > credentials
+		c.AuthToken = auth.ResolveToken(cfg.APIKey)
+		return c, nil
 	}
 
 	// Populate schema data from registry (breaks the import cycle)
