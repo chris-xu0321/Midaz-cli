@@ -1,7 +1,7 @@
-# install.ps1 — zero-dependency installer for seer-q CLI + skills (Windows).
+# install.ps1 — zero-dependency installer for midaz CLI + skills (Windows).
 # Usage:
 #   irm https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.ps1 | iex
-#   .\install.ps1 -Version 0.4.5 -Agent claude
+#   .\install.ps1 -Version 0.6.0 -Agent claude
 param(
     [string]$Version = "",
     [string]$Agent = "all",
@@ -10,7 +10,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $Repo = "SparkssL/Midaz-cli"
-$Binary = "seer-q"
+$Binary = "midaz"
 
 if (-not $InstallDir) {
     $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\Midaz\bin"
@@ -111,4 +111,4 @@ Ensure-Path
 Setup-Skills
 
 Write-Host ""
-Write-Host "Done! Run 'seer-q version' to verify."
+Write-Host "Done! Run 'midaz version' to verify, then 'midaz auth login' to sign in."

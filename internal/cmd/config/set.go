@@ -17,7 +17,7 @@ func newCmdSet(f *cmdutil.Factory) *cobra.Command {
 			if len(args) < 2 {
 				return output.ErrWithHint(output.ExitValidation, "validation",
 					"Missing required arguments: key and value",
-					"usage: seer-q config set <key> <value>")
+					"usage: midaz config set <key> <value>")
 			}
 			return nil
 		},

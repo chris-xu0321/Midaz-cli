@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"sync"
 
 	"github.com/SparkssL/Midaz-cli/internal/auth"
 	"github.com/SparkssL/Midaz-cli/internal/build"
@@ -25,17 +26,19 @@ func Execute() int {
 	}
 
 	rootCmd := &cobra.Command{
-		Use:   "seer-q",
-		Short: "Seer market intelligence CLI",
-		Long: `Seer market intelligence CLI.
+		Use:   "midaz",
+		Short: "Midaz market intelligence CLI",
+		Long: `Midaz CLI — authenticate, manage your workspace, and query the market intelligence graph.
 
 INSTALL:
     curl -fsSL https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.sh | sh
     (Windows: irm .../install.ps1 | iex)
 
-    Or via npm: npm install -g @midaz/cli && npx skills add SparkssL/Midaz-cli -y -g
+    Or via npm: npm install -g @midaz/cli
 
-    Full setup: https://github.com/SparkssL/Midaz-cli#installation`,
+    Full setup: https://github.com/SparkssL/Midaz-cli#installation
+
+Run 'midaz auth login' to sign in, then 'midaz onboard' to set up your radar.`,
 		Version: build.Version,
 	}
 	rootCmd.SilenceErrors = true
@@ -43,56 +46,82 @@ INSTALL:
 		cmd.SilenceUsage = true
 	}
 
-	// Global persistent flags
 	rootCmd.PersistentFlags().String("format", "json", "Output format: json or pretty")
 	rootCmd.PersistentFlags().Bool("raw", false, "Bypass envelope — write raw API response to stdout")
 	rootCmd.PersistentFlags().String("api-url", "", "Override API base URL")
+	rootCmd.PersistentFlags().String("profile", "", "Auth profile to use (default: current)")
 
-	// Build factory with lazy config and client
-	f := &cmdutil.Factory{
-		IOStreams: ios,
-	}
+	f := &cmdutil.Factory{IOStreams: ios}
 
-	// Lazy config — only called by commands that need it
+	var (
+		cfgOnce sync.Once
+		cfgVal  *config.Config
+		cfgErr  error
+	)
 	f.Config = func() (*config.Config, error) {
-		flagAPIURL, _ := rootCmd.PersistentFlags().GetString("api-url")
-		return config.Load(flagAPIURL, "")
+		cfgOnce.Do(func() {
+			flagAPIURL, _ := rootCmd.PersistentFlags().GetString("api-url")
+			cfgVal, cfgErr = config.Load(flagAPIURL, "")
+		})
+		return cfgVal, cfgErr
 	}
 
-	// Lazy client — only called by API commands
+	var (
+		authOnce sync.Once
+		authVal  *auth.Creds
+		authErr  error
+	)
+	f.Auth = func() (*auth.Creds, error) {
+		authOnce.Do(func() {
+			profile, _ := rootCmd.PersistentFlags().GetString("profile")
+			authVal, authErr = auth.Current(profile)
+		})
+		return authVal, authErr
+	}
+
+	var (
+		clientOnce sync.Once
+		clientVal  *client.Client
+		clientErr  error
+	)
 	f.Client = func() (*client.Client, error) {
-		cfg, err := f.Config()
-		if err != nil {
-			return nil, err
-		}
-		c := client.New(cfg.APIURL)
-		// Inject auth token: env > config > credentials
-		c.AuthToken = auth.ResolveToken(cfg.APIKey)
-		return c, nil
+		clientOnce.Do(func() {
+			cfg, err := f.Config()
+			if err != nil {
+				clientErr = err
+				return
+			}
+			c := client.New(cfg.APIURL)
+			if creds, err := f.Auth(); err == nil && creds != nil && creds.APIKey != "" {
+				c = c.WithToken(creds.APIKey)
+			}
+			clientVal = c
+		})
+		return clientVal, clientErr
 	}
 
-	// Populate schema data from registry (breaks the import cycle)
-	schemaData := make([]schema.CommandInfo, len(registry.Commands))
-	for i, def := range registry.Commands {
-		argNames := make([]string, len(def.Args))
-		for j, a := range def.Args {
-			argNames[j] = a.Name
+	schema.LoadSchemaData = func() []schema.CommandInfo {
+		data := make([]schema.CommandInfo, len(registry.Commands))
+		for i, def := range registry.Commands {
+			argNames := make([]string, len(def.Args))
+			for j, a := range def.Args {
+				argNames[j] = a.Name
+			}
+			flagNames := make([]string, len(def.Flags))
+			for j, fl := range def.Flags {
+				flagNames[j] = "--" + fl.Name
+			}
+			data[i] = schema.CommandInfo{
+				Name:        def.Name,
+				Description: def.Description,
+				Args:        argNames,
+				Flags:       flagNames,
+				Endpoints:   def.Endpoints,
+			}
 		}
-		flagNames := make([]string, len(def.Flags))
-		for j, fl := range def.Flags {
-			flagNames[j] = "--" + fl.Name
-		}
-		schemaData[i] = schema.CommandInfo{
-			Name:        def.Name,
-			Description: def.Description,
-			Args:        argNames,
-			Flags:       flagNames,
-			Endpoints:   def.Endpoints,
-		}
+		return data
 	}
-	schema.SchemaData = schemaData
 
-	// Register all commands from the registry
 	for _, def := range registry.Commands {
 		rootCmd.AddCommand(def.NewCmd(f))
 	}
@@ -103,16 +132,12 @@ INSTALL:
 	return 0
 }
 
-// handleRootError converts errors to exit codes and writes error envelopes.
-// Known *ExitError → use its code. Unknown errors → exit 1 (internal).
 func handleRootError(errOut io.Writer, err error) int {
 	var exitErr *output.ExitError
 	if errors.As(err, &exitErr) {
 		output.WriteErrorEnvelope(errOut, exitErr)
 		return exitErr.Code
 	}
-
-	// Unknown error (cobra internals, unexpected) → exit 1
 	wrapped := &output.ExitError{
 		Code:   output.ExitInternal,
 		Detail: &output.ErrDetail{Code: "internal", Message: err.Error()},

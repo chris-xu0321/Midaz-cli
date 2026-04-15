@@ -13,12 +13,12 @@ import (
 func NewCmdSearch(f *cmdutil.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:   "search <query>",
-		Short: "Fuzzy search across topics, threads, assets",
+		Short: "Fuzzy search across topics, theses, assets",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 || args[0] == "" {
 				return output.ErrWithHint(output.ExitValidation, "validation",
 					"Missing required argument: query",
-					"usage: seer-q search <query>")
+					"usage: midaz search <query>")
 			}
 			return nil
 		},

@@ -87,6 +87,28 @@ func ErrAPI(errCode, format string, args ...any) *ExitError {
 	return Errorf(ExitAPI, errCode, format, args...)
 }
 
+// ErrAuth creates an auth ExitError (exit 6) — 401 / missing or invalid credentials.
+func ErrAuth(msg, hint string) *ExitError {
+	if hint == "" {
+		hint = "run 'midaz auth login' to authenticate"
+	}
+	return &ExitError{
+		Code:   ExitAuth,
+		Detail: &ErrDetail{Code: "auth", Message: msg, Hint: hint},
+	}
+}
+
+// ErrSubscription creates a subscription ExitError (exit 7) — 402 / workspace paused.
+func ErrSubscription(msg, hint string) *ExitError {
+	if hint == "" {
+		hint = "run 'midaz subscription start --yes' to start a trial"
+	}
+	return &ExitError{
+		Code:   ExitSubscription,
+		Detail: &ErrDetail{Code: "subscription", Message: msg, Hint: hint},
+	}
+}
+
 // ErrWithHint creates an ExitError with a hint string.
 func ErrWithHint(exitCode int, errCode, msg, hint string) *ExitError {
 	return &ExitError{

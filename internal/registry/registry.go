@@ -1,30 +1,35 @@
-// Package registry is the single source of truth for all seer-q commands.
+// Package registry is the single source of truth for all midaz commands.
 // Used by root.go for registration, schema for introspection, and tests.
 package registry
 
 import (
-	"github.com/SparkssL/Midaz-cli/internal/cmd/apikey"
-	cmdconfig "github.com/SparkssL/Midaz-cli/internal/cmd/config"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/assets"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/auth"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/claims"
+	cmdconfig "github.com/SparkssL/Midaz-cli/internal/cmd/config"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/decisions"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/delta"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/doctor"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/health"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/intel"
-	"github.com/SparkssL/Midaz-cli/internal/cmd/login"
-	"github.com/SparkssL/Midaz-cli/internal/cmd/logout"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/invite"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/market"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/onboard"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/schema"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/search"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/setup"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/snapshot"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/sources"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/subscription"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/thesis"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/theses"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/thread"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/threads"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/topic"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/topics"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/usage"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/version"
-	"github.com/SparkssL/Midaz-cli/internal/cmd/ws"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/workspace"
 	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
 	"github.com/spf13/cobra"
 )
@@ -50,92 +55,114 @@ type CommandDef struct {
 	NewCmd      func(*cmdutil.Factory) *cobra.Command
 }
 
-// Commands is the canonical list of all seer-q commands.
+// Commands is the canonical list of all midaz commands.
 var Commands = []CommandDef{
-	// ─── Market (public base layer) ───
+	// --- Account & auth -------------------------------------------------------
 	{
-		Name:        "market",
-		Description: "Global regime + all topics with thread counts",
-		Endpoints:   []string{"GET /api/market"},
-		NewCmd:      market.NewCmdMarket,
+		Name:        "auth",
+		Description: "Authenticate and manage API credentials",
+		Endpoints:   []string{"POST /api/app/auth/exchange", "GET /api/app/me", "GET/POST/DELETE /api/app/api-keys"},
+		NewCmd:      auth.NewCmdAuth,
 	},
 	{
+		Name:        "onboard",
+		Description: "Complete workspace onboarding (radar + playbook)",
+		Endpoints:   []string{"POST /api/ws/onboard", "POST /api/ws/onboard/generate"},
+		NewCmd:      onboard.NewCmdOnboard,
+	},
+	{
+		Name:        "invite",
+		Description: "Redeem invitation codes",
+		Endpoints:   []string{"POST /api/invite/redeem"},
+		NewCmd:      invite.NewCmdInvite,
+	},
+	{
+		Name:        "subscription",
+		Description: "Subscribe, manage billing, check subscription status",
+		Endpoints:   []string{"POST /api/stripe/checkout", "POST /api/stripe/portal", "GET /api/ws"},
+		NewCmd:      subscription.NewCmdSubscription,
+	},
+	// --- Workspace ------------------------------------------------------------
+	{
+		Name:        "workspace",
+		Description: "Manage your workspace: radar, playbook, sharing, Telegram",
+		Endpoints:   []string{"GET /api/ws", "GET /api/ws/settings", "GET /api/ws/view", "PATCH /api/ws*", "DELETE /api/ws/telegram"},
+		NewCmd:      workspace.NewCmdWorkspace,
+	},
+	{
+		Name:        "intel",
+		Description: "Push, list, and delete private intel (notes / sources)",
+		Endpoints:   []string{"GET /api/intel", "POST /api/intel", "DELETE /api/intel/{id}"},
+		NewCmd:      intel.NewCmdIntel,
+	},
+	// --- Market read ----------------------------------------------------------
+	{
 		Name:        "search",
-		Description: "Fuzzy search across topics, threads, assets",
+		Description: "Fuzzy search across topics, theses, assets",
 		Args:        []ArgDef{{Name: "query", Required: true}},
 		Endpoints:   []string{"GET /api/search?q={query}"},
 		NewCmd:      search.NewCmdSearch,
 	},
 	{
+		Name:        "market",
+		Description: "Global regime + all topics with thesis counts",
+		Endpoints:   []string{"GET /api/market"},
+		NewCmd:      market.NewCmdMarket,
+	},
+	{
 		Name:        "topics",
-		Description: "List all topics with thread counts",
+		Description: "List all topics with thesis counts",
 		Endpoints:   []string{"GET /api/topics"},
 		NewCmd:      topics.NewCmdTopics,
 	},
 	{
 		Name:        "topic",
-		Description: "Topic detail + threads",
+		Description: "Topic detail + theses",
 		Args:        []ArgDef{{Name: "id", Required: true}},
 		Endpoints:   []string{"GET /api/topics/{id}"},
 		NewCmd:      topic.NewCmdTopic,
 	},
 	{
-		Name:        "threads",
-		Description: "List threads",
+		Name:        "theses",
+		Description: "List theses (market arguments)",
 		Flags:       []FlagDef{{Name: "topic"}, {Name: "status"}},
-		Endpoints:   []string{"GET /api/threads"},
+		Endpoints:   []string{"GET /api/theses"},
+		NewCmd:      theses.NewCmdTheses,
+	},
+	{
+		Name:        "thesis",
+		Description: "Thesis detail + claims + market links",
+		Args:        []ArgDef{{Name: "id", Required: true}},
+		Endpoints:   []string{"GET /api/theses/{id}"},
+		NewCmd:      thesis.NewCmdThesis,
+	},
+	{
+		Name:        "threads",
+		Description: "Deprecated alias of `theses`",
+		Flags:       []FlagDef{{Name: "topic"}, {Name: "status"}},
+		Endpoints:   []string{"GET /api/theses"},
 		NewCmd:      threads.NewCmdThreads,
 	},
 	{
 		Name:        "thread",
-		Description: "Thread detail + claims + market links",
+		Description: "Deprecated alias of `thesis`",
 		Args:        []ArgDef{{Name: "id", Required: true}},
-		Endpoints:   []string{"GET /api/threads/{id}"},
+		Endpoints:   []string{"GET /api/theses/{id}"},
 		NewCmd:      thread.NewCmdThread,
 	},
 	{
-		Name:        "snapshot",
-		Description: "Global regime snapshot",
-		Flags:       []FlagDef{{Name: "history"}, {Name: "limit"}},
-		Endpoints:   []string{"GET /api/global/snapshot", "GET /api/global/snapshots"},
-		NewCmd:      snapshot.NewCmdSnapshot,
-	},
-
-	// ─── Workspace (private desk) ───
-	{
-		Name:        "ws",
-		Description: "Your workspace — identity, radar, playbook, view, share",
-		Endpoints:   []string{"GET /api/ws", "PATCH /api/ws/radar", "PATCH /api/ws/playbook", "GET /api/ws/view"},
-		NewCmd:      ws.NewCmdWs,
+		Name:        "assets",
+		Description: "List and inspect assets with thesis links",
+		Endpoints:   []string{"GET /api/assets", "GET /api/assets/{id}", "GET /api/assets/{id}/theses/{thesis_id}"},
+		NewCmd:      assets.NewCmdAssets,
 	},
 	{
-		Name:        "intel",
-		Description: "Push, list, or delete private intel",
-		Args:        []ArgDef{{Name: "content", Required: false}},
-		Flags:       []FlagDef{{Name: "title"}, {Name: "url"}},
-		Endpoints:   []string{"POST /api/intel", "GET /api/intel", "DELETE /api/intel/{id}"},
-		NewCmd:      intel.NewCmdIntel,
+		Name:        "delta",
+		Description: "Recent claims + theses + topics from the last N hours",
+		Flags:       []FlagDef{{Name: "hours"}},
+		Endpoints:   []string{"GET /api/delta"},
+		NewCmd:      delta.NewCmdDelta,
 	},
-
-	// ─── Auth ───
-	{
-		Name:        "login",
-		Description: "Authenticate with Seer via browser",
-		Flags:       []FlagDef{{Name: "status"}},
-		NewCmd:      login.NewCmdLogin,
-	},
-	{
-		Name:        "logout",
-		Description: "Clear stored Seer credentials",
-		NewCmd:      logout.NewCmdLogout,
-	},
-	{
-		Name:        "api-key",
-		Description: "Manage Seer API keys",
-		NewCmd:      apikey.NewCmdAPIKey,
-	},
-
-	// ─── Operational (debug/audit) ───
 	{
 		Name:        "claims",
 		Description: "List claims",
@@ -149,6 +176,13 @@ var Commands = []CommandDef{
 		Flags:       []FlagDef{{Name: "decision"}, {Name: "tier"}},
 		Endpoints:   []string{"GET /api/sources"},
 		NewCmd:      sources.NewCmdSources,
+	},
+	{
+		Name:        "snapshot",
+		Description: "Global regime snapshot",
+		Flags:       []FlagDef{{Name: "history"}, {Name: "limit"}},
+		Endpoints:   []string{"GET /api/global/snapshot", "GET /api/global/snapshots"},
+		NewCmd:      snapshot.NewCmdSnapshot,
 	},
 	{
 		Name:        "usage",
@@ -170,8 +204,6 @@ var Commands = []CommandDef{
 		Endpoints:   []string{"GET /api/health"},
 		NewCmd:      health.NewCmdHealth,
 	},
-
-	// ─── Utility ───
 	{
 		Name:        "version",
 		Description: "CLI version info",

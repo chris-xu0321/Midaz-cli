@@ -65,7 +65,7 @@ Targets:
 					output.ExitValidation,
 					"confirmation_required",
 					"setup requires --yes flag",
-					"run: seer-q setup "+targetName+" --yes",
+					"run: midaz setup "+targetName+" --yes",
 				)
 			}
 
@@ -133,7 +133,25 @@ func runSetup(opts *cmdutil.RunOpts, targetName string, force, dryRun bool, skil
 
 	// If auto detected nothing, add hint
 	if targetName == "auto" && len(targets) == 0 {
-		meta["hint"] = "No agent directories detected. Run one of:\n  seer-q setup claude --yes\n  seer-q setup codex --yes\n  seer-q setup all --yes"
+		meta["hint"] = "No agent directories detected. Run one of:\n  midaz setup claude --yes\n  midaz setup codex --yes\n  midaz setup all --yes"
+	}
+
+	// Clean up legacy seer-* skill directories we've replaced with midaz-*.
+	removed := []string{}
+	if !dryRun {
+		for _, t := range targets {
+			for _, legacy := range []string{"seer-shared", "seer-market", "seer-api-explorer"} {
+				legacyPath := filepath.Join(t.SkillDir, legacy)
+				if dirExists(legacyPath) {
+					if err := os.RemoveAll(legacyPath); err == nil {
+						removed = append(removed, legacyPath)
+					}
+				}
+			}
+		}
+	}
+	if len(removed) > 0 {
+		meta["removed_legacy"] = removed
 	}
 
 	return output.WriteSuccess(opts.Out, data, meta, opts.Format)
@@ -287,7 +305,8 @@ func countActions(entries []installEntry) map[string]any {
 }
 
 func skillNameFromPath(path string) string {
-	// path is like "seer-shared/SKILL.md" — extract first component
+	// Embedded paths look like "midaz-shared/SKILL.md"; the first component is
+	// the skill name.
 	dir := filepath.Dir(path)
 	if dir == "." {
 		return path

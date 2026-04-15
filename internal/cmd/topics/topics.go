@@ -8,7 +8,7 @@ import (
 func NewCmdTopics(f *cmdutil.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:   "topics",
-		Short: "List all topics with thread counts",
+		Short: "List all topics with thesis counts",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts := cmdutil.ResolveRunOpts(cmd, f)

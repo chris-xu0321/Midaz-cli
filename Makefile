@@ -1,4 +1,4 @@
-BINARY      := seer-q
+BINARY      := midaz
 MODULE      := github.com/SparkssL/Midaz-cli
 VERSION     := $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 NPM_VERSION := $(shell node -p "require('./package.json').version" 2>/dev/null || echo dev)
@@ -8,13 +8,13 @@ PREFIX      ?= /usr/local
 .PHONY: build test clean release install qa
 
 build:
-	go build -trimpath -ldflags "$(LDFLAGS)" -o $(BINARY) ./cmd/seer-q/
+	go build -trimpath -ldflags "$(LDFLAGS)" -o $(BINARY) ./cmd/midaz/
 
 test:
 	go test -race -count=1 ./...
 
 clean:
-	rm -f $(BINARY) $(BINARY).exe
+	rm -f $(BINARY) $(BINARY).exe seer-q seer-q.exe
 	rm -rf dist/ bin/
 
 install: build

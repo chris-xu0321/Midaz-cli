@@ -1,9 +1,10 @@
 {
   "name": "@midaz/cli",
-  "version": "0.5.0",
-  "description": "Seer Market Intelligence CLI",
+  "version": "0.6.0",
+  "description": "Midaz market intelligence CLI",
   "bin": {
-    "seer-q": "scripts/run.js"
+    "midaz": "scripts/run.js",
+    "seer-q": "scripts/seer-q.js"
   },
   "scripts": {
     "postinstall": "node scripts/install.js"
@@ -32,6 +33,7 @@
   "files": [
     "scripts/install.js",
     "scripts/run.js",
+    "scripts/seer-q.js",
     "CHANGELOG.md"
   ]
 }

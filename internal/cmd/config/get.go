@@ -17,7 +17,7 @@ func newCmdGet(f *cmdutil.Factory) *cobra.Command {
 			if len(args) < 1 {
 				return output.ErrWithHint(output.ExitValidation, "validation",
 					"Missing required argument: key",
-					"usage: seer-q config get <key>")
+					"usage: midaz config get <key>")
 			}
 			return nil
 		},

@@ -12,12 +12,12 @@ import (
 func NewCmdTopic(f *cmdutil.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:   "topic <id>",
-		Short: "Topic detail + threads",
+		Short: "Topic detail + theses",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return output.ErrWithHint(output.ExitValidation, "validation",
 					"Missing required argument: id",
-					"usage: seer-q topic <id>")
+					"usage: midaz topic <id>")
 			}
 			return nil
 		},

@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.6.0 — 2026-04-15
+
+### Added
+- **Full rebrand**: binary renamed `seer-q` → `midaz`; skills `seer-*` → `midaz-*`; config dir `~/.config/seer/` → `~/.config/midaz/`; env vars `SEER_*` → `MIDAZ_*`. Legacy names still work for one release (deprecation notice).
+- **Auth subsystem**: `midaz auth {login,logout,status,whoami,keys}`. Browser-relay login via `/cli-auth` (requires Seer frontend companion page); `--paste` fallback for headless; `--token` / `MIDAZ_TOKEN` for CI. Credentials in `~/.config/midaz/auth.json` (mode 0600), profile-shaped for future multi-profile.
+- **Workspace**: `midaz workspace {get,settings,view,share,radar,playbook,telegram}` — mirrors `/workspace/settings` in the web app.
+- **Onboarding**: `midaz onboard {status,generate,complete}` covering both AI-generated and direct paths.
+- **Invitations**: `midaz invite redeem <code> --yes`.
+- **Subscription**: `midaz subscription {status,start,portal}` — Stripe Checkout and Customer Portal URLs auto-open.
+- **Intel**: `midaz intel {list,push,rm}` for private notes / sources (subscription-gated).
+- **Assets**: `midaz assets {list,get,thesis}` for per-asset thesis links + evidence.
+- **Delta**: `midaz delta [--hours N]` surfaces new claims + theses + topics.
+- **Thesis rename**: `midaz theses`, `midaz thesis <id>` hit `/api/theses*`. `threads`/`thread` still work as hidden deprecated aliases.
+- **New exit codes**: 6 (auth required / invalid), 7 (subscription required / workspace paused).
+- **New skills**: `midaz-account` (auth/onboarding/invite/subscription), `midaz-workspace` (settings/radar/playbook/telegram/intel/assets). Existing skills rewritten and rebranded.
+
+### Changed
+- HTTP client now supports POST/PATCH/DELETE with JSON bodies and auto-attaches `Authorization: Bearer` when the user is logged in.
+- `setup` now installs the 5 new `midaz-*` skills and cleans up any stale `seer-*` skill directories it finds.
+- `doctor` adds an `auth` check that prints masked credentials.
+
 ## 0.5.0 — 2026-04-02
 
 ### Added

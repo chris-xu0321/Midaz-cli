@@ -1,7 +1,7 @@
 // Package build holds version information injected at build time via -ldflags.
 //
 // Build with:
-//   go build -ldflags "-X github.com/SparkssL/Midaz-cli/internal/build.Version=0.2.0" ./cmd/seer-q/
+//   go build -ldflags "-X github.com/SparkssL/Midaz-cli/internal/build.Version=0.6.0" ./cmd/midaz/
 package build
 
 import "runtime"

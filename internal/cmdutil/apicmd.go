@@ -3,6 +3,7 @@ package cmdutil
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/SparkssL/Midaz-cli/internal/client"
@@ -13,20 +14,27 @@ import (
 type NormalizeFn func(body []byte) (data interface{}, meta map[string]any, err error)
 
 // APISpec describes an API command's HTTP call and response normalization.
+//
+// Method defaults to GET when empty. For POST/PATCH, set Body to a value that
+// serializes to JSON (nil = empty body). Params is used for GET query strings
+// only (ignored for other methods).
 type APISpec struct {
+	Method    string
 	Path      string
 	Params    url.Values
+	Body      any
 	Normalize NormalizeFn
 }
 
 // RunAPICommand executes an API call and writes the result.
+// If Normalize is nil, falls back to NormalizePassthrough.
 func RunAPICommand(f *Factory, opts *RunOpts, spec *APISpec) error {
 	c, err := f.Client()
 	if err != nil {
 		return err
 	}
 
-	resp, err := c.Get(opts.Ctx, spec.Path, spec.Params)
+	resp, err := callAPI(c, opts, spec)
 	if err != nil {
 		return err
 	}
@@ -35,7 +43,11 @@ func RunAPICommand(f *Factory, opts *RunOpts, spec *APISpec) error {
 		return output.WriteRaw(opts.Out, resp.Body, opts.Format)
 	}
 
-	data, meta, err := spec.Normalize(resp.Body)
+	norm := spec.Normalize
+	if norm == nil {
+		norm = NormalizePassthrough
+	}
+	data, meta, err := norm(resp.Body)
 	if err != nil {
 		return output.Errorf(output.ExitInternal, "internal", "failed to parse response: %s", err)
 	}
@@ -43,53 +55,23 @@ func RunAPICommand(f *Factory, opts *RunOpts, spec *APISpec) error {
 	return output.WriteSuccess(opts.Out, data, meta, opts.Format)
 }
 
-// MutatingAPISpec describes a write (POST/PUT/DELETE) API call.
-type MutatingAPISpec struct {
-	Method    string // "POST", "PUT", "DELETE"
-	Path      string
-	Body      []byte      // JSON body (nil for DELETE)
-	Normalize NormalizeFn // optional — if nil, uses NormalizePassthrough
-}
-
-// RunMutatingAPICommand executes a write API call and writes the result.
-func RunMutatingAPICommand(f *Factory, opts *RunOpts, spec *MutatingAPISpec) error {
-	c, err := f.Client()
-	if err != nil {
-		return err
+func callAPI(c *client.Client, opts *RunOpts, spec *APISpec) (*client.Response, error) {
+	method := spec.Method
+	if method == "" {
+		method = http.MethodGet
 	}
-
-	var resp *client.Response
-	switch spec.Method {
-	case "POST":
-		resp, err = c.Post(opts.Ctx, spec.Path, spec.Body)
-	case "PUT":
-		resp, err = c.Put(opts.Ctx, spec.Path, spec.Body)
-	case "PATCH":
-		resp, err = c.Patch(opts.Ctx, spec.Path, spec.Body)
-	case "DELETE":
-		resp, err = c.Delete(opts.Ctx, spec.Path)
+	switch method {
+	case http.MethodGet:
+		return c.Get(opts.Ctx, spec.Path, spec.Params)
+	case http.MethodPost:
+		return c.Post(opts.Ctx, spec.Path, spec.Body)
+	case http.MethodPatch:
+		return c.Patch(opts.Ctx, spec.Path, spec.Body)
+	case http.MethodDelete:
+		return c.Delete(opts.Ctx, spec.Path)
 	default:
-		return output.Errorf(output.ExitInternal, "internal", "unknown method: %s", spec.Method)
+		return nil, output.Errorf(output.ExitInternal, "internal", "unsupported HTTP method: %s", method)
 	}
-	if err != nil {
-		return err
-	}
-
-	if opts.Raw {
-		return output.WriteRaw(opts.Out, resp.Body, opts.Format)
-	}
-
-	normalize := spec.Normalize
-	if normalize == nil {
-		normalize = NormalizePassthrough
-	}
-
-	data, meta, err := normalize(resp.Body)
-	if err != nil {
-		return output.Errorf(output.ExitInternal, "internal", "failed to parse response: %s", err)
-	}
-
-	return output.WriteSuccess(opts.Out, data, meta, opts.Format)
 }
 
 // --- Shared normalizers ---
@@ -100,7 +82,6 @@ func NormalizeBareArray(body []byte) (interface{}, map[string]any, error) {
 	if err := json.Unmarshal(body, &arr); err != nil {
 		return nil, nil, fmt.Errorf("expected JSON array: %w", err)
 	}
-	// Re-unmarshal to get proper interface{} slice for marshaling
 	var data interface{}
 	if err := json.Unmarshal(body, &data); err != nil {
 		return nil, nil, err
@@ -109,7 +90,11 @@ func NormalizeBareArray(body []byte) (interface{}, map[string]any, error) {
 }
 
 // NormalizePassthrough returns the parsed JSON as-is with empty meta.
+// Also accepts empty bodies (returns nil data).
 func NormalizePassthrough(body []byte) (interface{}, map[string]any, error) {
+	if len(body) == 0 {
+		return nil, map[string]any{}, nil
+	}
 	var data interface{}
 	if err := json.Unmarshal(body, &data); err != nil {
 		return nil, nil, err
@@ -153,14 +138,14 @@ func CountArray(raw json.RawMessage) int {
 // UnmarshalString extracts a Go string from a JSON string value.
 func UnmarshalString(raw json.RawMessage) string {
 	var s string
-	json.Unmarshal(raw, &s)
+	_ = json.Unmarshal(raw, &s)
 	return s
 }
 
 // UnmarshalInt extracts a Go int from a JSON number value.
 func UnmarshalInt(raw json.RawMessage) int {
 	var n int
-	json.Unmarshal(raw, &n)
+	_ = json.Unmarshal(raw, &n)
 	return n
 }
 

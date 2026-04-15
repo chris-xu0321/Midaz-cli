@@ -20,7 +20,7 @@ func TestNormalizeThread(t *testing.T) {
 		"snapshot": {}
 	}`
 
-	data, meta, err := normalizeThread([]byte(apiResponse))
+	data, meta, err := threadNormalize([]byte(apiResponse))
 	if err != nil {
 		t.Fatal(err)
 	}

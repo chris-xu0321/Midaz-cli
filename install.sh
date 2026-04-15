@@ -1,12 +1,12 @@
 #!/bin/sh
-# install.sh — zero-dependency installer for seer-q CLI + skills.
+# install.sh — zero-dependency installer for midaz CLI + skills.
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.sh | sh
-#   curl -fsSL ... | sh -s -- --version 0.4.5 --agent claude
+#   curl -fsSL ... | sh -s -- --version 0.6.0 --agent claude
 set -eu
 
 REPO="SparkssL/Midaz-cli"
-BINARY="seer-q"
+BINARY="midaz"
 INSTALL_DIR="${HOME}/.local/bin"
 VERSION=""
 AGENT="all"
@@ -164,4 +164,4 @@ ensure_path
 setup_skills
 
 echo ""
-echo "Done! Run 'seer-q version' to verify."
+echo "Done! Run 'midaz version' to verify, then 'midaz auth login' to sign in."

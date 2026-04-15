@@ -1,7 +1,8 @@
-// Package client provides the HTTP client for communicating with the Seer API.
+// Package client provides the HTTP client for communicating with the Midaz API.
 package client
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -22,11 +23,11 @@ type Response struct {
 	Body       []byte
 }
 
-// Client is the Seer API HTTP client.
+// Client is the Midaz API HTTP client.
 type Client struct {
 	APIURL     string
+	Token      string // PAT (sk_...) or JWT — attached as Authorization: Bearer
 	HTTPClient *http.Client
-	AuthToken  string // JWT or API key (sk_...) — injected by factory
 }
 
 // New creates a Client with the given base URL and a 30-second timeout.
@@ -39,83 +40,62 @@ func New(apiURL string) *Client {
 	}
 }
 
-// Get makes a GET request to the API. Path should start with "/".
-// Query params are appended if non-nil. Returns Response on 2xx,
-// or a classified *output.ExitError on failure.
-func (c *Client) Get(ctx context.Context, path string, params url.Values) (*Response, error) {
-	u := c.APIURL + path
-	if len(params) > 0 {
-		u += "?" + params.Encode()
-	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
-	if err != nil {
-		return nil, output.ErrNetwork("failed to create request: %s", err)
-	}
-
-	// Inject auth header if token is set
-	if c.AuthToken != "" {
-		req.Header.Set("Authorization", "Bearer "+c.AuthToken)
-	}
-
-	resp, err := c.HTTPClient.Do(req)
-	if err != nil {
-		return nil, classifyConnError(err, c.APIURL)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, output.ErrNetwork("failed to read response: %s", err)
-	}
-
-	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-		return &Response{StatusCode: resp.StatusCode, Body: body}, nil
-	}
-
-	return nil, classifyHTTPError(resp.StatusCode, body, path)
+// WithToken returns a shallow copy of the client with Token set.
+func (c *Client) WithToken(token string) *Client {
+	cp := *c
+	cp.Token = token
+	return &cp
 }
 
-// Post makes a POST request with a JSON body.
-func (c *Client) Post(ctx context.Context, path string, body []byte) (*Response, error) {
+// Get makes a GET request to the API.
+func (c *Client) Get(ctx context.Context, path string, params url.Values) (*Response, error) {
+	return c.do(ctx, http.MethodGet, path, params, nil)
+}
+
+// Post makes a POST request with an optional JSON body.
+func (c *Client) Post(ctx context.Context, path string, body any) (*Response, error) {
 	return c.doJSON(ctx, http.MethodPost, path, body)
 }
 
-// Put makes a PUT request with a JSON body.
-func (c *Client) Put(ctx context.Context, path string, body []byte) (*Response, error) {
-	return c.doJSON(ctx, http.MethodPut, path, body)
-}
-
-// Patch makes a PATCH request with a JSON body.
-func (c *Client) Patch(ctx context.Context, path string, body []byte) (*Response, error) {
+// Patch makes a PATCH request with an optional JSON body.
+func (c *Client) Patch(ctx context.Context, path string, body any) (*Response, error) {
 	return c.doJSON(ctx, http.MethodPatch, path, body)
 }
 
 // Delete makes a DELETE request.
 func (c *Client) Delete(ctx context.Context, path string) (*Response, error) {
-	return c.doJSON(ctx, http.MethodDelete, path, nil)
+	return c.do(ctx, http.MethodDelete, path, nil, nil)
 }
 
-// doJSON sends a request with optional JSON body.
-func (c *Client) doJSON(ctx context.Context, method, path string, body []byte) (*Response, error) {
-	u := c.APIURL + path
-
-	var bodyReader io.Reader
+func (c *Client) doJSON(ctx context.Context, method, path string, body any) (*Response, error) {
+	var buf io.Reader
 	if body != nil {
-		bodyReader = strings.NewReader(string(body))
+		raw, err := json.Marshal(body)
+		if err != nil {
+			return nil, output.Errorf(output.ExitInternal, "internal", "failed to encode request body: %s", err)
+		}
+		buf = bytes.NewReader(raw)
+	}
+	return c.do(ctx, method, path, nil, buf)
+}
+
+func (c *Client) do(ctx context.Context, method, path string, params url.Values, body io.Reader) (*Response, error) {
+	u := c.APIURL + path
+	if len(params) > 0 {
+		u += "?" + params.Encode()
 	}
 
-	req, err := http.NewRequestWithContext(ctx, method, u, bodyReader)
+	req, err := http.NewRequestWithContext(ctx, method, u, body)
 	if err != nil {
 		return nil, output.ErrNetwork("failed to create request: %s", err)
 	}
-
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
-	if c.AuthToken != "" {
-		req.Header.Set("Authorization", "Bearer "+c.AuthToken)
+	if c.Token != "" {
+		req.Header.Set("Authorization", "Bearer "+c.Token)
 	}
+	req.Header.Set("Accept", "application/json")
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
@@ -132,39 +112,49 @@ func (c *Client) doJSON(ctx context.Context, method, path string, body []byte) (
 		return &Response{StatusCode: resp.StatusCode, Body: respBody}, nil
 	}
 
-	return nil, classifyHTTPError(resp.StatusCode, respBody, path)
+	return nil, classifyHTTPError(resp.StatusCode, respBody, path, c.Token != "")
 }
 
 // classifyConnError maps connection-level errors to ExitError.
 func classifyConnError(err error, apiURL string) *output.ExitError {
-	// Check for timeout
 	var netErr net.Error
 	if errors.As(err, &netErr) && netErr.Timeout() {
 		return output.ErrWithHint(output.ExitNetwork, "timeout",
 			fmt.Sprintf("Request timed out to %s", apiURL),
 			"check your network connection or increase timeout")
 	}
-
-	// Connection refused, DNS failure, etc.
 	return output.ErrWithHint(output.ExitNetwork, "network",
-		fmt.Sprintf("Cannot connect to Seer API at %s", apiURL),
-		"check your API URL with: seer-q config get api_url")
+		fmt.Sprintf("Cannot connect to Midaz API at %s", apiURL),
+		"check your API URL with: midaz config get api_url")
 }
 
 // classifyHTTPError maps HTTP status codes to ExitError.
-func classifyHTTPError(status int, body []byte, path string) *output.ExitError {
-	// Try to extract error message from API response
+// hasToken indicates whether the request carried an Authorization header; it
+// affects the hint we surface for 401.
+func classifyHTTPError(status int, body []byte, path string, hasToken bool) *output.ExitError {
 	msg := extractAPIMessage(body)
 
 	switch {
 	case status == 401:
-		return output.ErrWithHint(output.ExitAPI, "unauthorized",
-			"Not authenticated",
-			"run: seer-q login")
+		if msg == "" {
+			msg = "Not authenticated"
+		}
+		hint := "run 'midaz auth login' to authenticate"
+		if hasToken {
+			hint = "your credentials are invalid or expired — run 'midaz auth login' again"
+		}
+		return output.ErrAuth(msg, hint)
+	case status == 402:
+		if msg == "" {
+			msg = "Active subscription required"
+		}
+		return output.ErrSubscription(msg, "")
 	case status == 403:
-		return output.ErrWithHint(output.ExitAPI, "forbidden",
-			"Access denied",
-			"check your API key permissions")
+		if msg == "" {
+			msg = fmt.Sprintf("Forbidden: %s", path)
+		}
+		return output.ErrWithHint(output.ExitAPI, "forbidden", msg,
+			"you may lack the required role (owner-only endpoint) or haven't redeemed an invitation code")
 	case status == 404:
 		if msg == "" {
 			msg = fmt.Sprintf("Not found: %s", path)
@@ -186,10 +176,16 @@ func classifyHTTPError(status int, body []byte, path string) *output.ExitError {
 // extractAPIMessage tries to pull an error message from the API JSON response.
 func extractAPIMessage(body []byte) string {
 	var parsed struct {
-		Error string `json:"error"`
+		Error   string `json:"error"`
+		Message string `json:"message"`
 	}
-	if json.Unmarshal(body, &parsed) == nil && parsed.Error != "" {
-		return parsed.Error
+	if json.Unmarshal(body, &parsed) == nil {
+		if parsed.Error != "" {
+			return parsed.Error
+		}
+		if parsed.Message != "" {
+			return parsed.Message
+		}
 	}
 	return ""
 }

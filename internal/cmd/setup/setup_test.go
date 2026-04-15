@@ -85,8 +85,8 @@ func TestSetupAllCreatesSkills(t *testing.T) {
 		t.Fatalf("setup all --yes failed: %v", err)
 	}
 
-	// Verify all 3 skill directories were created
-	expectedSkills := []string{"seer-shared", "seer-market", "seer-api-explorer"}
+	// Verify all 5 skill directories were created
+	expectedSkills := []string{"midaz-shared", "midaz-market", "midaz-api-explorer", "midaz-account", "midaz-workspace"}
 	for _, skill := range expectedSkills {
 		path := filepath.Join(dir, skill, "SKILL.md")
 		if _, err := os.Stat(path); os.IsNotExist(err) {
@@ -100,8 +100,8 @@ func TestSetupAllCreatesSkills(t *testing.T) {
 		t.Error("expected ok=true")
 	}
 	meta := env["meta"].(map[string]any)
-	if meta["created"].(float64) != 3 {
-		t.Errorf("expected 3 created, got %v", meta["created"])
+	if meta["created"].(float64) != float64(len(expectedSkills)) {
+		t.Errorf("expected %d created, got %v", len(expectedSkills), meta["created"])
 	}
 }
 
@@ -109,7 +109,7 @@ func TestSetupForceOverwrites(t *testing.T) {
 	dir := t.TempDir()
 
 	// Create a skill file with different content
-	skillDir := filepath.Join(dir, "seer-shared")
+	skillDir := filepath.Join(dir, "midaz-shared")
 	os.MkdirAll(skillDir, 0755)
 	os.WriteFile(filepath.Join(skillDir, "SKILL.md"), []byte("old content"), 0644)
 

@@ -6,7 +6,7 @@ const os = require("os");
 
 const VERSION = require("../package.json").version;
 const REPO = "SparkssL/Midaz-cli";
-const NAME = "seer-q";
+const NAME = "midaz";
 
 const PLATFORM_MAP = {
   darwin: "darwin",
@@ -44,7 +44,7 @@ function download(url, destPath) {
     const options = {
       hostname: parsed.hostname,
       path: parsed.pathname + parsed.search,
-      headers: { "User-Agent": "seer-q-installer" },
+      headers: { "User-Agent": "midaz-installer" },
     };
     const client = url.startsWith("https") ? https : require("http");
     client
@@ -72,7 +72,7 @@ function download(url, destPath) {
 }
 
 async function install() {
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "seer-q-"));
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "midaz-"));
   const archivePath = path.join(tmpDir, archiveName);
 
   try {

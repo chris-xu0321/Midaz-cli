@@ -1,5 +1,5 @@
 // Package output defines response envelopes, structured errors, exit codes,
-// and writers for the seer-q CLI.
+// and writers for the midaz CLI.
 //
 // Success envelopes go to stdout:
 //

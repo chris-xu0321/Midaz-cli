@@ -1,4 +1,4 @@
-// Package cmdutil provides shared infrastructure for seer-q commands:
+// Package cmdutil provides shared infrastructure for midaz commands:
 // Factory (dependency injection), IOStreams, RunOpts, and API command helpers.
 package cmdutil
 
@@ -6,8 +6,10 @@ import (
 	"context"
 	"io"
 
+	"github.com/SparkssL/Midaz-cli/internal/auth"
 	"github.com/SparkssL/Midaz-cli/internal/client"
 	"github.com/SparkssL/Midaz-cli/internal/config"
+	"github.com/SparkssL/Midaz-cli/internal/output"
 	"github.com/spf13/cobra"
 )
 
@@ -17,50 +19,75 @@ type IOStreams struct {
 	ErrOut io.Writer // stderr — error envelopes
 }
 
-// Factory provides shared dependencies to commands via lazy initialization.
-// Local commands (version, schema) never call Config/Client, so a bad config
-// file cannot break them.
+// Factory provides shared dependencies to commands via lazy initialization,
+// so commands that don't need network/config (e.g. version, schema) aren't
+// broken by a missing or malformed config file.
 type Factory struct {
 	IOStreams *IOStreams
-	Config   func() (*config.Config, error)  // lazy — only called by commands that need it
-	Client   func() (*client.Client, error)  // lazy — only called by API commands
+	Config    func() (*config.Config, error)
+	Client    func() (*client.Client, error)
+	Auth      func() (*auth.Creds, error) // may return nil creds without error when unauthenticated
 }
 
 // RunOpts holds explicit runtime options for command execution.
-// Format defaults to "json" via cobra flag — no config dependency.
 type RunOpts struct {
-	Ctx    context.Context
-	Format string    // "json" or "pretty"
-	Raw    bool      // bypass envelope, write raw API response
-	Out    io.Writer // stdout
-	ErrOut io.Writer // stderr
+	Ctx     context.Context
+	Format  string
+	Raw     bool
+	Out     io.Writer
+	ErrOut  io.Writer
+	Profile string
 }
 
-// ResolveRunOpts reads --format and --raw flags from the cobra command.
-// If --format was not explicitly passed, falls back to config's format value.
-// If config fails (local commands with bad config file), defaults to "json".
+// ResolveRunOpts reads --format, --raw, and --profile flags from the cobra command.
 func ResolveRunOpts(cmd *cobra.Command, f *Factory) *RunOpts {
 	format, _ := cmd.Flags().GetString("format")
 
-	// If --format was not explicitly passed, try config
 	if !cmd.Flags().Changed("format") {
 		if cfg, err := f.Config(); err == nil && cfg.Format != "" {
 			format = cfg.Format
 		}
-		// If config fails or format is empty, keep cobra default "json"
 	}
-
 	if format == "" {
 		format = "json"
 	}
 
 	raw, _ := cmd.Flags().GetBool("raw")
+	profile, _ := cmd.Flags().GetString("profile")
 
 	return &RunOpts{
-		Ctx:    cmd.Context(),
-		Format: format,
-		Raw:    raw,
-		Out:    f.IOStreams.Out,
-		ErrOut: f.IOStreams.ErrOut,
+		Ctx:     cmd.Context(),
+		Format:  format,
+		Raw:     raw,
+		Out:     f.IOStreams.Out,
+		ErrOut:  f.IOStreams.ErrOut,
+		Profile: profile,
 	}
+}
+
+// RequireAuth loads credentials or returns an ErrAuth. Use for commands that
+// must be authenticated.
+func RequireAuth(f *Factory) (*auth.Creds, error) {
+	c, err := f.Auth()
+	if err != nil {
+		return nil, output.ErrAuth(err.Error(), "")
+	}
+	if c == nil {
+		return nil, output.ErrAuth("not logged in", "")
+	}
+	return c, nil
+}
+
+// AuthedClient returns a client with the Authorization header pre-set. Returns
+// ErrAuth if the user isn't logged in.
+func AuthedClient(f *Factory) (*client.Client, *auth.Creds, error) {
+	creds, err := RequireAuth(f)
+	if err != nil {
+		return nil, nil, err
+	}
+	base, err := f.Client()
+	if err != nil {
+		return nil, nil, err
+	}
+	return base.WithToken(creds.APIKey), creds, nil
 }

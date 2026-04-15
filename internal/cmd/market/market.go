@@ -10,7 +10,7 @@ import (
 func NewCmdMarket(f *cmdutil.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:   "market",
-		Short: "Global regime + all topics with thread counts",
+		Short: "Global regime + all topics with thesis counts",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts := cmdutil.ResolveRunOpts(cmd, f)

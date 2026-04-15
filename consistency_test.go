@@ -34,13 +34,26 @@ func allSkillContent(t *testing.T) string {
 	return combined.String()
 }
 
+// commandsExemptFromSkillCoverage are commands whose mention in skills is not
+// required (deprecated aliases or local-only diagnostics).
+var commandsExemptFromSkillCoverage = map[string]bool{
+	"threads": true, // deprecated alias
+	"thread":  true, // deprecated alias
+	"version": true,
+	"schema":  true,
+	"config":  true,
+}
+
 // TestSkillCoversRegistryCommands asserts that every command in the registry
 // is mentioned in at least one SKILL.md file. Prevents drift.
 func TestSkillCoversRegistryCommands(t *testing.T) {
 	content := allSkillContent(t)
 
 	for _, cmd := range registry.Commands {
-		pattern := "seer-q " + cmd.Name
+		if commandsExemptFromSkillCoverage[cmd.Name] {
+			continue
+		}
+		pattern := "midaz " + cmd.Name
 		if !strings.Contains(content, pattern) {
 			t.Errorf("skills do not mention command %q (expected pattern: %q)", cmd.Name, pattern)
 		}

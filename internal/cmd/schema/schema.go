@@ -16,8 +16,16 @@ type CommandInfo struct {
 	Endpoints   []string
 }
 
-// SchemaData is set by the registry package after initialization.
-var SchemaData []CommandInfo
+// LoadSchemaData is set by the cli package; it materializes registry metadata
+// lazily so other commands don't pay for schema construction on every invocation.
+var LoadSchemaData func() []CommandInfo
+
+func schemaData() []CommandInfo {
+	if LoadSchemaData == nil {
+		return nil
+	}
+	return LoadSchemaData()
+}
 
 func NewCmdSchema(f *cmdutil.Factory) *cobra.Command {
 	return &cobra.Command{
@@ -36,7 +44,7 @@ func NewCmdSchema(f *cmdutil.Factory) *cobra.Command {
 
 func listAll(opts *cmdutil.RunOpts) error {
 	var commands []map[string]any
-	for _, info := range SchemaData {
+	for _, info := range schemaData() {
 		entry := map[string]any{
 			"name":        info.Name,
 			"description": info.Description,
@@ -55,7 +63,7 @@ func listAll(opts *cmdutil.RunOpts) error {
 }
 
 func describeOne(opts *cmdutil.RunOpts, name string) error {
-	for _, info := range SchemaData {
+	for _, info := range schemaData() {
 		if info.Name == name {
 			data := map[string]any{
 				"name":        info.Name,
@@ -84,5 +92,5 @@ func describeOne(opts *cmdutil.RunOpts, name string) error {
 		}
 	}
 	return output.ErrWithHint(output.ExitValidation, "validation",
-		"Unknown command: "+name, "run: seer-q schema")
+		"Unknown command: "+name, "run: midaz schema")
 }

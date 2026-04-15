@@ -20,7 +20,7 @@ func TestWriteErrorEnvelope_ValidJSON(t *testing.T) {
 	var buf bytes.Buffer
 	err := &ExitError{
 		Code:   ExitAPI,
-		Detail: &ErrDetail{Code: "not_found", Message: "Thread not found", Hint: "try: seer-q threads"},
+		Detail: &ErrDetail{Code: "not_found", Message: "Thread not found", Hint: "try: midaz threads"},
 	}
 	WriteErrorEnvelope(&buf, err)
 
@@ -35,7 +35,7 @@ func TestWriteErrorEnvelope_ValidJSON(t *testing.T) {
 	if errObj["code"] != "not_found" {
 		t.Errorf("expected code=not_found, got %v", errObj["code"])
 	}
-	if errObj["hint"] != "try: seer-q threads" {
+	if errObj["hint"] != "try: midaz threads" {
 		t.Errorf("expected hint, got %v", errObj["hint"])
 	}
 }

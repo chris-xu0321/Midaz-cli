@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	authpkg "github.com/SparkssL/Midaz-cli/internal/auth"
 	"github.com/SparkssL/Midaz-cli/internal/client"
 	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
 	"github.com/SparkssL/Midaz-cli/internal/config"
@@ -34,12 +35,11 @@ func runDoctor(f *cmdutil.Factory, opts *cmdutil.RunOpts) error {
 	var checks []check
 	passed, failed, warned := 0, 0, 0
 
-	// 1. Config source
 	configPath := config.ConfigPath()
 	if _, err := os.Stat(configPath); err == nil {
 		checks = append(checks, check{"config_source", "pass", "file at " + configPath})
 		passed++
-	} else if os.Getenv("SEER_API_URL") != "" || os.Getenv("SEER_FRONTEND_URL") != "" {
+	} else if envAny("MIDAZ_API_URL", "SEER_API_URL", "MIDAZ_FRONTEND_URL", "SEER_FRONTEND_URL") {
 		checks = append(checks, check{"config_source", "pass", "env vars"})
 		passed++
 	} else {
@@ -47,7 +47,6 @@ func runDoctor(f *cmdutil.Factory, opts *cmdutil.RunOpts) error {
 		passed++
 	}
 
-	// 2. API URL
 	cfg, err := f.Config()
 	if err != nil {
 		checks = append(checks, check{"api_url", "fail", "config error: " + err.Error()})
@@ -57,7 +56,6 @@ func runDoctor(f *cmdutil.Factory, opts *cmdutil.RunOpts) error {
 		passed++
 	}
 
-	// 3. API reachable
 	if cfg != nil {
 		c := client.New(cfg.APIURL)
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -75,7 +73,6 @@ func runDoctor(f *cmdutil.Factory, opts *cmdutil.RunOpts) error {
 		failed++
 	}
 
-	// 4. Frontend URL
 	if cfg != nil && cfg.FrontendURL != "" {
 		checks = append(checks, check{"frontend_url", "pass", cfg.FrontendURL})
 		passed++
@@ -84,12 +81,20 @@ func runDoctor(f *cmdutil.Factory, opts *cmdutil.RunOpts) error {
 		warned++
 	}
 
-	// 5. Config file
 	if _, err := os.Stat(configPath); err == nil {
 		checks = append(checks, check{"config_file", "pass", configPath})
 		passed++
 	} else {
 		checks = append(checks, check{"config_file", "warn", "not found at " + configPath})
+		warned++
+	}
+
+	if creds, err := f.Auth(); err == nil && creds != nil {
+		msg := loginDescription(creds)
+		checks = append(checks, check{"auth", "pass", msg})
+		passed++
+	} else {
+		checks = append(checks, check{"auth", "warn", "not logged in — run 'midaz auth login'"})
 		warned++
 	}
 
@@ -99,6 +104,29 @@ func runDoctor(f *cmdutil.Factory, opts *cmdutil.RunOpts) error {
 		"failed": failed,
 		"warned": warned,
 	}
-
 	return output.WriteSuccess(opts.Out, data, meta, opts.Format)
+}
+
+func envAny(names ...string) bool {
+	for _, n := range names {
+		if os.Getenv(n) != "" {
+			return true
+		}
+	}
+	return false
+}
+
+func loginDescription(c *authpkg.Creds) string {
+	email := c.UserEmail
+	if email == "" {
+		email = c.UserID
+	}
+	if email == "" {
+		email = "unknown user"
+	}
+	ws := c.WorkspaceSlug
+	if ws == "" {
+		ws = c.WorkspaceID
+	}
+	return email + " @ " + ws + " (" + authpkg.MaskKey(c.APIKey) + ")"
 }
