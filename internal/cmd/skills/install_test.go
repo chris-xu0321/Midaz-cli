@@ -1,4 +1,4 @@
-package setup
+package skills
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 
 	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
 	"github.com/SparkssL/Midaz-cli/internal/config"
-	"github.com/SparkssL/Midaz-cli/skills"
+	embedskills "github.com/SparkssL/Midaz-cli/skills"
 )
 
 // testFactoryResult wraps a Factory with captured stdout/stderr.
@@ -24,12 +24,21 @@ func testFactory() *testFactoryResult {
 	var stdout, stderr bytes.Buffer
 	f := &cmdutil.Factory{
 		IOStreams: &cmdutil.IOStreams{Out: &stdout, ErrOut: &stderr},
-		Config:   func() (*config.Config, error) { return config.Defaults(), nil },
+		Config:    func() (*config.Config, error) { return config.Defaults(), nil },
 	}
 	return &testFactoryResult{Factory: f, stdout: &stdout, stderr: &stderr}
 }
 
-// parseEnvelope decodes a JSON envelope and returns the top-level map.
+// runSkills executes `midaz skills <args...>` against a fresh command tree.
+func runSkills(tf *testFactoryResult, args ...string) error {
+	cmd := NewCmdSkills(tf.Factory)
+	cmd.SetArgs(args)
+	cmd.SilenceUsage = true
+	cmd.SetOut(tf.stdout)
+	cmd.SetErr(tf.stderr)
+	return cmd.Execute()
+}
+
 func parseEnvelope(t *testing.T, data []byte) map[string]any {
 	t.Helper()
 	var env map[string]any
@@ -39,53 +48,37 @@ func parseEnvelope(t *testing.T, data []byte) map[string]any {
 	return env
 }
 
-func TestSetupRequiresYes(t *testing.T) {
-	// Without --yes and without --dry-run, the command should fail
+func TestInstallRequiresYes(t *testing.T) {
 	tf := testFactory()
-	cmd := NewCmdSetup(tf.Factory)
-	cmd.SetArgs([]string{"all"})
-	cmd.SilenceUsage = true
-
-	err := cmd.Execute()
+	err := runSkills(tf, "install", "all")
 	if err == nil {
 		t.Fatal("expected error without --yes flag")
 	}
-	if err.Error() != "setup requires --yes flag" {
+	if err.Error() != "skills install requires --yes flag" {
 		t.Errorf("unexpected error: %v", err)
 	}
 }
 
-func TestSetupDryRunNoYes(t *testing.T) {
-	// --dry-run should work without --yes
+func TestInstallDryRunNoYes(t *testing.T) {
 	dir := t.TempDir()
 	tf := testFactory()
-	cmd := NewCmdSetup(tf.Factory)
-	cmd.SetArgs([]string{"all", "--dry-run", "--skill-dir", dir})
-
-	err := cmd.Execute()
-	if err != nil {
+	if err := runSkills(tf, "install", "all", "--dry-run", "--skill-dir", dir); err != nil {
 		t.Fatalf("dry-run should succeed without --yes: %v", err)
 	}
 
-	// Verify no files were actually written
 	entries, _ := os.ReadDir(dir)
 	if len(entries) > 0 {
 		t.Errorf("dry-run should not write files, found %d entries", len(entries))
 	}
 }
 
-func TestSetupAllCreatesSkills(t *testing.T) {
+func TestInstallAllCreatesSkills(t *testing.T) {
 	dir := t.TempDir()
 	tf := testFactory()
-	cmd := NewCmdSetup(tf.Factory)
-	cmd.SetArgs([]string{"all", "--yes", "--skill-dir", dir})
-
-	err := cmd.Execute()
-	if err != nil {
-		t.Fatalf("setup all --yes failed: %v", err)
+	if err := runSkills(tf, "install", "all", "--yes", "--skill-dir", dir); err != nil {
+		t.Fatalf("skills install all --yes failed: %v", err)
 	}
 
-	// Verify all 5 skill directories were created
 	expectedSkills := []string{"midaz-shared", "midaz-market", "midaz-api-explorer", "midaz-account", "midaz-workspace"}
 	for _, skill := range expectedSkills {
 		path := filepath.Join(dir, skill, "SKILL.md")
@@ -94,7 +87,6 @@ func TestSetupAllCreatesSkills(t *testing.T) {
 		}
 	}
 
-	// Parse stdout envelope
 	env := parseEnvelope(t, tf.stdout.Bytes())
 	if env["ok"] != true {
 		t.Error("expected ok=true")
@@ -105,20 +97,16 @@ func TestSetupAllCreatesSkills(t *testing.T) {
 	}
 }
 
-func TestSetupForceOverwrites(t *testing.T) {
+func TestInstallForceOverwrites(t *testing.T) {
 	dir := t.TempDir()
 
-	// Create a skill file with different content
 	skillDir := filepath.Join(dir, "midaz-shared")
 	os.MkdirAll(skillDir, 0755)
 	os.WriteFile(filepath.Join(skillDir, "SKILL.md"), []byte("old content"), 0644)
 
-	// Without --force: should skip
 	tf1 := testFactory()
-	cmd1 := NewCmdSetup(tf1.Factory)
-	cmd1.SetArgs([]string{"all", "--yes", "--skill-dir", dir})
-	if err := cmd1.Execute(); err != nil {
-		t.Fatalf("setup without force failed: %v", err)
+	if err := runSkills(tf1, "install", "all", "--yes", "--skill-dir", dir); err != nil {
+		t.Fatalf("install without force failed: %v", err)
 	}
 
 	env1 := parseEnvelope(t, tf1.stdout.Bytes())
@@ -127,18 +115,14 @@ func TestSetupForceOverwrites(t *testing.T) {
 		t.Error("expected at least 1 skipped without --force")
 	}
 
-	// Verify old content preserved
 	content, _ := os.ReadFile(filepath.Join(skillDir, "SKILL.md"))
 	if string(content) != "old content" {
 		t.Error("without --force, existing file should not be overwritten")
 	}
 
-	// With --force: should update
 	tf2 := testFactory()
-	cmd2 := NewCmdSetup(tf2.Factory)
-	cmd2.SetArgs([]string{"all", "--yes", "--force", "--skill-dir", dir})
-	if err := cmd2.Execute(); err != nil {
-		t.Fatalf("setup with force failed: %v", err)
+	if err := runSkills(tf2, "install", "all", "--yes", "--force", "--skill-dir", dir); err != nil {
+		t.Fatalf("install with force failed: %v", err)
 	}
 
 	env2 := parseEnvelope(t, tf2.stdout.Bytes())
@@ -147,22 +131,17 @@ func TestSetupForceOverwrites(t *testing.T) {
 		t.Error("expected at least 1 updated with --force")
 	}
 
-	// Verify content was overwritten
 	content, _ = os.ReadFile(filepath.Join(skillDir, "SKILL.md"))
 	if string(content) == "old content" {
 		t.Error("with --force, existing file should be overwritten")
 	}
 }
 
-func TestSetupAutoEnvDetection(t *testing.T) {
-	// Use a temp home so no real dirs are detected
+func TestInstallAutoEnvDetection(t *testing.T) {
 	tmpHome := t.TempDir()
 	t.Setenv("HOME", tmpHome)
 	t.Setenv("USERPROFILE", tmpHome)
-
-	// Set CLAUDECODE=1 to simulate running inside Claude Code
 	t.Setenv("CLAUDECODE", "1")
-	// Clear AGENT to avoid codex detection
 	t.Setenv("AGENT", "")
 
 	known := []target{
@@ -179,8 +158,7 @@ func TestSetupAutoEnvDetection(t *testing.T) {
 	}
 }
 
-func TestSetupAutoNoTargets(t *testing.T) {
-	// Use a temp home with no agent dirs and no env signals
+func TestInstallAutoNoTargets(t *testing.T) {
 	tmpHome := t.TempDir()
 	t.Setenv("HOME", tmpHome)
 	t.Setenv("USERPROFILE", tmpHome)
@@ -188,11 +166,7 @@ func TestSetupAutoNoTargets(t *testing.T) {
 	t.Setenv("AGENT", "")
 
 	tf := testFactory()
-	cmd := NewCmdSetup(tf.Factory)
-	cmd.SetArgs([]string{"auto", "--yes"})
-
-	err := cmd.Execute()
-	if err != nil {
+	if err := runSkills(tf, "install", "auto", "--yes"); err != nil {
 		t.Fatalf("auto with no targets should succeed: %v", err)
 	}
 
@@ -214,22 +188,18 @@ func TestSetupAutoNoTargets(t *testing.T) {
 	}
 }
 
-func TestSetupSkillContentMatches(t *testing.T) {
+func TestInstallSkillContentMatches(t *testing.T) {
 	dir := t.TempDir()
 	tf := testFactory()
-	cmd := NewCmdSetup(tf.Factory)
-	cmd.SetArgs([]string{"all", "--yes", "--skill-dir", dir})
-
-	if err := cmd.Execute(); err != nil {
-		t.Fatalf("setup failed: %v", err)
+	if err := runSkills(tf, "install", "all", "--yes", "--skill-dir", dir); err != nil {
+		t.Fatalf("install failed: %v", err)
 	}
 
-	// Compare each installed file against the embedded FS
-	err := fs.WalkDir(skills.FS, ".", func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(embedskills.FS, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {
 			return err
 		}
-		embedded, _ := fs.ReadFile(skills.FS, path)
+		embedded, _ := fs.ReadFile(embedskills.FS, path)
 		installed, readErr := os.ReadFile(filepath.Join(dir, path))
 		if readErr != nil {
 			t.Errorf("installed file missing: %s", path)

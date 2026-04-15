@@ -1,15 +1,17 @@
 #!/bin/sh
-# install.sh — zero-dependency installer for midaz CLI + skills.
+# install.sh — zero-dependency installer for the midaz CLI binary.
+# Installs only the binary. Skills are installed separately via:
+#   midaz skills install --yes
+#
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.sh | sh
-#   curl -fsSL ... | sh -s -- --version 0.6.0 --agent claude
+#   curl -fsSL ... | sh -s -- --version 0.6.0 --install-dir ~/.local/bin
 set -eu
 
 REPO="SparkssL/Midaz-cli"
 BINARY="midaz"
 INSTALL_DIR="${HOME}/.local/bin"
 VERSION=""
-AGENT="all"
 
 usage() {
   cat <<EOF
@@ -17,7 +19,6 @@ Usage: install.sh [OPTIONS]
 
 Options:
   --version VERSION   Install a specific version (default: latest)
-  --agent TARGET      Agent target for skill setup: auto|claude|codex|all (default: all)
   --install-dir DIR   Binary install directory (default: ~/.local/bin)
   -h, --help          Show this help
 EOF
@@ -26,15 +27,13 @@ EOF
 # Parse arguments
 while [ $# -gt 0 ]; do
   case "$1" in
-    --version)   VERSION="$2"; shift 2 ;;
-    --agent)     AGENT="$2"; shift 2 ;;
+    --version)     VERSION="$2"; shift 2 ;;
     --install-dir) INSTALL_DIR="$2"; shift 2 ;;
-    -h|--help)   usage; exit 0 ;;
-    *)           echo "Unknown option: $1"; usage; exit 1 ;;
+    -h|--help)     usage; exit 0 ;;
+    *)             echo "Unknown option: $1"; usage; exit 1 ;;
   esac
 done
 
-# Detect platform
 detect_platform() {
   OS="$(uname -s)"
   case "$OS" in
@@ -51,7 +50,6 @@ detect_platform() {
   esac
 }
 
-# Resolve latest version from GitHub API
 resolve_version() {
   if [ -n "$VERSION" ]; then
     return
@@ -69,7 +67,6 @@ resolve_version() {
   fi
 }
 
-# Download and verify
 download() {
   ARCHIVE="${BINARY}-${VERSION}-${PLATFORM}-${ARCH}.tar.gz"
   URL="https://github.com/${REPO}/releases/download/v${VERSION}/${ARCHIVE}"
@@ -87,7 +84,6 @@ download() {
     wget -q -O "${TMPDIR}/checksums.txt" "$CHECKSUMS_URL" 2>/dev/null || true
   fi
 
-  # Verify checksum if available
   if [ -f "${TMPDIR}/checksums.txt" ]; then
     EXPECTED=$(grep "${ARCHIVE}" "${TMPDIR}/checksums.txt" | awk '{print $1}')
     if [ -n "$EXPECTED" ]; then
@@ -111,17 +107,14 @@ download() {
     fi
   fi
 
-  # Extract
   tar -xzf "${TMPDIR}/${ARCHIVE}" -C "${TMPDIR}"
 
-  # Install binary
   mkdir -p "$INSTALL_DIR"
   cp "${TMPDIR}/${BINARY}" "${INSTALL_DIR}/${BINARY}"
   chmod +x "${INSTALL_DIR}/${BINARY}"
   echo "Installed ${BINARY} to ${INSTALL_DIR}/${BINARY}"
 }
 
-# Ensure install dir is on PATH
 ensure_path() {
   case ":${PATH}:" in
     *":${INSTALL_DIR}:"*) return ;;
@@ -144,24 +137,15 @@ ensure_path() {
     echo "Add this to your shell profile:"
     echo "  export PATH=\"${INSTALL_DIR}:\$PATH\""
   fi
-
-  # Make available for the setup step below
-  export PATH="${INSTALL_DIR}:${PATH}"
 }
 
-# Install skills
-setup_skills() {
-  echo ""
-  echo "Installing skills (target: ${AGENT})..."
-  "${INSTALL_DIR}/${BINARY}" setup "$AGENT" --yes
-}
-
-# Main
 detect_platform
 resolve_version
 download
 ensure_path
-setup_skills
 
 echo ""
-echo "Done! Run 'midaz version' to verify, then 'midaz auth login' to sign in."
+echo "Done! Run 'midaz version' to verify."
+echo ""
+echo "To install agent skills (Claude Code, Codex, etc.), run:"
+echo "  midaz skills install --yes"

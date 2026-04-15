@@ -42,6 +42,7 @@ var commandsExemptFromSkillCoverage = map[string]bool{
 	"version": true,
 	"schema":  true,
 	"config":  true,
+	"skills":  true, // installer plumbing, not a user query command
 }
 
 // TestSkillCoversRegistryCommands asserts that every command in the registry

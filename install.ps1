@@ -1,10 +1,12 @@
-# install.ps1 — zero-dependency installer for midaz CLI + skills (Windows).
+# install.ps1 — zero-dependency installer for the midaz CLI binary (Windows).
+# Installs only the binary. Skills are installed separately via:
+#   midaz skills install --yes
+#
 # Usage:
 #   irm https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.ps1 | iex
-#   .\install.ps1 -Version 0.6.0 -Agent claude
+#   .\install.ps1 -Version 0.6.0 -InstallDir "$env:LOCALAPPDATA\Programs\Midaz\bin"
 param(
     [string]$Version = "",
-    [string]$Agent = "all",
     [string]$InstallDir = ""
 )
 
@@ -95,20 +97,14 @@ function Ensure-Path {
     Write-Host "Added to user PATH. Restart your terminal for it to take effect."
 }
 
-# Install skills
-function Setup-Skills {
-    Write-Host ""
-    Write-Host "Installing skills (target: $Agent)..."
-    $bin = Join-Path $InstallDir "$Binary.exe"
-    & $bin setup $Agent --yes
-}
-
 # Main
 $arch = Get-Arch
 $ver = Resolve-Version
 Install-Binary -Ver $ver -Arch $arch
 Ensure-Path
-Setup-Skills
 
 Write-Host ""
-Write-Host "Done! Run 'midaz version' to verify, then 'midaz auth login' to sign in."
+Write-Host "Done! Run 'midaz version' to verify."
+Write-Host ""
+Write-Host "To install agent skills (Claude Code, Codex, etc.), run:"
+Write-Host "  midaz skills install --yes"

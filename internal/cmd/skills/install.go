@@ -1,4 +1,4 @@
-package setup
+package skills
 
 import (
 	"bytes"
@@ -10,14 +10,14 @@ import (
 
 	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
 	"github.com/SparkssL/Midaz-cli/internal/output"
-	"github.com/SparkssL/Midaz-cli/skills"
+	embedskills "github.com/SparkssL/Midaz-cli/skills"
 	"github.com/spf13/cobra"
 )
 
 // target describes an agent skill directory.
 type target struct {
-	Name    string // "claude" or "codex"
-	RootDir string // e.g. ~/.claude
+	Name     string // "claude" or "codex"
+	RootDir  string // e.g. ~/.claude
 	SkillDir string // e.g. ~/.claude/skills
 }
 
@@ -31,11 +31,11 @@ type installEntry struct {
 
 var validTargets = []string{"auto", "claude", "codex", "all"}
 
-func NewCmdSetup(f *cmdutil.Factory) *cobra.Command {
+func newCmdInstall(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "setup [auto|claude|codex|all]",
+		Use:   "install [auto|claude|codex|all]",
 		Short: "Install skills to agent directories",
-		Long: `Install embedded skills to agent skill directories.
+		Long: `Install the embedded skills into agent skill directories.
 
 Targets:
   auto    Install to detected agent directories only (default)
@@ -59,17 +59,16 @@ Targets:
 			dryRun, _ := cmd.Flags().GetBool("dry-run")
 			skillDir, _ := cmd.Flags().GetString("skill-dir")
 
-			// dry-run is always safe; otherwise require --yes
 			if !dryRun && !yes {
 				return output.ErrWithHint(
 					output.ExitValidation,
 					"confirmation_required",
-					"setup requires --yes flag",
-					"run: midaz setup "+targetName+" --yes",
+					"skills install requires --yes flag",
+					"run: midaz skills install "+targetName+" --yes",
 				)
 			}
 
-			return runSetup(opts, targetName, force, dryRun, skillDir)
+			return runInstall(opts, targetName, force, dryRun, skillDir)
 		},
 	}
 
@@ -81,8 +80,8 @@ Targets:
 	return cmd
 }
 
-func runSetup(opts *cmdutil.RunOpts, targetName string, force, dryRun bool, skillDir string) error {
-	// If --skill-dir is set, use it directly as a single target
+func runInstall(opts *cmdutil.RunOpts, targetName string, force, dryRun bool, skillDir string) error {
+	// If --skill-dir is set, use it directly as a single target.
 	if skillDir != "" {
 		entries, err := installSkillsTo("custom", skillDir, force, dryRun)
 		if err != nil {
@@ -131,12 +130,11 @@ func runSetup(opts *cmdutil.RunOpts, targetName string, force, dryRun bool, skil
 	}
 	meta["targets"] = targetNames
 
-	// If auto detected nothing, add hint
 	if targetName == "auto" && len(targets) == 0 {
-		meta["hint"] = "No agent directories detected. Run one of:\n  midaz setup claude --yes\n  midaz setup codex --yes\n  midaz setup all --yes"
+		meta["hint"] = "No agent directories detected. Run one of:\n  midaz skills install claude --yes\n  midaz skills install codex --yes\n  midaz skills install all --yes"
 	}
 
-	// Clean up legacy seer-* skill directories we've replaced with midaz-*.
+	// Clean up legacy seer-* skill directories replaced by midaz-*.
 	removed := []string{}
 	if !dryRun {
 		for _, t := range targets {
@@ -181,7 +179,6 @@ func detectTargets(known []target) []target {
 	var detected []target
 	seen := map[string]bool{}
 
-	// Phase 1: runtime env signals
 	if os.Getenv("CLAUDECODE") == "1" {
 		for _, t := range known {
 			if t.Name == "claude" {
@@ -199,7 +196,6 @@ func detectTargets(known []target) []target {
 		}
 	}
 
-	// Phase 2: existing directories (skip already-detected)
 	for _, t := range known {
 		if !seen[t.Name] && dirExists(t.RootDir) {
 			detected = append(detected, t)
@@ -212,7 +208,7 @@ func detectTargets(known []target) []target {
 func installSkillsTo(targetName, skillDir string, force, dryRun bool) ([]installEntry, error) {
 	var entries []installEntry
 
-	err := fs.WalkDir(skills.FS, ".", func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(embedskills.FS, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -222,8 +218,7 @@ func installSkillsTo(targetName, skillDir string, force, dryRun bool) ([]install
 
 		destPath := filepath.Join(skillDir, path)
 
-		// Read embedded file content
-		content, readErr := fs.ReadFile(skills.FS, path)
+		content, readErr := fs.ReadFile(embedskills.FS, path)
 		if readErr != nil {
 			return readErr
 		}
@@ -250,7 +245,6 @@ func installSkillsTo(targetName, skillDir string, force, dryRun bool) ([]install
 			return nil
 		}
 
-		// Create directory and write file
 		if mkErr := os.MkdirAll(filepath.Dir(destPath), 0755); mkErr != nil {
 			return mkErr
 		}
@@ -270,19 +264,18 @@ func installSkillsTo(targetName, skillDir string, force, dryRun bool) ([]install
 	return entries, err
 }
 
-// resolveAction determines what action to take for a file.
 func resolveAction(destPath string, newContent []byte, force bool) string {
 	existing, err := os.ReadFile(destPath)
 	if err != nil {
-		return "created" // file doesn't exist
+		return "created"
 	}
 	if bytes.Equal(existing, newContent) {
-		return "skipped" // identical content
+		return "skipped"
 	}
 	if force {
 		return "updated"
 	}
-	return "skipped" // exists but different, no --force
+	return "skipped"
 }
 
 func countActions(entries []installEntry) map[string]any {
@@ -305,8 +298,6 @@ func countActions(entries []installEntry) map[string]any {
 }
 
 func skillNameFromPath(path string) string {
-	// Embedded paths look like "midaz-shared/SKILL.md"; the first component is
-	// the skill name.
 	dir := filepath.Dir(path)
 	if dir == "." {
 		return path

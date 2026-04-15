@@ -1,90 +1,104 @@
-# Midaz CLI (`seer-q`)
+# Midaz CLI (`midaz`)
 
-Query CLI for the [Seer](https://github.com/SparkssL/Seer) market intelligence system. It retrieves structured, evidence-backed market analysis from the Seer API.
+Query CLI for the [Midaz](https://www.midaz.xyz) Interactive Cognitive Trading Map. It retrieves structured, evidence-backed market intelligence from the Midaz API and supports full workspace management — auth, onboarding, subscription, radar/playbook, private intel, and more.
 
-## Why seer-q?
+## Why `midaz`?
 
-- **Structured market intelligence** - topics, threads, claims, snapshots, and global regime verdicts
-- **Agent-native** - 3 skills bundled in the binary, installed via `seer-q setup`
-- **JSON envelope output** - machine-readable responses with `view_url` links, exit codes, and error hints
-- **Single binary** - Go, cross-platform, zero runtime dependencies
+- **Structured market intelligence** — topics, theses, claims, snapshots, assets, and global regime verdicts
+- **Agent-native** — 5 skills bundled in the binary, installed on demand via `midaz skills install`
+- **JSON envelope output** — machine-readable responses with `view_url` links, exit codes, and error hints
+- **Single binary** — Go, cross-platform, zero runtime dependencies
 
-## Installation
+## Getting started
 
-### One-line install (recommended)
+### Installation
 
-**macOS / Linux:**
+Install the `midaz` binary. The installer places only the binary on your machine — skills and auth are explicit follow-up steps.
+
+macOS / Linux:
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.sh | sh
 ```
 
-**Windows (PowerShell):**
+Windows (PowerShell):
+
 ```powershell
 irm https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.ps1 | iex
 ```
 
-This installs the `seer-q` binary and runs `seer-q setup all --yes` to install skills for all supported agents.
-
-### From npm
+Alternative install methods:
 
 ```bash
-npm install -g @midaz/cli
-seer-q setup all --yes
+npm install -g @midaz/cli                   # from npm
+go install github.com/SparkssL/Midaz-cli/cmd/midaz@latest   # from source
 ```
 
-### From source
+Once installed, verify the CLI is set up:
 
 ```bash
-git clone https://github.com/SparkssL/Midaz-cli.git
-cd Midaz-cli
-make install
-seer-q setup all --yes
+midaz version
 ```
+
+### Login
+
+Most write endpoints and your workspace require an account:
+
+```bash
+midaz auth login
+```
+
+### Install agent skills (optional)
+
+If you run Claude Code, Codex, or another agent that consumes skill bundles, install them with:
+
+```bash
+midaz skills install --yes
+```
+
+Targets: `auto` (detected, default), `claude`, `codex`, `all`, or `--skill-dir <path>` for a custom directory. Use `--dry-run` to preview without writing. See [target compatibility](docs/target-compatibility.md) for platform notes.
 
 ## Quick Start
 
-### Human Users
+### Human users
 
 ```bash
-seer-q search "AI regulation"       # Fuzzy search topics, threads, assets
-seer-q market                       # Global regime + all topics
-seer-q topic <id>                   # Topic detail + threads
-seer-q thread <id>                  # Thread detail + claims + market links
-seer-q snapshot                     # Latest global regime snapshot
+midaz search "AI regulation"   # Fuzzy search topics, theses, assets
+midaz market                   # Global regime + all topics
+midaz topic <id>               # Topic detail + theses
+midaz thesis <id>              # Thesis detail + claims + market links
+midaz snapshot                 # Latest global regime snapshot
+midaz auth login               # Sign in
+midaz onboard                  # Complete workspace onboarding
+midaz workspace                # Manage radar, playbook, sharing, Telegram
 ```
 
 All commands return JSON envelopes. Use `--format pretty` for indented output or `--raw` for the raw API response.
 
-### AI Agents
+### AI agents
 
-Install CLI + skills with one command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.sh | sh
-```
-
-Or install skills separately after installing the CLI:
+Install the binary with the one-liner above, then install skills:
 
 ```bash
-seer-q setup all --yes          # Install to all agent directories
-seer-q setup claude --yes       # Claude Code only
-seer-q setup auto --yes         # Detected agents only
+midaz skills install --yes
 ```
 
-Skills provide structured guidance for querying the Seer API. See [target compatibility](docs/target-compatibility.md) for platform-specific notes.
+Inside Claude Code or Codex, the skills self-register under `~/.claude/skills` or `~/.codex/skills` and guide the agent through Midaz commands.
 
 ## Skills
 
 | Skill | Description |
 |-------|-------------|
-| `seer-shared` | Response format, config, and common rules |
-| `seer-market` | Search, browse, and analyze topics, threads, and claims |
-| `seer-api-explorer` | Discover commands via schema introspection |
+| `midaz-shared` | Shared concepts — auth model, response format, global flags, safety rules |
+| `midaz-market` | Search, browse, and analyze topics, theses, claims, assets, deltas, and regime |
+| `midaz-account` | Authenticate, redeem invitations, complete onboarding, and manage subscription |
+| `midaz-workspace` | Manage radar, playbook, sharing, Telegram alerts, private intel, asset tracking |
+| `midaz-api-explorer` | Discover commands via schema introspection — fallback when other skills don't fit |
 
 ## Development
 
 ```bash
-make build       # Build seer-q binary
+make build       # Build midaz binary
 make test        # Run all Go tests
 make qa          # Tests + skills validation + smoke test
 make release     # Cross-platform build via goreleaser
@@ -93,9 +107,9 @@ make install     # Install to /usr/local/bin (or PREFIX)
 
 ## Links
 
-- [CLI Reference](docs/cli-reference.md) - full command documentation
-- [Target Compatibility](docs/target-compatibility.md) - agent platform setup
-- [Release Gate](docs/release-gate.md) - QA checklist
+- [CLI Reference](docs/cli-reference.md) — full command documentation
+- [Target Compatibility](docs/target-compatibility.md) — agent platform setup
+- [Release Gate](docs/release-gate.md) — QA checklist
 - [Changelog](CHANGELOG.md)
 
 ## License

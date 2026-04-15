@@ -17,7 +17,7 @@ import (
 	"github.com/SparkssL/Midaz-cli/internal/cmd/onboard"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/schema"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/search"
-	"github.com/SparkssL/Midaz-cli/internal/cmd/setup"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/skills"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/snapshot"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/sources"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/subscription"
@@ -225,10 +225,8 @@ var Commands = []CommandDef{
 		NewCmd:      schema.NewCmdSchema,
 	},
 	{
-		Name:        "setup",
-		Description: "Install skills to agent directories",
-		Args:        []ArgDef{{Name: "target", Required: false}},
-		Flags:       []FlagDef{{Name: "yes"}, {Name: "force"}, {Name: "dry-run"}, {Name: "skill-dir"}},
-		NewCmd:      setup.NewCmdSetup,
+		Name:        "skills",
+		Description: "Manage embedded agent skills (install to Claude Code, Codex, etc.)",
+		NewCmd:      skills.NewCmdSkills,
 	},
 }
