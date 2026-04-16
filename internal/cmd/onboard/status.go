@@ -8,7 +8,7 @@ import (
 func newCmdStatus(f *cmdutil.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:   "status",
-		Short: "Show whether the workspace is onboarded",
+		Short: "Show whether the desk is onboarded",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
@@ -16,7 +16,7 @@ func newCmdStatus(f *cmdutil.Factory) *cobra.Command {
 				return err
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
-				Path:      "/api/ws",
+				Path:      "/api/desk",
 				Normalize: cmdutil.NormalizePassthrough,
 			})
 		},

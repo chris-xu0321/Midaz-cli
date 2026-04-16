@@ -8,7 +8,7 @@ import (
 )
 
 func NewCmdClaims(f *cmdutil.Factory) *cobra.Command {
-	var threadID, sourceID, status, mode string
+	var sourceID, status, mode string
 
 	cmd := &cobra.Command{
 		Use:   "claims",
@@ -17,9 +17,6 @@ func NewCmdClaims(f *cmdutil.Factory) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
 			params := url.Values{}
-			if threadID != "" {
-				params.Set("thread_id", threadID)
-			}
 			if sourceID != "" {
 				params.Set("source_id", sourceID)
 			}
@@ -37,7 +34,6 @@ func NewCmdClaims(f *cmdutil.Factory) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&threadID, "thread", "", "Filter by thread ID")
 	cmd.Flags().StringVar(&sourceID, "source", "", "Filter by source ID")
 	cmd.Flags().StringVar(&status, "status", "", "Filter by status")
 	cmd.Flags().StringVar(&mode, "mode", "", "Filter by claim mode")

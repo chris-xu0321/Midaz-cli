@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.7.0 — 2026-04-16
+
+Companion release for Seer's `workspaces → desks` rename. Backend dropped its
+`/api/ws*` and `/api/workspaces/:slug/view` mounts with no compat layer, so
+this release is required for any CLI built against earlier Seer.
+
+### Breaking
+- **Command rename**: `midaz workspace` → `midaz desk` (and all subcommands:
+  `desk get/settings/view/share/radar/playbook/telegram`). The `workspace`
+  command is removed — scripts must update.
+- **Skill rename**: `midaz-workspace` → `midaz-desk`. The embedded skill
+  directory and on-disk install path both move; reinstall via
+  `midaz skills install --yes`.
+- **API path swap**: every endpoint hit by the CLI under `/api/ws*` now
+  targets `/api/desk*`. Affects `desk` subtree, `onboard`, and
+  `subscription status`.
+- **`auth.json` field rename**: `workspace_id`/`workspace_slug` →
+  `desk_id`/`desk_slug`. Existing files are read transparently via a
+  one-time migration; on next `auth login` (or any save) the file is
+  rewritten with the new keys. `midaz auth whoami` output also switches
+  to `desk_id`/`desk_slug`.
+- **`claims --thread` flag removed**: backend dropped the `?thread_id`
+  query parameter (Seer commit `cc2c6ad`); the CLI flag had been a
+  silent no-op. Use `midaz thesis <id>` to read the embedded `claims[]`
+  array on a thesis.
+
+### Changed
+- `desk view` short help now says "Personal market read" (mirrors
+  Seer's `market_view → market_read` rename).
+- Frontend URL hint in `midaz auth login --paste` points at
+  `/desk/settings` (the web SPA route was renamed in lockstep).
+- `/api/app/me` parser accepts both `desk` and `workspace` top-level
+  fields during the rename window; prefers `desk`.
+- Loopback CLI auth callback accepts both `desk_*` and `workspace_*`
+  payload keys (the `/cli-auth` page dual-emits during transition).
+
 ## 0.6.1 — 2026-04-16
 
 ### Added

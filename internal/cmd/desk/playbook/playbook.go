@@ -1,4 +1,4 @@
-// Package playbook exposes `midaz workspace playbook` (get/set).
+// Package playbook exposes `midaz desk playbook` (get/set).
 package playbook
 
 import (
@@ -13,7 +13,7 @@ import (
 func NewCmdPlaybook(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "playbook",
-		Short: "Read or update workspace playbook (trading rules)",
+		Short: "Read or update desk playbook (trading rules)",
 	}
 	cmd.AddCommand(newCmdGet(f))
 	cmd.AddCommand(newCmdSet(f))
@@ -31,7 +31,7 @@ func newCmdGet(f *cmdutil.Factory) *cobra.Command {
 				return err
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
-				Path:      "/api/ws/settings",
+				Path:      "/api/desk/settings",
 				Normalize: cmdutil.NormalizePassthrough,
 			})
 		},
@@ -51,7 +51,7 @@ func newCmdSet(f *cmdutil.Factory) *cobra.Command {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
 			if !yes {
 				return output.ErrWithHint(output.ExitValidation, "confirmation_required",
-					"workspace playbook set requires --yes", "run: midaz workspace playbook set --from-file playbook.md --yes")
+					"desk playbook set requires --yes", "run: midaz desk playbook set --from-file playbook.md --yes")
 			}
 			if fromFile == "" {
 				return output.ErrValidation("--from-file is required")
@@ -68,7 +68,7 @@ func newCmdSet(f *cmdutil.Factory) *cobra.Command {
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
 				Method:    "PATCH",
-				Path:      "/api/ws/playbook",
+				Path:      "/api/desk/playbook",
 				Body:      map[string]any{"playbook": string(raw)},
 				Normalize: cmdutil.NormalizePassthrough,
 			})

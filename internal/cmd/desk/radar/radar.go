@@ -1,4 +1,4 @@
-// Package radar exposes `midaz workspace radar` (get/set).
+// Package radar exposes `midaz desk radar` (get/set).
 package radar
 
 import (
@@ -14,7 +14,7 @@ import (
 func NewCmdRadar(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "radar",
-		Short: "Read or update workspace radar (watchlist)",
+		Short: "Read or update desk radar (watchlist)",
 	}
 	cmd.AddCommand(newCmdGet(f))
 	cmd.AddCommand(newCmdSet(f))
@@ -37,7 +37,7 @@ func newCmdGet(f *cmdutil.Factory) *cobra.Command {
 				return err
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
-				Path:      "/api/ws/settings",
+				Path:      "/api/desk/settings",
 				Normalize: cmdutil.NormalizePassthrough,
 			})
 		},
@@ -58,7 +58,7 @@ func newCmdSet(f *cmdutil.Factory) *cobra.Command {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
 			if !yes {
 				return output.ErrWithHint(output.ExitValidation, "confirmation_required",
-					"workspace radar set requires --yes", "e.g. --items \"Fed,AI,Oil\" --yes")
+					"desk radar set requires --yes", "e.g. --items \"Fed,AI,Oil\" --yes")
 			}
 			if fromFile == "" && items == "" {
 				return output.ErrValidation("provide --from-file or --items")
@@ -90,7 +90,7 @@ func newCmdSet(f *cmdutil.Factory) *cobra.Command {
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
 				Method:    "PATCH",
-				Path:      "/api/ws/radar",
+				Path:      "/api/desk/radar",
 				Body:      body,
 				Normalize: cmdutil.NormalizePassthrough,
 			})

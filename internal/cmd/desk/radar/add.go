@@ -8,11 +8,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// newCmdAdd builds `midaz workspace radar add`.
+// newCmdAdd builds `midaz desk radar add`.
 //
 // Exactly one of --thesis / --topic / --url / --asset / --text is required.
 // The command fetches the current radar items, appends the rendered line, and
-// writes the full list back via PATCH /api/ws/radar (the backend endpoint
+// writes the full list back via PATCH /api/desk/radar (the backend endpoint
 // only supports full-list replacement).
 func newCmdAdd(f *cmdutil.Factory) *cobra.Command {
 	var (
@@ -32,7 +32,7 @@ func newCmdAdd(f *cmdutil.Factory) *cobra.Command {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
 			if !yes {
 				return output.ErrWithHint(output.ExitValidation, "confirmation_required",
-					"workspace radar add requires --yes",
+					"desk radar add requires --yes",
 					"e.g. --asset AAPL --yes")
 			}
 
@@ -59,7 +59,7 @@ func newCmdAdd(f *cmdutil.Factory) *cobra.Command {
 			if len(items) >= maxRadarItems {
 				return output.ErrWithHint(output.ExitValidation, "radar_full",
 					"radar already has the maximum of 12 items",
-					"remove one with 'midaz workspace radar remove --index N --yes' first")
+					"remove one with 'midaz desk radar remove --index N --yes' first")
 			}
 
 			var line string
@@ -102,7 +102,7 @@ func newCmdAdd(f *cmdutil.Factory) *cobra.Command {
 			if findIndex(items, line) >= 0 {
 				return output.ErrWithHint(output.ExitValidation, "already_on_radar",
 					"item is already on the radar: "+line,
-					"run 'midaz workspace radar get' to view current items")
+					"run 'midaz desk radar get' to view current items")
 			}
 
 			newItems := append(items, line)

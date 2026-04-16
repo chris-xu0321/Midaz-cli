@@ -1,6 +1,6 @@
 ---
 name: midaz-shared
-version: 0.6.1
+version: 0.7.0
 description: Midaz CLI shared concepts — auth model, response format, global flags, and safety rules that apply to every midaz skill
 metadata: {"requires":{"bins":["midaz"]}}
 ---
@@ -14,7 +14,7 @@ Foundational knowledge for every `midaz-*` skill. Read this before using the oth
 Midaz is an **Interactive Cognitive Trading Map** plus the intelligence pipeline behind it. From the CLI an agent can mirror everything a user can do in the web app at https://www.midaz.xyz:
 
 - **Account** — sign in, redeem invite codes, onboard, subscribe, manage API keys.
-- **Workspace** — edit the radar (watchlist) and playbook (trading rules), toggle public sharing, connect Telegram for alerts, push private intel.
+- **Desk** — edit the radar (watchlist) and playbook (trading rules), toggle public sharing, connect Telegram for alerts, push private intel.
 - **Market** — browse topics, theses, claims, assets, global snapshots, deltas.
 
 Everything is JSON-in / JSON-out.
@@ -26,7 +26,7 @@ midaz auth {login,logout,status,whoami,keys}
 midaz onboard {status,generate,complete}
 midaz invite redeem <CODE>
 midaz subscription {status,start,portal}
-midaz workspace {get,settings,view,share,radar,playbook,telegram}
+midaz desk {get,settings,view,share,radar,playbook,telegram}
 midaz intel {list,push,rm}
 midaz assets {list,get,thesis}
 midaz delta
@@ -87,14 +87,14 @@ If a command returns exit code 6, the PAT is missing or expired — run `midaz a
 
 ## Side-Effect Gating
 
-Every command that mutates server state **requires `--yes`**. Prevents an agent from silently sending messages, spending money, or changing the user's workspace. Examples:
+Every command that mutates server state **requires `--yes`**. Prevents an agent from silently sending messages, spending money, or changing the user's desk. Examples:
 
 ```
-midaz workspace radar set --items "Fed,AI,Oil" --yes
+midaz desk radar set --items "Fed,AI,Oil" --yes
 midaz subscription start --yes
 midaz invite redeem ABC-123 --yes
 midaz intel push --from-file note.md --yes
-midaz workspace telegram disconnect --yes
+midaz desk telegram disconnect --yes
 ```
 
 Read-only commands never require `--yes`.
@@ -124,7 +124,7 @@ Config path: `~/.config/midaz/config.json` (Linux/macOS) or `%APPDATA%\midaz\con
 
 ## Common Rules
 
-1. **Run `midaz auth status` at the top of a session** when you're about to call authenticated commands — it returns the user's id, workspace id, subscription status, and onboarding state in one call, so you can decide what to do.
+1. **Run `midaz auth status` at the top of a session** when you're about to call authenticated commands — it returns the user's id, desk id, subscription status, and onboarding state in one call, so you can decide what to do.
 2. **Never drop `--yes` on write commands.** If a command exits 2 with `confirmation_required`, add the flag — don't retry blindly.
 3. **Always surface `view_url` as clickable markdown links.** Page-level in `.meta.view_url`; per-entity in each object under `.data`. Format as `[descriptive text](url)` — never paste raw URLs.
 4. **Synthesize, don't dump.** Convert JSON into natural language before replying.

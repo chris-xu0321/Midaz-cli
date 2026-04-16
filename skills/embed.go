@@ -3,5 +3,5 @@ package skills
 
 import "embed"
 
-//go:embed all:midaz-shared all:midaz-market all:midaz-api-explorer all:midaz-account all:midaz-workspace
+//go:embed all:midaz-shared all:midaz-market all:midaz-api-explorer all:midaz-account all:midaz-desk
 var FS embed.FS

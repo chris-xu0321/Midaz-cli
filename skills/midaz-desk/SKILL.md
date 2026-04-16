@@ -1,25 +1,25 @@
 ---
-name: midaz-workspace
-version: 0.6.1
-description: Manage the Midaz workspace — radar, playbook, sharing, Telegram alerts, private intel, and asset tracking via the CLI
+name: midaz-desk
+version: 0.7.0
+description: Manage the Midaz desk — radar, playbook, sharing, Telegram alerts, private intel, and asset tracking via the CLI
 metadata: {"requires":{"bins":["midaz"]}}
 ---
 
-# Midaz Workspace
+# Midaz Desk
 
 > Read [midaz-shared](../midaz-shared/SKILL.md) for auth/envelope basics and [midaz-account](../midaz-account/SKILL.md) for signin/onboarding.
 
-Everything a signed-in user can do inside their workspace at `/workspace/view` and `/workspace/settings`, exposed as CLI commands. All write commands require `--yes`.
+Everything a signed-in user can do inside their desk at `/desk/view` and `/desk/settings`, exposed as CLI commands. All write commands require `--yes`.
 
-## Workspace Read Commands
+## Desk Read Commands
 
 ```
-midaz workspace get          # Summary (name, shared flag, subscription, has_invite_access, onboarded)
-midaz workspace settings     # Owner-only: radar, playbook, telegram status  (GET /api/ws/settings)
-midaz workspace view         # Personal market view — subscription-gated    (GET /api/ws/view)
+midaz desk get          # Summary (name, shared flag, subscription, has_invite_access, onboarded)
+midaz desk settings     # Owner-only: radar, playbook, telegram status  (GET /api/desk/settings)
+midaz desk view         # Personal market read — subscription-gated     (GET /api/desk/view)
 ```
 
-`workspace get` is the cheapest way to inspect state at the start of a session.
+`desk get` is the cheapest way to inspect state at the start of a session.
 
 ## Radar (watchlist)
 
@@ -29,30 +29,30 @@ The radar is a short list of domains / assets / events the user wants Midaz to f
 - Each item ≤200 chars
 
 ```
-midaz workspace radar get
-midaz workspace radar set --items "Fed policy, AI capex, Oil, China CNY" --yes
-midaz workspace radar set --from-file radar.md --yes
+midaz desk radar get
+midaz desk radar set --items "Fed policy, AI capex, Oil, China CNY" --yes
+midaz desk radar set --from-file radar.md --yes
 ```
 
-Updates enqueue an L4 refresh; `l4_enqueued: true` in the response means the personal view will recompute soon.
+Updates enqueue an L4 refresh; `l4_enqueued: true` in the response means the personal market read will recompute soon.
 
 ### Entity pins (radar pin / unpin / pins)
 
 Distinct from free-form radar lines: pins attach a specific **entity** (thesis, topic, driver, asset) to the radar with provenance tracking, so the web market view can render a filled pin button and L4 can treat the entity as a first-class watch target.
 
 ```
-midaz workspace radar pin --kind Thesis --source-type thread --source-id <id> --label "Short text"  --yes
-midaz workspace radar pin --kind Topic  --source-type topic  --source-id <id> --label "Short text"  --yes
-midaz workspace radar pin --kind Driver --source-type driver --source-id <id> --label "Short text"  --yes
-midaz workspace radar pin --kind Asset  --source-type asset  --source-id <id> --label "Short text"  --yes
+midaz desk radar pin --kind Thesis --source-type thread --source-id <id> --label "Short text"  --yes
+midaz desk radar pin --kind Topic  --source-type topic  --source-id <id> --label "Short text"  --yes
+midaz desk radar pin --kind Driver --source-type driver --source-id <id> --label "Short text"  --yes
+midaz desk radar pin --kind Asset  --source-type asset  --source-id <id> --label "Short text"  --yes
 
-midaz workspace radar unpin --source-type thread --source-id <id> --yes
+midaz desk radar unpin --source-type thread --source-id <id> --yes
 
-midaz workspace radar pins                 # List pins (provenance rows) — includes origin = pin | adopted
+midaz desk radar pins                 # List pins (provenance rows) — includes origin = pin | adopted
 ```
 
 Rules enforced server-side:
-- `kind` is the display label (`Thesis | Topic | Driver | Asset`); `source-type` is the DB key (`thread | topic | driver | asset`).
+- `kind` is the display label (`Thesis | Topic | Driver | Asset`); `source-type` is the DB key (`thread | topic | driver | asset` — the DB schema keeps the legacy `thread` term internally).
 - `label` ≤ 160 chars after whitespace collapse.
 - 409 `already_pinned` if the (source-type, source-id) is already pinned.
 - 409 `radar_full` if the radar already has 12 lines *and* no freeform line can be adopted.
@@ -66,35 +66,35 @@ Pin/unpin enqueue an L4 refresh (`l4_enqueued: true` when work was queued).
 Markdown, ≤20 000 chars. Describes how the user wants Midaz to interpret the market.
 
 ```
-midaz workspace playbook get
-midaz workspace playbook set --from-file playbook.md --yes
+midaz desk playbook get
+midaz desk playbook set --from-file playbook.md --yes
 ```
 
 ## Sharing
 
-Flip the `shared` boolean to expose a read-only workspace page at `https://www.midaz.xyz/w/<workspace_id>`:
+Flip the `shared` boolean to expose a read-only desk page at `https://www.midaz.xyz/d/<desk_id>`:
 
 ```
-midaz workspace share --on --yes
-midaz workspace share --off --yes
+midaz desk share --on --yes
+midaz desk share --off --yes
 ```
 
-After enabling, `midaz workspace get` returns `workspace.shared: true`. The public URL is computed client-side from the workspace id.
+After enabling, `midaz desk get` returns `desk.shared: true`. The public URL is computed client-side from the desk id.
 
 ## Telegram Alerts
 
-Connect the workspace to the Midaz Telegram bot so alerts are delivered to chat.
+Connect the desk to the Midaz Telegram bot so alerts are delivered to chat.
 
 ```
-midaz workspace telegram status       # Polls GET /api/ws/settings → telegram.{connected,bot_username}
-midaz workspace telegram connect      # Prints + opens https://t.me/<bot>?start=<workspace_id>
-midaz workspace telegram disconnect --yes
+midaz desk telegram status       # Polls GET /api/desk/settings → telegram.{connected,bot_username}
+midaz desk telegram connect      # Prints + opens https://t.me/<bot>?start=<desk_id>
+midaz desk telegram disconnect --yes
 ```
 
 Flow:
 1. Run `telegram connect`. The envelope has a `view_url` pointing at the Telegram deep link; the CLI also attempts to auto-open it. Instruct the user to tap "Start" inside Telegram.
-2. Poll `midaz workspace telegram status`. `telegram.connected` flips to `true` once the bot webhook has stored the chat id.
-3. The workspace will then receive alerts as they're produced by the L4 pipeline.
+2. Poll `midaz desk telegram status`. `telegram.connected` flips to `true` once the bot webhook has stored the chat id.
+3. The desk will then receive alerts as they're produced by the L4 pipeline.
 
 ## Intel (private notes / sources)
 
@@ -115,7 +115,7 @@ Intel items feed into L4 like any other source; a push or delete enqueues a refr
 
 ## Assets
 
-Read-only; no auth required, but the richest context appears when paired with a workspace.
+Read-only; no auth required, but the richest context appears when paired with a desk.
 
 ```
 midaz assets list [--tier 1|2] [--bias bullish|bearish|neutral|mixed]
@@ -132,34 +132,34 @@ Fields of interest:
 
 ## Agent Recipes
 
-### "What's in my workspace right now?"
+### "What's in my desk right now?"
 
-1. `midaz workspace get` — prints subscription, onboarded, has_invite_access.
+1. `midaz desk get` — prints subscription, onboarded, has_invite_access.
 2. If `has_invite_access: false` → point them to `midaz invite redeem`.
 3. If `onboarded: false` → point them to `midaz onboard`.
 4. If `subscription.allowed: false` → point them to `midaz subscription start`.
-5. Otherwise: `midaz workspace view` to show the personal market view.
+5. Otherwise: `midaz desk view` to show the personal market read.
 
 ### "Update my radar to focus on X"
 
-1. `midaz workspace radar get` — confirm current state.
+1. `midaz desk radar get` — confirm current state.
 2. Compose the new item list with the user.
-3. `midaz workspace radar set --items "item1, item2, …" --yes`
-4. Report back the `l4_enqueued` status and mention that the personal view will refresh shortly.
+3. `midaz desk radar set --items "item1, item2, …" --yes`
+4. Report back the `l4_enqueued` status and mention that the personal market read will refresh shortly.
 
 ### "Hook up Telegram"
 
-1. `midaz workspace telegram status` — skip the rest if already connected.
-2. `midaz workspace telegram connect` — surface the deep link as a clickable markdown link (also auto-opens).
+1. `midaz desk telegram status` — skip the rest if already connected.
+2. `midaz desk telegram connect` — surface the deep link as a clickable markdown link (also auto-opens).
 3. Ask the user to tap Start in Telegram.
-4. `midaz workspace telegram status` once or twice to confirm it flipped to `connected: true`.
+4. `midaz desk telegram status` once or twice to confirm it flipped to `connected: true`.
 
-### "Share my workspace with a friend"
+### "Share my desk with a friend"
 
 1. Confirm with the user — sharing exposes their personal read.
-2. `midaz workspace share --on --yes`
-3. Read `workspace.id` from `midaz workspace get`.
-4. Share `https://www.midaz.xyz/w/<id>` as a markdown link.
+2. `midaz desk share --on --yes`
+3. Read `desk.id` from `midaz desk get`.
+4. Share `https://www.midaz.xyz/d/<id>` as a markdown link.
 
 ### "Dump everything I know about NVDA"
 

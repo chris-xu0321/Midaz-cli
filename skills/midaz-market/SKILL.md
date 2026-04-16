@@ -1,6 +1,6 @@
 ---
 name: midaz-market
-version: 0.6.1
+version: 0.7.0
 description: Search, browse, and analyze topics, theses, claims, assets, deltas, and market regime via the midaz CLI
 metadata: {"requires":{"bins":["midaz"]}}
 ---
@@ -32,7 +32,6 @@ midaz theses                        # All theses, newest activity first
 midaz theses --topic TOPIC_ID       # Theses within a topic
 midaz theses --status active        # Filter by status (active/weakening/divided/resolved)
 midaz claims                        # Latest claims
-midaz claims --thread THESIS_ID     # Claims for a specific thesis
 midaz claims --status current       # Filter (pending/current/stale/discarded)
 midaz claims --mode observed        # Filter (observed/interpreted/forecast/attributed)
 midaz sources                       # Recently ingested sources
@@ -82,7 +81,7 @@ midaz health                         # API health
 | Specific thesis | `midaz search "KEYWORDS"` → `midaz thesis ID` |
 | Analyze an asset | `midaz assets get TICKER` (primary) + `midaz assets thesis TICKER THID` for detail |
 | Latest events | `midaz delta --hours 24` (new in Midaz) or `midaz claims` |
-| Claims for a thesis | `midaz claims --thread THID` (flag name kept for API compat) |
+| Claims for a thesis | `midaz thesis THID` (returns embedded `claims[]`) |
 | Recent sources | `midaz sources` |
 | Bull/bear case for X | `midaz search "X"` → `midaz thesis ID` → look at `risk_case`, contradicting claims |
 | Global regime detail | `midaz snapshot` |
@@ -148,6 +147,6 @@ User: "bear case for AI"
 → Share thesis view_urls
 
 User: "what claims support thesis X"
-→ `midaz claims --thread X` (flag name kept as --thread, matches API)
+→ `midaz thesis X` — returns embedded `claims[]` for the thesis
 → Filter claims where `thesis_role` is "support"
 → Summarize key supporting evidence

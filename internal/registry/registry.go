@@ -27,9 +27,9 @@ import (
 	"github.com/SparkssL/Midaz-cli/internal/cmd/threads"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/topic"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/topics"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/desk"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/usage"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/version"
-	"github.com/SparkssL/Midaz-cli/internal/cmd/workspace"
 	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
 	"github.com/spf13/cobra"
 )
@@ -66,8 +66,8 @@ var Commands = []CommandDef{
 	},
 	{
 		Name:        "onboard",
-		Description: "Complete workspace onboarding (radar + playbook)",
-		Endpoints:   []string{"POST /api/ws/onboard", "POST /api/ws/onboard/generate"},
+		Description: "Complete desk onboarding (radar + playbook)",
+		Endpoints:   []string{"POST /api/desk/onboard", "POST /api/desk/onboard/generate"},
 		NewCmd:      onboard.NewCmdOnboard,
 	},
 	{
@@ -79,19 +79,19 @@ var Commands = []CommandDef{
 	{
 		Name:        "subscription",
 		Description: "Subscribe, manage billing, check subscription status",
-		Endpoints:   []string{"POST /api/stripe/checkout", "POST /api/stripe/portal", "GET /api/ws"},
+		Endpoints:   []string{"POST /api/stripe/checkout", "POST /api/stripe/portal", "GET /api/desk"},
 		NewCmd:      subscription.NewCmdSubscription,
 	},
-	// --- Workspace ------------------------------------------------------------
+	// --- Desk -----------------------------------------------------------------
 	{
-		Name:        "workspace",
-		Description: "Manage your workspace: radar, playbook, sharing, Telegram",
+		Name:        "desk",
+		Description: "Manage your desk: radar, playbook, sharing, Telegram",
 		Endpoints: []string{
-			"GET /api/ws", "GET /api/ws/settings", "GET /api/ws/view",
-			"PATCH /api/ws*", "DELETE /api/ws/telegram",
-			"POST /api/ws/radar/pin", "DELETE /api/ws/radar/pin", "GET /api/ws/radar/pins",
+			"GET /api/desk", "GET /api/desk/settings", "GET /api/desk/view",
+			"PATCH /api/desk*", "DELETE /api/desk/telegram",
+			"POST /api/desk/radar/pin", "DELETE /api/desk/radar/pin", "GET /api/desk/radar/pins",
 		},
-		NewCmd:      workspace.NewCmdWorkspace,
+		NewCmd: desk.NewCmdDesk,
 	},
 	{
 		Name:        "intel",
@@ -170,7 +170,7 @@ var Commands = []CommandDef{
 	{
 		Name:        "claims",
 		Description: "List claims",
-		Flags:       []FlagDef{{Name: "thread"}, {Name: "source"}, {Name: "status"}, {Name: "mode"}},
+		Flags:       []FlagDef{{Name: "source"}, {Name: "status"}, {Name: "mode"}},
 		Endpoints:   []string{"GET /api/claims"},
 		NewCmd:      claims.NewCmdClaims,
 	},

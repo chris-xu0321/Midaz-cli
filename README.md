@@ -1,6 +1,6 @@
 # Midaz CLI (`midaz`)
 
-Query CLI for the [Midaz](https://www.midaz.xyz) Interactive Cognitive Trading Map. It retrieves structured, evidence-backed market intelligence from the Midaz API and supports full workspace management — auth, onboarding, subscription, radar/playbook, private intel, and more.
+Query CLI for the [Midaz](https://www.midaz.xyz) Interactive Cognitive Trading Map. It retrieves structured, evidence-backed market intelligence from the Midaz API and supports full desk management — auth, onboarding, subscription, radar/playbook, private intel, and more.
 
 ## Why `midaz`?
 
@@ -42,7 +42,7 @@ midaz version
 
 ### Login
 
-Most write endpoints and your workspace require an account:
+Most write endpoints and your desk require an account:
 
 ```bash
 midaz auth login
@@ -69,8 +69,8 @@ midaz topic <id>               # Topic detail + theses
 midaz thesis <id>              # Thesis detail + claims + market links
 midaz snapshot                 # Latest global regime snapshot
 midaz auth login               # Sign in
-midaz onboard                  # Complete workspace onboarding
-midaz workspace                # Manage radar, playbook, sharing, Telegram
+midaz onboard                  # Complete desk onboarding
+midaz desk                     # Manage radar, playbook, sharing, Telegram
 ```
 
 All commands return JSON envelopes. Use `--format pretty` for indented output or `--raw` for the raw API response.
@@ -92,7 +92,7 @@ Inside Claude Code or Codex, the skills self-register under `~/.claude/skills` o
 | `midaz-shared` | Shared concepts — auth model, response format, global flags, safety rules |
 | `midaz-market` | Search, browse, and analyze topics, theses, claims, assets, deltas, and regime |
 | `midaz-account` | Authenticate, redeem invitations, complete onboarding, and manage subscription |
-| `midaz-workspace` | Manage radar, playbook, sharing, Telegram alerts, private intel, asset tracking |
+| `midaz-desk` | Manage radar, playbook, sharing, Telegram alerts, private intel, asset tracking |
 | `midaz-api-explorer` | Discover commands via schema introspection — fallback when other skills don't fit |
 
 ## Development

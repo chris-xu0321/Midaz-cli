@@ -89,18 +89,18 @@ func browserLogin(opts *cmdutil.RunOpts, cfg *config.Config, profile, label stri
 	}
 
 	creds := &auth.Credentials{
-		APIKey:        res.APIKey,
-		WorkspaceID:   res.WorkspaceID,
-		WorkspaceSlug: res.WorkspaceSlug,
-		UserEmail:     res.UserEmail,
-		UserID:        res.UserID,
-		Label:         label,
+		APIKey:    res.APIKey,
+		DeskID:    res.DeskID,
+		DeskSlug:  res.DeskSlug,
+		UserEmail: res.UserEmail,
+		UserID:    res.UserID,
+		Label:     label,
 	}
 	return storeAndReport(opts, profile, creds)
 }
 
 func pasteLogin(opts *cmdutil.RunOpts, cfg *config.Config, profile string, ctx context.Context) error {
-	fmt.Fprintln(opts.ErrOut, "1. Visit", cfg.FrontendURL+"/workspace/settings")
+	fmt.Fprintln(opts.ErrOut, "1. Visit", cfg.FrontendURL+"/desk/settings")
 	fmt.Fprintln(opts.ErrOut, "2. Open the API keys section and create a new key")
 	fmt.Fprintln(opts.ErrOut, "3. Paste the key below and press Enter")
 	fmt.Fprint(opts.ErrOut, "PAT> ")
@@ -124,12 +124,12 @@ func completeLogin(opts *cmdutil.RunOpts, cfg *config.Config, profile, token, so
 		return err
 	}
 	creds := &auth.Credentials{
-		APIKey:        token,
-		WorkspaceID:   me.WorkspaceID,
-		WorkspaceSlug: me.WorkspaceSlug,
-		UserEmail:     me.Email,
-		UserID:        me.UserID,
-		Label:         source,
+		APIKey:    token,
+		DeskID:    me.DeskID,
+		DeskSlug:  me.DeskSlug,
+		UserEmail: me.Email,
+		UserID:    me.UserID,
+		Label:     source,
 	}
 	return storeAndReport(opts, profile, creds)
 }
@@ -139,13 +139,13 @@ func storeAndReport(opts *cmdutil.RunOpts, profile string, creds *auth.Credentia
 		return output.ErrWithHint(output.ExitInternal, "internal", err.Error(), "")
 	}
 	data := map[string]any{
-		"user_email":     creds.UserEmail,
-		"user_id":        creds.UserID,
-		"workspace_id":   creds.WorkspaceID,
-		"workspace_slug": creds.WorkspaceSlug,
-		"profile":        auth.NonEmpty(profile, auth.DefaultProfile),
-		"key_prefix":     keyPrefix(creds.APIKey),
-		"auth_file":      auth.AuthPath(),
+		"user_email": creds.UserEmail,
+		"user_id":    creds.UserID,
+		"desk_id":    creds.DeskID,
+		"desk_slug":  creds.DeskSlug,
+		"profile":    auth.NonEmpty(profile, auth.DefaultProfile),
+		"key_prefix": keyPrefix(creds.APIKey),
+		"auth_file":  auth.AuthPath(),
 	}
 	meta := map[string]any{
 		"message": "Signed in. Credentials stored at " + auth.AuthPath(),
@@ -154,10 +154,10 @@ func storeAndReport(opts *cmdutil.RunOpts, profile string, creds *auth.Credentia
 }
 
 type meResponse struct {
-	UserID        string
-	Email         string
-	WorkspaceID   string
-	WorkspaceSlug string
+	UserID   string
+	Email    string
+	DeskID   string
+	DeskSlug string
 }
 
 func fetchMe(ctx context.Context, apiURL, token string) (*meResponse, error) {
@@ -166,11 +166,17 @@ func fetchMe(ctx context.Context, apiURL, token string) (*meResponse, error) {
 	if err != nil {
 		return nil, err
 	}
+	// /api/app/me dual-emits both `desk` and `workspace` fields during the
+	// rename window; prefer `desk`, fall back to `workspace`.
 	var parsed struct {
 		User struct {
 			ID    string `json:"id"`
 			Email string `json:"email"`
 		} `json:"user"`
+		Desk *struct {
+			ID   string `json:"id"`
+			Slug string `json:"slug"`
+		} `json:"desk"`
 		Workspace *struct {
 			ID   string `json:"id"`
 			Slug string `json:"slug"`
@@ -183,9 +189,13 @@ func fetchMe(ctx context.Context, apiURL, token string) (*meResponse, error) {
 		UserID: parsed.User.ID,
 		Email:  parsed.User.Email,
 	}
-	if parsed.Workspace != nil {
-		out.WorkspaceID = parsed.Workspace.ID
-		out.WorkspaceSlug = parsed.Workspace.Slug
+	switch {
+	case parsed.Desk != nil:
+		out.DeskID = parsed.Desk.ID
+		out.DeskSlug = parsed.Desk.Slug
+	case parsed.Workspace != nil:
+		out.DeskID = parsed.Workspace.ID
+		out.DeskSlug = parsed.Workspace.Slug
 	}
 	return out, nil
 }

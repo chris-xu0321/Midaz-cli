@@ -1,14 +1,14 @@
-package workspace
+package desk
 
 import (
 	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
 	"github.com/spf13/cobra"
 )
 
-func newCmdGet(f *cmdutil.Factory) *cobra.Command {
+func newCmdView(f *cmdutil.Factory) *cobra.Command {
 	return &cobra.Command{
-		Use:   "get",
-		Short: "Workspace summary incl. subscription status",
+		Use:   "view",
+		Short: "Personal market read (subscription-gated)",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
@@ -16,7 +16,7 @@ func newCmdGet(f *cmdutil.Factory) *cobra.Command {
 				return err
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
-				Path:      "/api/ws",
+				Path:      "/api/desk/view",
 				Normalize: cmdutil.NormalizePassthrough,
 			})
 		},

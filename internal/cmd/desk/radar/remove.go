@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// newCmdRemove builds `midaz workspace radar remove`.
+// newCmdRemove builds `midaz desk radar remove`.
 //
 // Exactly one of --index (1-based) or --match (case-insensitive substring)
 // selects the item to drop. With --match, ambiguous matches error unless
@@ -28,7 +28,7 @@ func newCmdRemove(f *cmdutil.Factory) *cobra.Command {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
 			if !yes {
 				return output.ErrWithHint(output.ExitValidation, "confirmation_required",
-					"workspace radar remove requires --yes",
+					"desk radar remove requires --yes",
 					"e.g. --index 1 --yes")
 			}
 			indexSet := cmd.Flags().Changed("index")
@@ -74,7 +74,7 @@ func newCmdRemove(f *cmdutil.Factory) *cobra.Command {
 				if len(matches) > 1 && !first {
 					return output.ErrWithHint(output.ExitValidation, "ambiguous_match",
 						"multiple radar items match the substring — refine --match or pass --first",
-						"run 'midaz workspace radar get' to see all items")
+						"run 'midaz desk radar get' to see all items")
 				}
 				removeAt = matches[0]
 				removed = items[removeAt]

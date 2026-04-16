@@ -22,14 +22,14 @@ func newCmdWhoami(f *cmdutil.Factory) *cobra.Command {
 				return output.ErrAuth("not logged in", "")
 			}
 			data := map[string]any{
-				"profile":        creds.Profile,
-				"user_email":     creds.UserEmail,
-				"user_id":        creds.UserID,
-				"workspace_id":   creds.WorkspaceID,
-				"workspace_slug": creds.WorkspaceSlug,
-				"key_prefix":     auth.MaskKey(creds.APIKey),
-				"verified_at":    creds.VerifiedAt,
-				"label":          creds.Label,
+				"profile":     creds.Profile,
+				"user_email":  creds.UserEmail,
+				"user_id":     creds.UserID,
+				"desk_id":     creds.DeskID,
+				"desk_slug":   creds.DeskSlug,
+				"key_prefix":  auth.MaskKey(creds.APIKey),
+				"verified_at": creds.VerifiedAt,
+				"label":       creds.Label,
 			}
 			return output.WriteSuccess(opts.Out, data, nil, opts.Format)
 		},

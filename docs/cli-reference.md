@@ -1,6 +1,6 @@
 # CLI Reference
 
-Last updated: 2026-03-30
+Last updated: 2026-04-16
 
 ## Installation
 
@@ -16,19 +16,13 @@ curl -fsSL https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.sh 
 irm https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.ps1 | iex
 ```
 
-This installs the binary and runs `seer-q setup all --yes` to install skills.
+This installs the `midaz` binary. Run `midaz skills install --yes` afterwards to register agent skills.
 
 ### Via npm
 
 ```bash
 npm install -g @midaz/cli
-seer-q setup all --yes
-```
-
-### Via npx (skills only, legacy)
-
-```bash
-npx skills add SparkssL/Midaz-cli -y -g
+midaz skills install --yes
 ```
 
 ### Release (maintainers)
@@ -38,11 +32,11 @@ bash npm/publish.sh              # goreleaser + npm publish (single package)
 bash npm/publish.sh --dry-run    # test without publishing
 ```
 
-Skills are embedded in the binary. The `npx skills add` method is retained for backwards compatibility. No separate skills publish step is required.
+Skills are embedded in the binary.
 
 ---
 
-## Query CLI (`seer-q`)
+## Query CLI (`midaz`)
 
 ### Response Format
 
@@ -67,6 +61,7 @@ Use `--raw` to bypass the envelope and get raw API JSON.
 | `--format` | `json` | Output format: `json` or `pretty` |
 | `--raw` | false | Raw API response (no envelope) |
 | `--api-url` | from config | Override API base URL |
+| `--profile` | current | Auth profile name |
 
 ### Exit Codes
 
@@ -78,80 +73,107 @@ Use `--raw` to bypass the envelope and get raw API JSON.
 | 3 | Config error |
 | 4 | Network/timeout error |
 | 5 | API error (4xx/5xx) |
+| 6 | Auth required — run `midaz auth login` |
+| 7 | Subscription required — run `midaz subscription start --yes` |
 
 ### Entity Lookup
 
 ```bash
-seer-q search "QUERY"           # Fuzzy search across topics, threads, assets
-seer-q topic <ID>               # Topic detail: thesis, bias, all threads
-seer-q thread <ID>              # Thread detail: snapshot, claims, market links
+midaz search "QUERY"            # Fuzzy search across topics, theses, assets
+midaz topic <ID>                # Topic detail: thesis, bias, all theses
+midaz thesis <ID>               # Thesis detail: snapshot, claims, market links
 ```
+
+`thread` / `threads` are deprecated hidden aliases of `thesis` / `theses`.
 
 ### List / Browse
 
 ```bash
-seer-q market                   # Global regime + all topics with thread counts
-seer-q topics                   # List all topics with thread counts
-seer-q threads                  # List all threads (--topic ID, --status S)
-seer-q claims                   # Latest 100 claims (--thread ID, --source ID, --status S, --mode M)
-seer-q sources                  # Latest 100 sources (--decision D, --tier N)
+midaz market                    # Global regime + all topics with thesis counts
+midaz topics                    # List all topics with thesis counts
+midaz theses                    # List all theses (--topic ID, --status S)
+midaz claims                    # Latest 100 claims (--source ID, --status S, --mode M)
+midaz sources                   # Latest 100 sources (--decision D, --tier N)
+midaz delta                     # Recent claims + theses + topics (--hours N, default 12)
 ```
 
 ### Snapshots
 
 ```bash
-seer-q snapshot                 # Latest global regime snapshot
-seer-q snapshot --history       # Regime snapshot history (--limit N, default 10)
+midaz snapshot                  # Latest global regime snapshot
+```
+
+### Desk
+
+```bash
+midaz desk get                  # Desk summary (name, shared, subscription, onboarded)
+midaz desk settings             # Owner-only: radar, playbook, telegram (GET /api/desk/settings)
+midaz desk view                 # Personal market read (GET /api/desk/view, subscription-gated)
+midaz desk share --on --yes     # Toggle public sharing
+midaz desk radar {get,set,add,remove,pin,unpin,pins}
+midaz desk playbook {get,set}
+midaz desk telegram {status,connect,disconnect}
+```
+
+### Account & Subscription
+
+```bash
+midaz auth {login,logout,status,whoami,keys}
+midaz onboard {status,generate,complete}
+midaz invite redeem <CODE> --yes
+midaz subscription {status,start,portal}
+midaz intel {list,push,rm}
+```
+
+### Assets
+
+```bash
+midaz assets list [--tier N] [--bias B]
+midaz assets get <ID>
+midaz assets thesis <ID> <THESIS_ID>
 ```
 
 ### Usage & Audit
 
 ```bash
-seer-q usage                    # Token usage summary (--since P, default 24h)
-seer-q decisions                # Decision log (--stage S, --run ID, --entity-type T, --entity-id I, --limit N)
-seer-q health                   # API health check
+midaz usage                     # Token usage summary (--since P, default 24h)
+midaz decisions                 # Decision log (--stage S, --run ID, --entity-type T, --entity-id I, --limit N)
+midaz health                    # API health check
 ```
 
-### Setup
+### Skills
 
 ```bash
-seer-q setup auto --yes            # Install skills to detected agent directories
-seer-q setup claude --yes          # Install to Claude Code
-seer-q setup codex --yes           # Install to Codex
-seer-q setup all --yes             # Install to all known targets
-seer-q setup auto --dry-run        # Preview without writing
-seer-q setup all --yes --force     # Overwrite existing skill files
-seer-q setup all --yes --skill-dir /path/to/skills  # Custom directory
+midaz skills install --yes                       # Install skills to detected agent directories
+midaz skills install --target claude --yes       # Install to Claude Code
+midaz skills install --target codex --yes        # Install to Codex
+midaz skills install --target all --yes          # Install to all known targets
+midaz skills install --dry-run                   # Preview without writing
+midaz skills install --yes --force               # Overwrite existing skill files
+midaz skills install --yes --skill-dir /path     # Custom directory
 ```
-
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--yes` | false | Required for non-dry-run (CLI never prompts) |
-| `--force` | false | Overwrite existing files |
-| `--dry-run` | false | Preview actions without writing |
-| `--skill-dir` | (auto) | Custom skill directory |
 
 ### Diagnostics
 
 ```bash
-seer-q version                  # CLI version, Go version, OS/arch
-seer-q doctor                   # Check API connectivity, config, health
-seer-q schema                   # List all command contracts
-seer-q schema <command>         # Describe one command's input/output contract
+midaz version                   # CLI version, Go version, OS/arch
+midaz doctor                    # Check API connectivity, config, health
+midaz schema                    # List all command contracts
+midaz schema <command>          # Describe one command's input/output contract
 ```
 
 ### Configuration
 
 ```bash
-seer-q config get <key>         # Get config value
-seer-q config set <key> <value> # Set config value (creates file if needed)
-seer-q config list              # List all config (token masked)
-seer-q config path              # Show config file path
+midaz config get <key>          # Get config value
+midaz config set <key> <value>  # Set config value (creates file if needed)
+midaz config list               # List all config (token masked)
+midaz config path               # Show config file path
 ```
 
 Config precedence: CLI flags > env vars > config file > defaults.
 
-Config file: `%APPDATA%\seer\config.json` (Windows), `~/.config/seer/config.json` (Linux), `~/Library/Application Support/seer/config.json` (macOS).
+Config file: `%APPDATA%\midaz\config.json` (Windows), `~/.config/midaz/config.json` (Linux), `~/Library/Application Support/midaz/config.json` (macOS).
 
 ### Full Contract
 

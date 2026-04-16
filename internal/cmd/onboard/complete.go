@@ -48,7 +48,7 @@ func newCmdComplete(f *cmdutil.Factory) *cobra.Command {
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
 				Method:    "POST",
-				Path:      "/api/ws/onboard",
+				Path:      "/api/desk/onboard",
 				Body:      body,
 				Normalize: cmdutil.NormalizePassthrough,
 			})

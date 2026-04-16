@@ -98,7 +98,7 @@ func ErrAuth(msg, hint string) *ExitError {
 	}
 }
 
-// ErrSubscription creates a subscription ExitError (exit 7) — 402 / workspace paused.
+// ErrSubscription creates a subscription ExitError (exit 7) — 402 / desk paused.
 func ErrSubscription(msg, hint string) *ExitError {
 	if hint == "" {
 		hint = "run 'midaz subscription start --yes' to start a trial"

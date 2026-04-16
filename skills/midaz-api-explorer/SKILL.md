@@ -1,6 +1,6 @@
 ---
 name: midaz-api-explorer
-version: 0.6.1
+version: 0.7.0
 description: Discover and explore Midaz CLI commands via schema introspection — use when existing skills don't cover the user's need
 metadata: {"requires":{"bins":["midaz"]}}
 ---
@@ -9,7 +9,7 @@ metadata: {"requires":{"bins":["midaz"]}}
 
 > Read [midaz-shared](../midaz-shared/SKILL.md) for response format and common rules.
 
-Fallback skill. Use when the user's need isn't obviously covered by `midaz-market`, `midaz-account`, or `midaz-workspace`.
+Fallback skill. Use when the user's need isn't obviously covered by `midaz-market`, `midaz-account`, or `midaz-desk`.
 
 ## When to Use
 
@@ -22,7 +22,7 @@ Fallback skill. Use when the user's need isn't obviously covered by `midaz-marke
 
 ### 1. Check domain skills first
 
-Before running `schema`, ask: does `midaz-market`, `midaz-account`, or `midaz-workspace` already cover this? If yes, use that skill.
+Before running `schema`, ask: does `midaz-market`, `midaz-account`, or `midaz-desk` already cover this? If yes, use that skill.
 
 ### 2. List every command
 

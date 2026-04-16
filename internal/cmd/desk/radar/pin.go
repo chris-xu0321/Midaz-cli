@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// newCmdPin builds `midaz workspace radar pin`.
+// newCmdPin builds `midaz desk radar pin`.
 //
 // Pins an entity (thesis/topic/driver/asset) to the radar with provenance
 // tracking. Distinct from `radar add` — pins participate in L4 refresh and
@@ -29,7 +29,7 @@ func newCmdPin(f *cmdutil.Factory) *cobra.Command {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
 			if !yes {
 				return output.ErrWithHint(output.ExitValidation, "confirmation_required",
-					"workspace radar pin requires --yes",
+					"desk radar pin requires --yes",
 					"e.g. --kind Thesis --source-type thread --source-id <id> --label \"...\" --yes")
 			}
 			if strings.TrimSpace(kind) == "" {
@@ -52,7 +52,7 @@ func newCmdPin(f *cmdutil.Factory) *cobra.Command {
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
 				Method: "POST",
-				Path:   "/api/ws/radar/pin",
+				Path:   "/api/desk/radar/pin",
 				Body: map[string]any{
 					"kind":       kind,
 					"sourceType": sourceType,
@@ -71,7 +71,7 @@ func newCmdPin(f *cmdutil.Factory) *cobra.Command {
 	return cmd
 }
 
-// newCmdUnpin builds `midaz workspace radar unpin`.
+// newCmdUnpin builds `midaz desk radar unpin`.
 func newCmdUnpin(f *cmdutil.Factory) *cobra.Command {
 	var (
 		sourceType string
@@ -86,7 +86,7 @@ func newCmdUnpin(f *cmdutil.Factory) *cobra.Command {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
 			if !yes {
 				return output.ErrWithHint(output.ExitValidation, "confirmation_required",
-					"workspace radar unpin requires --yes",
+					"desk radar unpin requires --yes",
 					"e.g. --source-type thread --source-id <id> --yes")
 			}
 			if strings.TrimSpace(sourceType) == "" {
@@ -100,7 +100,7 @@ func newCmdUnpin(f *cmdutil.Factory) *cobra.Command {
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
 				Method: "DELETE",
-				Path:   "/api/ws/radar/pin",
+				Path:   "/api/desk/radar/pin",
 				Body: map[string]any{
 					"sourceType": sourceType,
 					"sourceId":   sourceID,
@@ -115,7 +115,7 @@ func newCmdUnpin(f *cmdutil.Factory) *cobra.Command {
 	return cmd
 }
 
-// newCmdPins builds `midaz workspace radar pins`.
+// newCmdPins builds `midaz desk radar pins`.
 func newCmdPins(f *cmdutil.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:   "pins",
@@ -127,7 +127,7 @@ func newCmdPins(f *cmdutil.Factory) *cobra.Command {
 				return err
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
-				Path:      "/api/ws/radar/pins",
+				Path:      "/api/desk/radar/pins",
 				Normalize: cmdutil.NormalizePassthrough,
 			})
 		},

@@ -1,4 +1,4 @@
-package workspace
+package desk
 
 import (
 	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
@@ -16,7 +16,7 @@ func newCmdSettings(f *cmdutil.Factory) *cobra.Command {
 				return err
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
-				Path:      "/api/ws/settings",
+				Path:      "/api/desk/settings",
 				Normalize: cmdutil.NormalizePassthrough,
 			})
 		},

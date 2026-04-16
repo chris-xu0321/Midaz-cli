@@ -20,13 +20,47 @@ import (
 
 // Credentials captures a single profile's auth state.
 type Credentials struct {
-	APIKey        string `json:"api_key"`
-	WorkspaceID   string `json:"workspace_id,omitempty"`
-	WorkspaceSlug string `json:"workspace_slug,omitempty"`
-	UserEmail     string `json:"user_email,omitempty"`
-	UserID        string `json:"user_id,omitempty"`
-	VerifiedAt    string `json:"verified_at,omitempty"`
-	Label         string `json:"label,omitempty"`
+	APIKey     string `json:"api_key"`
+	DeskID     string `json:"desk_id,omitempty"`
+	DeskSlug   string `json:"desk_slug,omitempty"`
+	UserEmail  string `json:"user_email,omitempty"`
+	UserID     string `json:"user_id,omitempty"`
+	VerifiedAt string `json:"verified_at,omitempty"`
+	Label      string `json:"label,omitempty"`
+}
+
+// UnmarshalJSON accepts both the canonical desk_* fields and the legacy
+// workspace_* fields written by older CLI versions. Re-saves as canonical
+// on the next SetCurrent.
+func (c *Credentials) UnmarshalJSON(b []byte) error {
+	var raw struct {
+		APIKey        string `json:"api_key"`
+		DeskID        string `json:"desk_id"`
+		DeskSlug      string `json:"desk_slug"`
+		WorkspaceID   string `json:"workspace_id"`
+		WorkspaceSlug string `json:"workspace_slug"`
+		UserEmail     string `json:"user_email"`
+		UserID        string `json:"user_id"`
+		VerifiedAt    string `json:"verified_at"`
+		Label         string `json:"label"`
+	}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	c.APIKey = raw.APIKey
+	c.DeskID = raw.DeskID
+	if c.DeskID == "" {
+		c.DeskID = raw.WorkspaceID
+	}
+	c.DeskSlug = raw.DeskSlug
+	if c.DeskSlug == "" {
+		c.DeskSlug = raw.WorkspaceSlug
+	}
+	c.UserEmail = raw.UserEmail
+	c.UserID = raw.UserID
+	c.VerifiedAt = raw.VerifiedAt
+	c.Label = raw.Label
+	return nil
 }
 
 // Store is the on-disk auth file shape.
@@ -174,7 +208,7 @@ func WriteMetadata(w io.Writer, c *Creds) {
 	}
 	fmt.Fprintf(w, "auth: %s @ %s (%s)\n",
 		NonEmpty(c.UserEmail, "unknown"),
-		NonEmpty(c.WorkspaceSlug, c.WorkspaceID),
+		NonEmpty(c.DeskSlug, c.DeskID),
 		MaskKey(c.APIKey),
 	)
 }

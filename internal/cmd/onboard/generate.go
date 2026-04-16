@@ -46,7 +46,7 @@ func newCmdGenerate(f *cmdutil.Factory) *cobra.Command {
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
 				Method:    "POST",
-				Path:      "/api/ws/onboard/generate",
+				Path:      "/api/desk/onboard/generate",
 				Body:      payload,
 				Normalize: cmdutil.NormalizePassthrough,
 			})

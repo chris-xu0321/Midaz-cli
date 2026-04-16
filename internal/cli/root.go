@@ -28,7 +28,7 @@ func Execute() int {
 	rootCmd := &cobra.Command{
 		Use:   "midaz",
 		Short: "Midaz market intelligence CLI",
-		Long: `Midaz CLI — authenticate, manage your workspace, and query the market intelligence graph.
+		Long: `Midaz CLI — authenticate, manage your desk, and query the market intelligence graph.
 
 INSTALL:
     curl -fsSL https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.sh | sh

@@ -1,4 +1,4 @@
-// Package telegram exposes `midaz workspace telegram` (status/connect/disconnect).
+// Package telegram exposes `midaz desk telegram` (status/connect/disconnect).
 package telegram
 
 import (
@@ -16,7 +16,7 @@ import (
 func NewCmdTelegram(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "telegram",
-		Short: "Connect/disconnect the workspace Telegram bot",
+		Short: "Connect/disconnect the desk Telegram bot",
 	}
 	cmd.AddCommand(newCmdStatus(f))
 	cmd.AddCommand(newCmdConnect(f))
@@ -35,7 +35,7 @@ func newCmdStatus(f *cmdutil.Factory) *cobra.Command {
 				return err
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
-				Path:      "/api/ws/settings",
+				Path:      "/api/desk/settings",
 				Normalize: cmdutil.NormalizePassthrough,
 			})
 		},
@@ -57,7 +57,7 @@ func newCmdConnect(f *cmdutil.Factory) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			resp, err := c.Get(cmd.Context(), "/api/ws/settings", nil)
+			resp, err := c.Get(cmd.Context(), "/api/desk/settings", nil)
 			if err != nil {
 				return err
 			}
@@ -66,9 +66,9 @@ func newCmdConnect(f *cmdutil.Factory) *cobra.Command {
 					Connected   bool   `json:"connected"`
 					BotUsername string `json:"bot_username"`
 				} `json:"telegram"`
-				Workspace struct {
+				Desk struct {
 					ID string `json:"id"`
-				} `json:"workspace"`
+				} `json:"desk"`
 			}
 			if err := json.Unmarshal(resp.Body, &settings); err != nil {
 				return output.ErrAPI("api", "failed to parse settings: %s", err)
@@ -76,12 +76,12 @@ func newCmdConnect(f *cmdutil.Factory) *cobra.Command {
 			if settings.Telegram.BotUsername == "" {
 				return output.ErrAPI("api", "TELEGRAM_BOT_USERNAME not configured on the API")
 			}
-			wsID := settings.Workspace.ID
-			if wsID == "" {
-				wsID = creds.WorkspaceID
+			deskID := settings.Desk.ID
+			if deskID == "" {
+				deskID = creds.DeskID
 			}
 			deepLink := fmt.Sprintf("https://t.me/%s?start=%s",
-				url.PathEscape(settings.Telegram.BotUsername), url.QueryEscape(wsID))
+				url.PathEscape(settings.Telegram.BotUsername), url.QueryEscape(deskID))
 
 			_ = auth.OpenBrowser(deepLink)
 
@@ -91,7 +91,7 @@ func newCmdConnect(f *cmdutil.Factory) *cobra.Command {
 				"connected":    settings.Telegram.Connected,
 			}
 			meta := map[string]any{
-				"hint":    "Tap 'Start' in Telegram, then run: midaz workspace telegram status",
+				"hint":     "Tap 'Start' in Telegram, then run: midaz desk telegram status",
 				"view_url": deepLink,
 			}
 			return output.WriteSuccess(opts.Out, data, meta, opts.Format)
@@ -109,15 +109,15 @@ func newCmdDisconnect(f *cmdutil.Factory) *cobra.Command {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
 			if !yes {
 				return output.ErrWithHint(output.ExitValidation, "confirmation_required",
-					"workspace telegram disconnect requires --yes",
-					"run: midaz workspace telegram disconnect --yes")
+					"desk telegram disconnect requires --yes",
+					"run: midaz desk telegram disconnect --yes")
 			}
 			if _, err := cmdutil.RequireAuth(f); err != nil {
 				return err
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
 				Method:    "DELETE",
-				Path:      "/api/ws/telegram",
+				Path:      "/api/desk/telegram",
 				Normalize: cmdutil.NormalizePassthrough,
 			})
 		},

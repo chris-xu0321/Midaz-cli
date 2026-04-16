@@ -1,6 +1,6 @@
 ---
 name: midaz-account
-version: 0.6.1
+version: 0.7.0
 description: Authenticate, redeem invitations, complete onboarding, and manage Midaz subscription from the CLI
 metadata: {"requires":{"bins":["midaz"]}}
 ---
@@ -17,14 +17,14 @@ A fresh user goes through these steps in order. Run `midaz auth status` first if
 
 ```
 1. midaz auth login                         # sign in (browser)
-2. midaz invite redeem <CODE> --yes         # unlock workspace access
+2. midaz invite redeem <CODE> --yes         # unlock desk access
 3. midaz onboard generate --mode guided \   # set radar + playbook
      --from-file guided.json --yes
 4. midaz subscription start --yes           # start Stripe Checkout (opens browser)
-5. midaz workspace telegram connect         # (optional) wire up alerts
+5. midaz desk telegram connect              # (optional) wire up alerts
 ```
 
-Use `midaz workspace get` after each step to verify the state you expect.
+Use `midaz desk get` after each step to verify the state you expect.
 
 ## Authentication
 
@@ -54,13 +54,13 @@ If any authenticated command exits with code 6, re-run `midaz auth login`.
 
 ## Invitations
 
-Midaz uses single-use invitation codes to gate early access. A new user's workspace has `has_invite_access: false` until a code is redeemed.
+Midaz uses single-use invitation codes to gate early access. A new user's desk has `has_invite_access: false` until a code is redeemed.
 
 ```
 midaz invite redeem <CODE> --yes
 ```
 
-Returns `{ success: true, message: "…" }`. After redemption, `midaz workspace get` will show `has_invite_access: true`.
+Returns `{ success: true, message: "…" }`. After redemption, `midaz desk get` will show `has_invite_access: true`.
 
 Common failures:
 - `400 already_used` — the code was already redeemed.
@@ -68,7 +68,7 @@ Common failures:
 
 ## Onboarding
 
-A workspace is "onboarded" when it has both a **radar** (watchlist, ≤5 items) and a **playbook** (trading rules, ≤20 000 chars). Two paths:
+A desk is "onboarded" when it has both a **radar** (watchlist, ≤5 items) and a **playbook** (trading rules, ≤20 000 chars). Two paths:
 
 ### Guided/freeform (server generates for you)
 
@@ -103,20 +103,20 @@ Server LLM generates a radar + playbook and commits them atomically.
 midaz onboard complete --radar radar.md --playbook playbook.md --yes
 ```
 
-Use when the user already handed you written content. Validates length and commits via `POST /api/ws/onboard`.
+Use when the user already handed you written content. Validates length and commits via `POST /api/desk/onboard`.
 
 ### Check state
 
 ```
-midaz onboard status   # reads `onboarded` from GET /api/ws
+midaz onboard status   # reads `onboarded` from GET /api/desk
 ```
 
 ## Subscription (Stripe)
 
-Midaz Prime is $39/mo with a 14-day trial. Subscription status is on the workspace:
+Midaz Prime is $39/mo with a 14-day trial. Subscription status is on the desk:
 
 ```
-midaz subscription status   # reads subscription object from GET /api/ws
+midaz subscription status   # reads subscription object from GET /api/desk
 ```
 
 Start a trial / subscribe:
@@ -135,24 +135,24 @@ midaz subscription portal --yes
 # → Stripe Customer Portal URL; auto-opens.
 ```
 
-Allowed subscription states for subscription-gated endpoints (like `workspace view`, `intel push`): `trialing`, `active`, `past_due`, or `dev_unlimited: true`. Exit code 7 from any command means the subscription is not in an allowed state.
+Allowed subscription states for subscription-gated endpoints (like `desk view`, `intel push`): `trialing`, `active`, `past_due`, or `dev_unlimited: true`. Exit code 7 from any command means the subscription is not in an allowed state.
 
 ## Agent Recipes
 
 ### "Help me sign in"
 
-1. `midaz auth status` — if it returns 0, you're already in; show the email/workspace.
+1. `midaz auth status` — if it returns 0, you're already in; show the email/desk.
 2. If it exits 6: `midaz auth login` and tell the user to complete browser sign-in.
 3. If on SSH / headless: run `midaz auth login --paste` and explain the user should create a PAT on the website first.
 
 ### "Set me up from scratch"
 
 1. Ensure logged in.
-2. `midaz workspace get` — inspect `has_invite_access`, `onboarded`, `subscription.status`.
+2. `midaz desk get` — inspect `has_invite_access`, `onboarded`, `subscription.status`.
 3. If `has_invite_access: false` → ask the user for their invitation code, then `midaz invite redeem <CODE> --yes`.
 4. If `onboarded: false` → ask whether they want guided / freeform / manual; build the input file; `midaz onboard generate` or `onboard complete`.
 5. If `subscription.status` is null or `canceled` → confirm, then `midaz subscription start --yes` and share the checkout URL.
-6. Finish by surfacing the workspace `view_url` so they can jump to the map.
+6. Finish by surfacing the desk `view_url` so they can jump to the map.
 
 ### "Rotate my CLI credentials"
 

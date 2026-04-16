@@ -16,9 +16,9 @@ const (
 	maxItemLength = 160 // matches Seer MAX_ITEM_LEN
 )
 
-// fetchCurrentItems returns the current radar items from GET /api/ws/settings.
+// fetchCurrentItems returns the current radar items from GET /api/desk/settings.
 func fetchCurrentItems(ctx context.Context, c *client.Client) ([]string, error) {
-	resp, err := c.Get(ctx, "/api/ws/settings", nil)
+	resp, err := c.Get(ctx, "/api/desk/settings", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -27,15 +27,15 @@ func fetchCurrentItems(ctx context.Context, c *client.Client) ([]string, error) 
 	}
 	if err := json.Unmarshal(resp.Body, &parsed); err != nil {
 		return nil, output.Errorf(output.ExitInternal, "internal",
-			"failed to parse /api/ws/settings response: %s", err)
+			"failed to parse /api/desk/settings response: %s", err)
 	}
 	return parsed.RadarItems, nil
 }
 
-// pushItems writes the full items list back via PATCH /api/ws/radar.
+// pushItems writes the full items list back via PATCH /api/desk/radar.
 // Returns the server's parsed response for echoing in the success envelope.
 func pushItems(ctx context.Context, c *client.Client, items []string) (map[string]any, error) {
-	resp, err := c.Patch(ctx, "/api/ws/radar", map[string]any{"radar_items": items})
+	resp, err := c.Patch(ctx, "/api/desk/radar", map[string]any{"radar_items": items})
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func pushItems(ctx context.Context, c *client.Client, items []string) (map[strin
 	if len(resp.Body) > 0 {
 		if err := json.Unmarshal(resp.Body, &out); err != nil {
 			return nil, output.Errorf(output.ExitInternal, "internal",
-				"failed to parse /api/ws/radar response: %s", err)
+				"failed to parse /api/desk/radar response: %s", err)
 		}
 	}
 	return out, nil

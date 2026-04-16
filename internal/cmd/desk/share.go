@@ -1,4 +1,4 @@
-package workspace
+package desk
 
 import (
 	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
@@ -14,7 +14,7 @@ func newCmdShare(f *cmdutil.Factory) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "share",
-		Short: "Toggle workspace sharing (public /w/<id> page)",
+		Short: "Toggle desk sharing (public /d/<id> page)",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
@@ -23,14 +23,14 @@ func newCmdShare(f *cmdutil.Factory) *cobra.Command {
 			}
 			if !yes {
 				return output.ErrWithHint(output.ExitValidation, "confirmation_required",
-					"workspace share requires --yes", "e.g. midaz workspace share --on --yes")
+					"desk share requires --yes", "e.g. midaz desk share --on --yes")
 			}
 			if _, err := cmdutil.RequireAuth(f); err != nil {
 				return err
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
 				Method:    "PATCH",
-				Path:      "/api/ws",
+				Path:      "/api/desk",
 				Body:      map[string]any{"shared": on},
 				Normalize: cmdutil.NormalizePassthrough,
 			})

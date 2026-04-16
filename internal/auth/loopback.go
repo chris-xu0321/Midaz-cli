@@ -20,13 +20,48 @@ import (
 var DefaultRelayOrigin = "https://www.midaz.xyz"
 
 // LoopbackResult is what the /cli-auth relay POSTs back to the local server.
+//
+// The relay page dual-emits both desk_* and workspace_* keys during the
+// rename window; we accept either via UnmarshalJSON below. New CLI installs
+// receive desk_* directly.
 type LoopbackResult struct {
-	APIKey        string `json:"api_key"`
-	WorkspaceID   string `json:"workspace_id"`
-	WorkspaceSlug string `json:"workspace_slug"`
-	UserEmail     string `json:"user_email"`
-	UserID        string `json:"user_id"`
-	Nonce         string `json:"nonce"`
+	APIKey    string `json:"api_key"`
+	DeskID    string `json:"desk_id"`
+	DeskSlug  string `json:"desk_slug"`
+	UserEmail string `json:"user_email"`
+	UserID    string `json:"user_id"`
+	Nonce     string `json:"nonce"`
+}
+
+// UnmarshalJSON accepts both desk_* and workspace_* keys for backwards
+// compatibility with the relay's transitional dual-emit payload.
+func (r *LoopbackResult) UnmarshalJSON(b []byte) error {
+	var raw struct {
+		APIKey        string `json:"api_key"`
+		DeskID        string `json:"desk_id"`
+		DeskSlug      string `json:"desk_slug"`
+		WorkspaceID   string `json:"workspace_id"`
+		WorkspaceSlug string `json:"workspace_slug"`
+		UserEmail     string `json:"user_email"`
+		UserID        string `json:"user_id"`
+		Nonce         string `json:"nonce"`
+	}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	r.APIKey = raw.APIKey
+	r.DeskID = raw.DeskID
+	if r.DeskID == "" {
+		r.DeskID = raw.WorkspaceID
+	}
+	r.DeskSlug = raw.DeskSlug
+	if r.DeskSlug == "" {
+		r.DeskSlug = raw.WorkspaceSlug
+	}
+	r.UserEmail = raw.UserEmail
+	r.UserID = raw.UserID
+	r.Nonce = raw.Nonce
+	return nil
 }
 
 // Listener owns a one-shot HTTP server that awaits the relay page's POST and

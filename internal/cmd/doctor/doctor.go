@@ -124,9 +124,9 @@ func loginDescription(c *authpkg.Creds) string {
 	if email == "" {
 		email = "unknown user"
 	}
-	ws := c.WorkspaceSlug
-	if ws == "" {
-		ws = c.WorkspaceID
+	desk := c.DeskSlug
+	if desk == "" {
+		desk = c.DeskID
 	}
-	return email + " @ " + ws + " (" + authpkg.MaskKey(c.APIKey) + ")"
+	return email + " @ " + desk + " (" + authpkg.MaskKey(c.APIKey) + ")"
 }

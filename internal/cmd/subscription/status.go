@@ -16,7 +16,7 @@ func newCmdStatus(f *cmdutil.Factory) *cobra.Command {
 				return err
 			}
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
-				Path:      "/api/ws",
+				Path:      "/api/desk",
 				Normalize: cmdutil.NormalizePassthrough,
 			})
 		},
