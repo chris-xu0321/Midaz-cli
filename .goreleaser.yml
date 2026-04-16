@@ -1,9 +1,9 @@
 version: 2
 
 builds:
-  - binary: seer-q
+  - binary: midaz
     dir: .
-    main: ./cmd/seer-q/
+    main: ./cmd/midaz/
     env:
       - CGO_ENABLED=0
     ldflags:
@@ -17,7 +17,7 @@ builds:
       - arm64
 
 archives:
-  - name_template: "seer-q-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+  - name_template: "midaz-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
     files:
       - README.md
       - LICENSE
