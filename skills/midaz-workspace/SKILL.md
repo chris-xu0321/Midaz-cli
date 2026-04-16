@@ -1,6 +1,6 @@
 ---
 name: midaz-workspace
-version: 0.6.0
+version: 0.6.1
 description: Manage the Midaz workspace — radar, playbook, sharing, Telegram alerts, private intel, and asset tracking via the CLI
 metadata: {"requires":{"bins":["midaz"]}}
 ---
@@ -35,6 +35,31 @@ midaz workspace radar set --from-file radar.md --yes
 ```
 
 Updates enqueue an L4 refresh; `l4_enqueued: true` in the response means the personal view will recompute soon.
+
+### Entity pins (radar pin / unpin / pins)
+
+Distinct from free-form radar lines: pins attach a specific **entity** (thesis, topic, driver, asset) to the radar with provenance tracking, so the web market view can render a filled pin button and L4 can treat the entity as a first-class watch target.
+
+```
+midaz workspace radar pin --kind Thesis --source-type thread --source-id <id> --label "Short text"  --yes
+midaz workspace radar pin --kind Topic  --source-type topic  --source-id <id> --label "Short text"  --yes
+midaz workspace radar pin --kind Driver --source-type driver --source-id <id> --label "Short text"  --yes
+midaz workspace radar pin --kind Asset  --source-type asset  --source-id <id> --label "Short text"  --yes
+
+midaz workspace radar unpin --source-type thread --source-id <id> --yes
+
+midaz workspace radar pins                 # List pins (provenance rows) — includes origin = pin | adopted
+```
+
+Rules enforced server-side:
+- `kind` is the display label (`Thesis | Topic | Driver | Asset`); `source-type` is the DB key (`thread | topic | driver | asset`).
+- `label` ≤ 160 chars after whitespace collapse.
+- 409 `already_pinned` if the (source-type, source-id) is already pinned.
+- 409 `radar_full` if the radar already has 12 lines *and* no freeform line can be adopted.
+- If a freeform radar line matches the `label`, the pin adopts it (`origin: adopted`); otherwise a new line is appended (`origin: pin`).
+- Unpin is origin-aware: `origin=pin` strips the line; `origin=adopted` only removes provenance (the freeform line survives); unknown pairs no-op.
+
+Pin/unpin enqueue an L4 refresh (`l4_enqueued: true` when work was queued).
 
 ## Playbook (trading rules)
 

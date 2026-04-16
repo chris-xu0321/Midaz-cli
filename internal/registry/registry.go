@@ -86,7 +86,11 @@ var Commands = []CommandDef{
 	{
 		Name:        "workspace",
 		Description: "Manage your workspace: radar, playbook, sharing, Telegram",
-		Endpoints:   []string{"GET /api/ws", "GET /api/ws/settings", "GET /api/ws/view", "PATCH /api/ws*", "DELETE /api/ws/telegram"},
+		Endpoints: []string{
+			"GET /api/ws", "GET /api/ws/settings", "GET /api/ws/view",
+			"PATCH /api/ws*", "DELETE /api/ws/telegram",
+			"POST /api/ws/radar/pin", "DELETE /api/ws/radar/pin", "GET /api/ws/radar/pins",
+		},
 		NewCmd:      workspace.NewCmdWorkspace,
 	},
 	{
@@ -180,8 +184,7 @@ var Commands = []CommandDef{
 	{
 		Name:        "snapshot",
 		Description: "Global regime snapshot",
-		Flags:       []FlagDef{{Name: "history"}, {Name: "limit"}},
-		Endpoints:   []string{"GET /api/global/snapshot", "GET /api/global/snapshots"},
+		Endpoints:   []string{"GET /api/global"},
 		NewCmd:      snapshot.NewCmdSnapshot,
 	},
 	{

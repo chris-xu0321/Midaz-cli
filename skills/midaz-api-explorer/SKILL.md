@@ -1,6 +1,6 @@
 ---
 name: midaz-api-explorer
-version: 0.6.0
+version: 0.6.1
 description: Discover and explore Midaz CLI commands via schema introspection — use when existing skills don't cover the user's need
 metadata: {"requires":{"bins":["midaz"]}}
 ---

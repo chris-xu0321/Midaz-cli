@@ -1,6 +1,6 @@
 ---
 name: midaz-shared
-version: 0.6.0
+version: 0.6.1
 description: Midaz CLI shared concepts — auth model, response format, global flags, and safety rules that apply to every midaz skill
 metadata: {"requires":{"bins":["midaz"]}}
 ---

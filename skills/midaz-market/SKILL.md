@@ -1,6 +1,6 @@
 ---
 name: midaz-market
-version: 0.6.0
+version: 0.6.1
 description: Search, browse, and analyze topics, theses, claims, assets, deltas, and market regime via the midaz CLI
 metadata: {"requires":{"bins":["midaz"]}}
 ---
@@ -61,8 +61,6 @@ midaz delta --hours 24              # Last 24h (1-168 allowed)
 
 ```
 midaz snapshot                       # Latest global regime snapshot
-midaz snapshot --history             # Regime snapshot history (default 10)
-midaz snapshot --history --limit 5
 ```
 
 ### Usage & audit
@@ -87,7 +85,6 @@ midaz health                         # API health
 | Claims for a thesis | `midaz claims --thread THID` (flag name kept for API compat) |
 | Recent sources | `midaz sources` |
 | Bull/bear case for X | `midaz search "X"` → `midaz thesis ID` → look at `risk_case`, contradicting claims |
-| Market regime history | `midaz snapshot --history` |
 | Global regime detail | `midaz snapshot` |
 | Theses in a topic | `midaz theses --topic TOPIC_ID` |
 

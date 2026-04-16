@@ -20,6 +20,9 @@ func NewCmdRadar(f *cmdutil.Factory) *cobra.Command {
 	cmd.AddCommand(newCmdSet(f))
 	cmd.AddCommand(newCmdAdd(f))
 	cmd.AddCommand(newCmdRemove(f))
+	cmd.AddCommand(newCmdPin(f))
+	cmd.AddCommand(newCmdUnpin(f))
+	cmd.AddCommand(newCmdPins(f))
 	return cmd
 }
 

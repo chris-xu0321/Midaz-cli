@@ -1,6 +1,6 @@
 ---
 name: midaz-account
-version: 0.6.0
+version: 0.6.1
 description: Authenticate, redeem invitations, complete onboarding, and manage Midaz subscription from the CLI
 metadata: {"requires":{"bins":["midaz"]}}
 ---

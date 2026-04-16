@@ -1,6 +1,6 @@
 {
   "name": "@midaz/cli",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Midaz market intelligence CLI",
   "bin": {
     "midaz": "scripts/run.js",

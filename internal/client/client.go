@@ -62,9 +62,9 @@ func (c *Client) Patch(ctx context.Context, path string, body any) (*Response, e
 	return c.doJSON(ctx, http.MethodPatch, path, body)
 }
 
-// Delete makes a DELETE request.
-func (c *Client) Delete(ctx context.Context, path string) (*Response, error) {
-	return c.do(ctx, http.MethodDelete, path, nil, nil)
+// Delete makes a DELETE request with an optional JSON body.
+func (c *Client) Delete(ctx context.Context, path string, body any) (*Response, error) {
+	return c.doJSON(ctx, http.MethodDelete, path, body)
 }
 
 func (c *Client) doJSON(ctx context.Context, method, path string, body any) (*Response, error) {
@@ -148,7 +148,8 @@ func classifyHTTPError(status int, body []byte, path string, hasToken bool) *out
 		if msg == "" {
 			msg = "Active subscription required"
 		}
-		return output.ErrSubscription(msg, "")
+		return output.ErrSubscription(msg,
+			"run 'midaz subscription status' to check billing, or 'midaz subscription start' to subscribe")
 	case status == 403:
 		if msg == "" {
 			msg = fmt.Sprintf("Forbidden: %s", path)

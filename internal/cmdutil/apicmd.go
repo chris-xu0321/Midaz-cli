@@ -68,7 +68,7 @@ func callAPI(c *client.Client, opts *RunOpts, spec *APISpec) (*client.Response, 
 	case http.MethodPatch:
 		return c.Patch(opts.Ctx, spec.Path, spec.Body)
 	case http.MethodDelete:
-		return c.Delete(opts.Ctx, spec.Path)
+		return c.Delete(opts.Ctx, spec.Path, spec.Body)
 	default:
 		return nil, output.Errorf(output.ExitInternal, "internal", "unsupported HTTP method: %s", method)
 	}
