@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.1 — 2026-04-16
+
+### Added
+- **Radar pins**: `midaz workspace radar {pin,unpin,pins}` wrap the new entity-pin API (`POST`/`DELETE /api/ws/radar/pin`, `GET /api/ws/radar/pins`). Distinct from free-form radar lines — pins carry provenance and participate in L4 refresh.
+
+### Fixed
+- `midaz snapshot` now hits `/api/global` (the legacy `/api/global/snapshot` + `/api/global/snapshots` routes were removed upstream). The `--history` / `--limit` flags are dropped — the new API has no history variant.
+
+### Changed
+- 402 responses now include a hint pointing at `midaz subscription status` / `midaz subscription start` instead of a bare error.
+- `client.Delete()` now accepts a JSON body (needed by radar `unpin`).
+
 ## 0.6.0 — 2026-04-15
 
 ### Added
