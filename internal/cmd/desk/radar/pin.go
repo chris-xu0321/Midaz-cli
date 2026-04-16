@@ -64,7 +64,7 @@ func newCmdPin(f *cmdutil.Factory) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&kind, "kind", "", "Entity kind: Thesis | Topic | Driver | Asset")
-	cmd.Flags().StringVar(&sourceType, "source-type", "", "DB source type: thread | topic | driver | asset")
+	cmd.Flags().StringVar(&sourceType, "source-type", "", "Source type: thread | topic | driver | asset")
 	cmd.Flags().StringVar(&sourceID, "source-id", "", "Entity id or slug")
 	cmd.Flags().StringVar(&label, "label", "", "Radar line text (≤ 160 chars)")
 	cmd.Flags().BoolVar(&yes, "yes", false, "Confirm the pin")
@@ -109,7 +109,7 @@ func newCmdUnpin(f *cmdutil.Factory) *cobra.Command {
 			})
 		},
 	}
-	cmd.Flags().StringVar(&sourceType, "source-type", "", "DB source type: thread | topic | driver | asset")
+	cmd.Flags().StringVar(&sourceType, "source-type", "", "Source type: thread | topic | driver | asset")
 	cmd.Flags().StringVar(&sourceID, "source-id", "", "Entity id or slug")
 	cmd.Flags().BoolVar(&yes, "yes", false, "Confirm the unpin")
 	return cmd

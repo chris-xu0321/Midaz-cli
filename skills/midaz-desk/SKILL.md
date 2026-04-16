@@ -81,6 +81,22 @@ midaz desk share --off --yes
 
 After enabling, `midaz desk get` returns `desk.shared: true`. The public URL is computed client-side from the desk id.
 
+## Refresh (manual L4 rebuilds)
+
+Two owner-triggered verbs enqueue an L4 rebuild of the personal desk. Both mirror buttons in the Desk Preferences panel:
+
+```
+midaz desk regenerate --yes     # L4Cause.manual         — POST /api/desk/personal-desk/regenerate
+midaz desk reonboard  --yes     # L4Cause.personal_input — POST /api/desk/onboard (resubmits current config)
+```
+
+Notes:
+
+- `regenerate` sends no body and is the direct equivalent of the "Regenerate personal desk" button. Subscription-gated; returns `{status:"queued"}` or 409 with `refresh_id` if one is already in flight.
+- `reonboard` reads your current `radar_items` + `playbook` via `GET /api/desk/settings`, then POSTs them back to `/api/desk/onboard` unchanged. Because the settings read is subscription-gated, reonboard is too (even though the onboard endpoint itself is not). Response includes `l4_enqueued: true` on success.
+- Both are fire-and-forget; the rebuild runs asynchronously. Poll `midaz desk view` to see the recomputed personal read once ready.
+- For first-time onboarding (not a refresh), use `midaz onboard` instead.
+
 ## Telegram Alerts
 
 Connect the desk to the Midaz Telegram bot so alerts are delivered to chat.

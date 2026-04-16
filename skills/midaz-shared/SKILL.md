@@ -26,7 +26,7 @@ midaz auth {login,logout,status,whoami,keys}
 midaz onboard {status,generate,complete}
 midaz invite redeem <CODE>
 midaz subscription {status,start,portal}
-midaz desk {get,settings,view,share,radar,playbook,telegram}
+midaz desk {get,settings,view,share,regenerate,reonboard,radar,playbook,telegram}
 midaz intel {list,push,rm}
 midaz assets {list,get,thesis}
 midaz delta

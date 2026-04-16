@@ -15,10 +15,10 @@ func NewCmdOnboard(f *cmdutil.Factory) *cobra.Command {
 for the first time. Two paths:
 
   midaz onboard generate --mode guided --from-file input.json --yes
-      POST /api/desk/onboard/generate — lets the server's LLM draft both.
+      Lets the server draft radar + playbook from a structured prompt.
 
   midaz onboard complete --radar radar.md --playbook playbook.md --yes
-      POST /api/desk/onboard — commits caller-supplied content directly.`,
+      Commits caller-supplied radar and playbook content directly.`,
 	}
 	cmd.AddCommand(newCmdStatus(f))
 	cmd.AddCommand(newCmdGenerate(f))

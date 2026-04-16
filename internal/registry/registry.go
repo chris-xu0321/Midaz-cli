@@ -90,6 +90,7 @@ var Commands = []CommandDef{
 			"GET /api/desk", "GET /api/desk/settings", "GET /api/desk/view",
 			"PATCH /api/desk*", "DELETE /api/desk/telegram",
 			"POST /api/desk/radar/pin", "DELETE /api/desk/radar/pin", "GET /api/desk/radar/pins",
+			"POST /api/desk/personal-desk/regenerate", "POST /api/desk/onboard",
 		},
 		NewCmd: desk.NewCmdDesk,
 	},

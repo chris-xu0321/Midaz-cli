@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.1 — 2026-04-16
+
+### Added
+- **Manual desk refresh verbs**: `midaz desk regenerate` (L4Cause.manual, `POST /api/desk/personal-desk/regenerate`) and `midaz desk reonboard` (L4Cause.personal_input, `POST /api/desk/onboard` with current radar+playbook re-submitted). Both owner-only; both require an active subscription (regenerate directly, reonboard transitively via the settings round-trip). Mirrors the "Regenerate personal desk" and "Run setup" buttons in the web Desk Preferences panel.
+
+### Changed
+- Trimmed server-internal jargon out of user-facing `--help` text across `auth status`, `invite redeem`, `onboard`, and `desk radar pin/unpin` (stale `workspace` → `desk`, endpoint paths, DB terminology).
+
 ## 0.7.0 — 2026-04-16
 
 Companion release for Seer's `workspaces → desks` rename. Backend dropped its

@@ -23,7 +23,7 @@ func newCmdRedeem(f *cmdutil.Factory) *cobra.Command {
 	var yes bool
 	cmd := &cobra.Command{
 		Use:   "redeem <code>",
-		Short: "Redeem an invitation code to unlock the workspace",
+		Short: "Redeem an invitation code to unlock the desk",
 		Args: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 1 {
 				return output.ErrValidation("missing required argument: code")

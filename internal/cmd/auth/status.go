@@ -8,7 +8,7 @@ import (
 func newCmdStatus(f *cmdutil.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:   "status",
-		Short: "Show the authenticated user + workspace (live)",
+		Short: "Show the authenticated user + desk (live)",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts := cmdutil.ResolveRunOpts(cmd, f)

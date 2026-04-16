@@ -23,6 +23,8 @@ All write commands require --yes; they mirror the frontend toggles at
 	cmd.AddCommand(newCmdSettings(f))
 	cmd.AddCommand(newCmdView(f))
 	cmd.AddCommand(newCmdShare(f))
+	cmd.AddCommand(newCmdRegenerate(f))
+	cmd.AddCommand(newCmdReonboard(f))
 	cmd.AddCommand(radar.NewCmdRadar(f))
 	cmd.AddCommand(playbook.NewCmdPlaybook(f))
 	cmd.AddCommand(telegram.NewCmdTelegram(f))
