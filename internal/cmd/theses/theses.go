@@ -8,9 +8,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewCmdTheses lists theses (market arguments), with optional filters.
+// NewCmdTheses lists theses (market arguments), with optional status filter.
 func NewCmdTheses(f *cmdutil.Factory) *cobra.Command {
-	var topicID, status string
+	var status string
 	cmd := &cobra.Command{
 		Use:   "theses",
 		Short: "List theses (market arguments)",
@@ -18,9 +18,6 @@ func NewCmdTheses(f *cmdutil.Factory) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
 			params := url.Values{}
-			if topicID != "" {
-				params.Set("topic_id", topicID)
-			}
 			if status != "" {
 				params.Set("status", status)
 			}
@@ -31,7 +28,6 @@ func NewCmdTheses(f *cmdutil.Factory) *cobra.Command {
 			})
 		},
 	}
-	cmd.Flags().StringVar(&topicID, "topic", "", "Filter by topic ID")
 	cmd.Flags().StringVar(&status, "status", "", "Filter by status (active/weakening/divided/resolved)")
 	return cmd
 }

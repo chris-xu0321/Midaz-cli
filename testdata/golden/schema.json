@@ -2,15 +2,27 @@
   "ok": true,
   "data": {
     "commands": [
-      { "name": "search", "description": "Fuzzy search across topics, threads, assets", "args": ["query"] },
-      { "name": "market", "description": "Global regime + all topics with thread counts" },
-      { "name": "topics", "description": "List all topics with thread counts" },
-      { "name": "topic", "description": "Topic detail + threads", "args": ["id"] },
-      { "name": "threads", "description": "List threads", "flags": ["--topic", "--status"] },
-      { "name": "thread", "description": "Thread detail + claims + market links", "args": ["id"] },
-      { "name": "claims", "description": "List claims", "flags": ["--thread", "--source", "--status", "--mode"] },
+      { "name": "auth", "description": "Authenticate and manage API credentials" },
+      { "name": "onboard", "description": "Complete desk onboarding (radar + playbook)" },
+      { "name": "invite", "description": "Redeem invitation codes" },
+      { "name": "subscription", "description": "Subscribe, manage billing, check subscription status" },
+      { "name": "desk", "description": "Manage your desk: radar, playbook, preferences, sharing, Telegram" },
+      { "name": "intel", "description": "Push, list, and delete private intel (notes / sources)" },
+      { "name": "search", "description": "Fuzzy search across drivers, theses, assets", "args": ["query"] },
+      { "name": "market", "description": "Global regime + drivers + thesis memberships (composite)" },
+      { "name": "drivers", "description": "List active drivers (world-layer objects behind the market view)" },
+      { "name": "driver", "description": "Driver detail with thread members and asset contributions", "args": ["id"] },
+      { "name": "driver-links", "description": "List causal edges between drivers (sphere/radar graph)" },
+      { "name": "theses", "description": "List theses (market arguments)", "flags": ["--status"] },
+      { "name": "thesis", "description": "Thesis detail + claims + market links", "args": ["id"] },
+      { "name": "threads", "description": "Deprecated alias of `theses`", "flags": ["--status"] },
+      { "name": "thread", "description": "Deprecated alias of `thesis`", "args": ["id"] },
+      { "name": "assets", "description": "List and inspect assets (bias, contributions, timeline)" },
+      { "name": "klines", "description": "Asset kline (candlestick) data", "args": ["asset_id"] },
+      { "name": "delta", "description": "Recent claims + theses + drivers from the last N hours", "flags": ["--hours"] },
+      { "name": "claims", "description": "List claims", "flags": ["--source", "--status", "--mode"] },
       { "name": "sources", "description": "List ingested sources", "flags": ["--decision", "--tier"] },
-      { "name": "snapshot", "description": "Global regime snapshot", "flags": ["--history", "--limit"] },
+      { "name": "snapshot", "description": "Global regime snapshot" },
       { "name": "usage", "description": "Token usage and cost summary", "flags": ["--since"] },
       { "name": "decisions", "description": "Decision audit log", "flags": ["--stage", "--run", "--entity-type", "--entity-id", "--limit"] },
       { "name": "health", "description": "API health check" },
@@ -18,10 +30,10 @@
       { "name": "doctor", "description": "Diagnostic checks" },
       { "name": "config", "description": "Configuration management" },
       { "name": "schema", "description": "Command contract introspection" },
-      { "name": "agent", "description": "Agent resource management" }
+      { "name": "skills", "description": "Manage embedded agent skills (install to Claude Code, Codex, etc.)" }
     ]
   },
   "meta": {
-    "count": 17
+    "count": 29
   }
 }

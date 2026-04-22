@@ -1,6 +1,6 @@
 # CLI Reference
 
-Last updated: 2026-04-16
+Last updated: 2026-04-22
 
 ## Installation
 
@@ -79,22 +79,24 @@ Use `--raw` to bypass the envelope and get raw API JSON.
 ### Entity Lookup
 
 ```bash
-midaz search "QUERY"            # Fuzzy search across topics, theses, assets
-midaz topic <ID>                # Topic detail: thesis, bias, all theses
+midaz search "QUERY"            # Fuzzy search across drivers, theses, assets
+midaz driver <ID>               # Driver detail: thread members + asset contributions
 midaz thesis <ID>               # Thesis detail: snapshot, claims, market links
 ```
 
-`thread` / `threads` are deprecated hidden aliases of `thesis` / `theses`.
+`thread` / `threads` are deprecated hidden aliases of `thesis` / `theses`. The
+`topics` / `topic` commands were removed in 0.7.2 — use `drivers` / `driver`.
 
 ### List / Browse
 
 ```bash
-midaz market                    # Global regime + all topics with thesis counts
-midaz topics                    # List all topics with thesis counts
-midaz theses                    # List all theses (--topic ID, --status S)
+midaz market                    # Global regime + drivers + thesis memberships (composite)
+midaz drivers                   # List active drivers (world-layer objects)
+midaz driver-links              # Causal edges between drivers (sphere graph)
+midaz theses [--status S]       # List all theses (active/weakening/divided/resolved)
 midaz claims                    # Latest 100 claims (--source ID, --status S, --mode M)
 midaz sources                   # Latest 100 sources (--decision D, --tier N)
-midaz delta                     # Recent claims + theses + topics (--hours N, default 12)
+midaz delta                     # Recent claims + theses + drivers (--hours N, default 12)
 ```
 
 ### Snapshots
@@ -110,8 +112,12 @@ midaz desk get                  # Desk summary (name, shared, subscription, onbo
 midaz desk settings             # Owner-only: radar, playbook, telegram (GET /api/desk/settings)
 midaz desk view                 # Personal market read (GET /api/desk/view, subscription-gated)
 midaz desk share --on --yes     # Toggle public sharing
+midaz desk regenerate --yes     # Rebuild personal desk only (fast)
+midaz desk reonboard  --yes     # Resubmit current radar + playbook to trigger a rebuild
+midaz desk refresh    --yes     # Full pipeline refresh (market + desk; slower)
 midaz desk radar {get,set,add,remove,pin,unpin,pins}
 midaz desk playbook {get,set}
+midaz desk preferences {get,set}   # e.g. set --language zh-CN --yes
 midaz desk telegram {status,connect,disconnect}
 ```
 
@@ -129,14 +135,17 @@ midaz intel {list,push,rm}
 
 ```bash
 midaz assets list [--tier N] [--bias B]
-midaz assets get <ID>
-midaz assets thesis <ID> <THESIS_ID>
+midaz assets get <ID>                      # Bias direction + driver contributions
+midaz assets timeline <ID> [--limit N]     # Per-asset event timeline
+midaz klines                               # Assets with kline coverage
+midaz klines <ID>                          # Candlestick history + latest for one asset
 ```
 
 ### Usage & Audit
 
 ```bash
 midaz usage                     # Token usage summary (--since P, default 24h)
+midaz usage by-run <RUN_ID>     # Per-pipeline-run token-cost breakdown
 midaz decisions                 # Decision log (--stage S, --run ID, --entity-type T, --entity-id I, --limit N)
 midaz health                    # API health check
 ```

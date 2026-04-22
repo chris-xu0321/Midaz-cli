@@ -2,25 +2,32 @@
   "ok": true,
   "data": [
     {
-      "type": "topic",
-      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-      "name": "AI Infrastructure Buildout",
+      "type": "driver",
+      "id": "d0a11111-2222-3333-4444-555555555555",
+      "name": "AI infrastructure capex acceleration",
       "summary": "Hyperscaler capex acceleration and GPU supply chain dynamics",
-      "bias": "bullish",
+      "driver_kind": "secular",
       "key_assets": ["NVDA", "MSFT", "GOOGL"],
-      "view_url": "https://www.midaz.xyz/topics/a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+      "view_url": "https://www.midaz.xyz/drivers/d0a11111-2222-3333-4444-555555555555"
     },
     {
-      "type": "thread",
+      "type": "thesis",
       "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
       "name": "NVIDIA Data Center Revenue Acceleration",
       "summary": "Data center segment growing 150%+ YoY driven by AI training demand",
       "bias": "bullish",
       "status": "active",
-      "view_url": "https://www.midaz.xyz/threads/b2c3d4e5-f6a7-8901-bcde-f12345678901"
+      "view_url": "https://www.midaz.xyz/theses/b2c3d4e5-f6a7-8901-bcde-f12345678901"
+    },
+    {
+      "type": "asset",
+      "id": "NVDA",
+      "name": "NVIDIA Corporation",
+      "bias": "bullish",
+      "view_url": "https://www.midaz.xyz/assets/NVDA"
     }
   ],
   "meta": {
-    "count": 2
+    "count": 3
   }
 }

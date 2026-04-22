@@ -9,10 +9,13 @@ import (
 	cmdconfig "github.com/SparkssL/Midaz-cli/internal/cmd/config"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/decisions"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/delta"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/desk"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/doctor"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/drivers"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/health"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/intel"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/invite"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/klines"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/market"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/onboard"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/schema"
@@ -21,13 +24,10 @@ import (
 	"github.com/SparkssL/Midaz-cli/internal/cmd/snapshot"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/sources"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/subscription"
-	"github.com/SparkssL/Midaz-cli/internal/cmd/thesis"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/theses"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/thesis"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/thread"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/threads"
-	"github.com/SparkssL/Midaz-cli/internal/cmd/topic"
-	"github.com/SparkssL/Midaz-cli/internal/cmd/topics"
-	"github.com/SparkssL/Midaz-cli/internal/cmd/desk"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/usage"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/version"
 	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
@@ -85,12 +85,14 @@ var Commands = []CommandDef{
 	// --- Desk -----------------------------------------------------------------
 	{
 		Name:        "desk",
-		Description: "Manage your desk: radar, playbook, sharing, Telegram",
+		Description: "Manage your desk: radar, playbook, preferences, sharing, Telegram",
 		Endpoints: []string{
 			"GET /api/desk", "GET /api/desk/settings", "GET /api/desk/view",
-			"PATCH /api/desk*", "DELETE /api/desk/telegram",
+			"PATCH /api/desk*", "PATCH /api/desk/preferences",
+			"DELETE /api/desk/telegram",
 			"POST /api/desk/radar/pin", "DELETE /api/desk/radar/pin", "GET /api/desk/radar/pins",
-			"POST /api/desk/personal-desk/regenerate", "POST /api/desk/onboard",
+			"POST /api/desk/personal-desk/regenerate", "POST /api/desk/refresh",
+			"POST /api/desk/onboard",
 		},
 		NewCmd: desk.NewCmdDesk,
 	},
@@ -103,34 +105,40 @@ var Commands = []CommandDef{
 	// --- Market read ----------------------------------------------------------
 	{
 		Name:        "search",
-		Description: "Fuzzy search across topics, theses, assets",
+		Description: "Fuzzy search across drivers, theses, assets",
 		Args:        []ArgDef{{Name: "query", Required: true}},
 		Endpoints:   []string{"GET /api/search?q={query}"},
 		NewCmd:      search.NewCmdSearch,
 	},
 	{
 		Name:        "market",
-		Description: "Global regime + all topics with thesis counts",
+		Description: "Global regime + drivers + thesis memberships (composite)",
 		Endpoints:   []string{"GET /api/market"},
 		NewCmd:      market.NewCmdMarket,
 	},
 	{
-		Name:        "topics",
-		Description: "List all topics with thesis counts",
-		Endpoints:   []string{"GET /api/topics"},
-		NewCmd:      topics.NewCmdTopics,
+		Name:        "drivers",
+		Description: "List active drivers (world-layer objects behind the market view)",
+		Endpoints:   []string{"GET /api/drivers"},
+		NewCmd:      drivers.NewCmdDrivers,
 	},
 	{
-		Name:        "topic",
-		Description: "Topic detail + theses",
+		Name:        "driver",
+		Description: "Driver detail with thread members and asset contributions",
 		Args:        []ArgDef{{Name: "id", Required: true}},
-		Endpoints:   []string{"GET /api/topics/{id}"},
-		NewCmd:      topic.NewCmdTopic,
+		Endpoints:   []string{"GET /api/drivers/{id}"},
+		NewCmd:      drivers.NewCmdDriver,
+	},
+	{
+		Name:        "driver-links",
+		Description: "List causal edges between drivers (sphere/radar graph)",
+		Endpoints:   []string{"GET /api/driver-links"},
+		NewCmd:      drivers.NewCmdDriverLinks,
 	},
 	{
 		Name:        "theses",
 		Description: "List theses (market arguments)",
-		Flags:       []FlagDef{{Name: "topic"}, {Name: "status"}},
+		Flags:       []FlagDef{{Name: "status"}},
 		Endpoints:   []string{"GET /api/theses"},
 		NewCmd:      theses.NewCmdTheses,
 	},
@@ -144,7 +152,7 @@ var Commands = []CommandDef{
 	{
 		Name:        "threads",
 		Description: "Deprecated alias of `theses`",
-		Flags:       []FlagDef{{Name: "topic"}, {Name: "status"}},
+		Flags:       []FlagDef{{Name: "status"}},
 		Endpoints:   []string{"GET /api/theses"},
 		NewCmd:      threads.NewCmdThreads,
 	},
@@ -157,13 +165,20 @@ var Commands = []CommandDef{
 	},
 	{
 		Name:        "assets",
-		Description: "List and inspect assets with thesis links",
-		Endpoints:   []string{"GET /api/assets", "GET /api/assets/{id}", "GET /api/assets/{id}/theses/{thesis_id}"},
+		Description: "List and inspect assets (bias, contributions, timeline)",
+		Endpoints:   []string{"GET /api/assets", "GET /api/assets/{id}", "GET /api/assets/{id}/timeline"},
 		NewCmd:      assets.NewCmdAssets,
 	},
 	{
+		Name:        "klines",
+		Description: "Asset kline (candlestick) data",
+		Args:        []ArgDef{{Name: "asset_id", Required: false}},
+		Endpoints:   []string{"GET /api/klines", "GET /api/klines/{asset_id}"},
+		NewCmd:      klines.NewCmdKlines,
+	},
+	{
 		Name:        "delta",
-		Description: "Recent claims + theses + topics from the last N hours",
+		Description: "Recent claims + theses + drivers from the last N hours",
 		Flags:       []FlagDef{{Name: "hours"}},
 		Endpoints:   []string{"GET /api/delta"},
 		NewCmd:      delta.NewCmdDelta,
@@ -192,7 +207,7 @@ var Commands = []CommandDef{
 		Name:        "usage",
 		Description: "Token usage and cost summary",
 		Flags:       []FlagDef{{Name: "since"}},
-		Endpoints:   []string{"GET /api/usage"},
+		Endpoints:   []string{"GET /api/usage", "GET /api/usage/by-run/{run_id}"},
 		NewCmd:      usage.NewCmdUsage,
 	},
 	{

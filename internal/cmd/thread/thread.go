@@ -1,7 +1,6 @@
 package thread
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 
@@ -37,43 +36,34 @@ func NewCmdThread(f *cmdutil.Factory) *cobra.Command {
 	}
 }
 
-type threadMeta struct {
-	ViewURL            string            `json:"view_url"`
-	TopicURL           string            `json:"topic_url"`
-	Claims             []json.RawMessage `json:"claims"`
-	MarketLinks        []json.RawMessage `json:"market_links"`
-	SupportingCount    int               `json:"supporting_count"`
-	ContradictingCount int               `json:"contradicting_count"`
-}
-
-func threadNormalize(body []byte) (interface{}, map[string]any, error) {
+func threadNormalize(body []byte) (any, map[string]any, error) {
 	rawMap, err := cmdutil.ParseMap(body)
 	if err != nil {
 		return nil, nil, err
 	}
-	var tm threadMeta
-	if err := json.Unmarshal(body, &tm); err != nil {
-		return nil, nil, err
-	}
-	delete(rawMap, "view_url")
-	delete(rawMap, "topic_url")
+
+	viewURL := cmdutil.ExtractViewURL(rawMap)
+	claimCount := cmdutil.CountArray(rawMap["claims"])
+	marketLinkCount := cmdutil.CountArray(rawMap["market_links"])
+	supporting := cmdutil.UnmarshalInt(rawMap["supporting_count"])
+	contradicting := cmdutil.UnmarshalInt(rawMap["contradicting_count"])
+
 	delete(rawMap, "has_market_link")
 	delete(rawMap, "market_link_count")
+
 	data, err := cmdutil.RebuildMap(rawMap)
 	if err != nil {
 		return nil, nil, err
 	}
+
 	meta := map[string]any{
-		"claim_count":         len(tm.Claims),
-		"supporting_count":    tm.SupportingCount,
-		"contradicting_count": tm.ContradictingCount,
-		"market_link_count":   len(tm.MarketLinks),
+		"claim_count":         claimCount,
+		"supporting_count":    supporting,
+		"contradicting_count": contradicting,
+		"market_link_count":   marketLinkCount,
 	}
-	if tm.ViewURL != "" {
-		meta["view_url"] = tm.ViewURL
-	}
-	if tm.TopicURL != "" {
-		meta["topic_url"] = tm.TopicURL
+	if viewURL != "" {
+		meta["view_url"] = viewURL
 	}
 	return data, meta, nil
 }

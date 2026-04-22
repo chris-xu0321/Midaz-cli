@@ -11,7 +11,7 @@ import (
 // NewCmdThreads is a deprecated alias of `midaz theses`.
 // Kept for one release to avoid breaking existing agent scripts.
 func NewCmdThreads(f *cmdutil.Factory) *cobra.Command {
-	var topicID, status string
+	var status string
 	cmd := &cobra.Command{
 		Use:        "threads",
 		Short:      "Deprecated alias of `theses`",
@@ -22,9 +22,6 @@ func NewCmdThreads(f *cmdutil.Factory) *cobra.Command {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
 			fmt.Fprintln(opts.ErrOut, "note: `threads` is deprecated — use `midaz theses` instead.")
 			params := url.Values{}
-			if topicID != "" {
-				params.Set("topic_id", topicID)
-			}
 			if status != "" {
 				params.Set("status", status)
 			}
@@ -35,7 +32,6 @@ func NewCmdThreads(f *cmdutil.Factory) *cobra.Command {
 			})
 		},
 	}
-	cmd.Flags().StringVar(&topicID, "topic", "", "Filter by topic ID")
 	cmd.Flags().StringVar(&status, "status", "", "Filter by status")
 	return cmd
 }

@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "data": {
+    "id": "d0a11111-2222-3333-4444-555555555555",
+    "name": "AI infrastructure capex acceleration",
+    "summary": "Hyperscaler capex acceleration and GPU supply chain dynamics",
+    "driver_kind": "secular",
+    "lifecycle": "established",
+    "driver_delta": 0.42,
+    "mechanism_signature": "capex -> GPU demand -> revenue acceleration",
+    "candidate_assets": ["NVDA", "MSFT", "GOOGL", "AMD"],
+    "thread_members": [
+      { "thread_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901", "role": "primary", "title": "NVIDIA Data Center Revenue Acceleration" },
+      { "thread_id": "c3d4e5f6-a7b8-9012-cdef-123456789012", "role": "supporting", "title": "Blackwell GPU ramp ahead of schedule" }
+    ],
+    "asset_contributions": [
+      { "asset_id": "NVDA", "role": "primary", "fundamental": 2, "macro": 0, "flows": 1, "why": "Direct beneficiary of hyperscaler capex" },
+      { "asset_id": "AMD", "role": "secondary", "fundamental": 1, "macro": 0, "flows": 0, "why": "MI300X gaining inference share" }
+    ]
+  },
+  "meta": {
+    "view_url": "https://www.midaz.xyz/drivers/d0a11111-2222-3333-4444-555555555555",
+    "thread_member_count": 2
+  }
+}

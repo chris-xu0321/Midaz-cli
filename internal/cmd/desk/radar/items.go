@@ -50,8 +50,8 @@ func pushItems(ctx context.Context, c *client.Client, items []string) (map[strin
 }
 
 // resolveTitle fetches an entity by id and extracts a human-readable label.
-// path is something like "/api/theses/" or "/api/topics/". titleKey is "title"
-// for theses, "name" for topics.
+// path is something like "/api/theses/" or "/api/drivers/". titleKey is "title"
+// for theses, "name" for drivers.
 func resolveTitle(ctx context.Context, c *client.Client, path, id, titleKey string) (string, error) {
 	resp, err := c.Get(ctx, path+url.PathEscape(id), nil)
 	if err != nil {
@@ -76,9 +76,9 @@ func renderThesisItem(id, title string) string {
 	return renderRef("thesis", id, title)
 }
 
-// renderTopicItem formats a topic reference as a radar line.
-func renderTopicItem(id, name string) string {
-	return renderRef("topic", id, name)
+// renderDriverItem formats a driver reference as a radar line.
+func renderDriverItem(id, name string) string {
+	return renderRef("driver", id, name)
 }
 
 // renderURLItem formats an external URL + title as a radar line.

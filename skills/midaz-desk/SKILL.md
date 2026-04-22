@@ -1,7 +1,7 @@
 ---
 name: midaz-desk
-version: 0.7.0
-description: Manage the Midaz desk — radar, playbook, sharing, Telegram alerts, private intel, and asset tracking via the CLI
+version: 0.7.2
+description: Manage the Midaz desk — radar, playbook, preferences, sharing, Telegram alerts, private intel, and asset tracking via the CLI
 metadata: {"requires":{"bins":["midaz"]}}
 ---
 
@@ -25,24 +25,29 @@ midaz desk view         # Personal market read — subscription-gated     (GET /
 
 The radar is a short list of domains / assets / events the user wants Midaz to focus on. Rules:
 
-- ≤5 items
-- Each item ≤200 chars
+- ≤12 items
+- Each item ≤160 chars
 
 ```
 midaz desk radar get
 midaz desk radar set --items "Fed policy, AI capex, Oil, China CNY" --yes
 midaz desk radar set --from-file radar.md --yes
+midaz desk radar add --thesis <id> --yes
+midaz desk radar add --driver <id> --yes
+midaz desk radar add --asset NVDA  --yes
+midaz desk radar add --url https://... --title "..." --yes
+midaz desk radar add --text "free-form note" --yes
+midaz desk radar remove --index 3 --yes
 ```
 
 Updates enqueue an L4 refresh; `l4_enqueued: true` in the response means the personal market read will recompute soon.
 
 ### Entity pins (radar pin / unpin / pins)
 
-Distinct from free-form radar lines: pins attach a specific **entity** (thesis, topic, driver, asset) to the radar with provenance tracking, so the web market view can render a filled pin button and L4 can treat the entity as a first-class watch target.
+Distinct from free-form radar lines: pins attach a specific **entity** (thesis, driver, asset) to the radar with provenance tracking, so the web market view can render a filled pin button and L4 can treat the entity as a first-class watch target.
 
 ```
 midaz desk radar pin --kind Thesis --source-type thread --source-id <id> --label "Short text"  --yes
-midaz desk radar pin --kind Topic  --source-type topic  --source-id <id> --label "Short text"  --yes
 midaz desk radar pin --kind Driver --source-type driver --source-id <id> --label "Short text"  --yes
 midaz desk radar pin --kind Asset  --source-type asset  --source-id <id> --label "Short text"  --yes
 
@@ -52,7 +57,7 @@ midaz desk radar pins                 # List pins (provenance rows) — includes
 ```
 
 Rules enforced server-side:
-- `kind` is the display label (`Thesis | Topic | Driver | Asset`); `source-type` is the DB key (`thread | topic | driver | asset` — the DB schema keeps the legacy `thread` term internally).
+- `kind` is the display label (`Thesis | Driver | Asset`); `source-type` is the DB key (`thread | driver | asset` — the DB schema keeps the legacy `thread` term internally).
 - `label` ≤ 160 chars after whitespace collapse.
 - 409 `already_pinned` if the (source-type, source-id) is already pinned.
 - 409 `radar_full` if the radar already has 12 lines *and* no freeform line can be adopted.
@@ -70,6 +75,17 @@ midaz desk playbook get
 midaz desk playbook set --from-file playbook.md --yes
 ```
 
+## Preferences
+
+Per-desk preferences stored in `desk_profiles.soul_json.preferences`. Currently one setting: preferred output language for generated narratives.
+
+```
+midaz desk preferences get
+midaz desk preferences set --language zh-CN --yes
+```
+
+Supported languages: `en`, `zh-CN`, `ja`, `ko`, `es`, `fr`. The preference affects LLM-generated narratives (desk view, bias cards); structural fields are unchanged.
+
 ## Sharing
 
 Flip the `shared` boolean to expose a read-only desk page at `https://www.midaz.xyz/d/<desk_id>`:
@@ -81,20 +97,22 @@ midaz desk share --off --yes
 
 After enabling, `midaz desk get` returns `desk.shared: true`. The public URL is computed client-side from the desk id.
 
-## Refresh (manual L4 rebuilds)
+## Refresh / regenerate (manual rebuilds)
 
-Two owner-triggered verbs enqueue an L4 rebuild of the personal desk. Both mirror buttons in the Desk Preferences panel:
+Three owner-triggered verbs enqueue a rebuild. Pick based on scope:
 
 ```
-midaz desk regenerate --yes     # L4Cause.manual         — POST /api/desk/personal-desk/regenerate
-midaz desk reonboard  --yes     # L4Cause.personal_input — POST /api/desk/onboard (resubmits current config)
+midaz desk regenerate --yes     # Rebuild only your personal desk (fast, reuses market state)
+midaz desk reonboard  --yes     # Same scope as regenerate but resubmits current radar+playbook
+midaz desk refresh    --yes     # Rebuild the whole market pipeline, then your desk (slow, shared)
 ```
 
 Notes:
 
 - `regenerate` sends no body and is the direct equivalent of the "Regenerate personal desk" button. Subscription-gated; returns `{status:"queued"}` or 409 with `refresh_id` if one is already in flight.
-- `reonboard` reads your current `radar_items` + `playbook` via `GET /api/desk/settings`, then POSTs them back to `/api/desk/onboard` unchanged. Because the settings read is subscription-gated, reonboard is too (even though the onboard endpoint itself is not). Response includes `l4_enqueued: true` on success.
-- Both are fire-and-forget; the rebuild runs asynchronously. Poll `midaz desk view` to see the recomputed personal read once ready.
+- `reonboard` reads your current `radar_items` + `playbook` via `GET /api/desk/settings`, then POSTs them back to `/api/desk/onboard` unchanged. Because the settings read is subscription-gated, reonboard is too. Response includes `l4_enqueued: true` on success.
+- `refresh` triggers a full pipeline refresh (market rebuild + personal desk). Slower and shared across all desks. Returns `{status:"queued"}`.
+- All three are fire-and-forget; the rebuild runs asynchronously. Poll `midaz desk view` to see the recomputed personal read once ready.
 - For first-time onboarding (not a refresh), use `midaz onboard` instead.
 
 ## Telegram Alerts
@@ -136,14 +154,14 @@ Read-only; no auth required, but the richest context appears when paired with a 
 ```
 midaz assets list [--tier 1|2] [--bias bullish|bearish|neutral|mixed]
 midaz assets get <asset_id>
-midaz assets thesis <asset_id> <thesis_id>
+midaz assets timeline <asset_id> [--limit N]
+midaz klines <asset_id>
 ```
 
 Fields of interest:
 
-- `bias`, `bias_score` — aggregate stance across linked theses
-- `thesis_count`, `bull_count`, `bear_count`, `mixed_count`
-- `links[]` — each has `thesis_id`, `stance`, `weight`, `rationale`, and `evidence[]` with claim snippets
+- `bias.{direction,axis_state,resonance_n}` — aggregate stance
+- `driver_contributions[]` — each has `driver_id`, `role`, axis votes (fundamental/macro/flows), `why`
 - `view_url` — deep link into the map
 
 ## Agent Recipes
@@ -163,6 +181,12 @@ Fields of interest:
 3. `midaz desk radar set --items "item1, item2, …" --yes`
 4. Report back the `l4_enqueued` status and mention that the personal market read will refresh shortly.
 
+### "Change my desk output language"
+
+1. `midaz desk preferences get` — confirm current language.
+2. `midaz desk preferences set --language <code> --yes`
+3. `midaz desk regenerate --yes` to re-render narratives in the new language.
+
 ### "Hook up Telegram"
 
 1. `midaz desk telegram status` — skip the rest if already connected.
@@ -179,10 +203,11 @@ Fields of interest:
 
 ### "Dump everything I know about NVDA"
 
-1. `midaz assets get NVDA`
-2. For each thesis in `links[]`, summarize `stance`, `weight`, `rationale`, top `evidence[]` snippets.
-3. Drill into the top-weighted link with `midaz assets thesis NVDA <thesis_id>` for full evidence.
-4. Share the asset `view_url` + each linked thesis `view_url`.
+1. `midaz assets get NVDA` — bias direction, driver contributions.
+2. `midaz assets timeline NVDA --limit 20` — recent events.
+3. `midaz klines NVDA` — price history.
+4. For each contributing driver, `midaz driver <id>` to surface the thesis members.
+5. Share the asset `view_url` + each linked driver / thesis `view_url`.
 
 ### "Push my morning note to intel"
 

@@ -14,7 +14,7 @@ func TestRenderers(t *testing.T) {
 		{"thesis with title", renderThesisItem("abc123", "AI boom play"), "thesis:abc123 AI boom play"},
 		{"thesis without title", renderThesisItem("abc123", ""), "thesis:abc123"},
 		{"thesis trims label", renderThesisItem("abc123", "   spaced   "), "thesis:abc123 spaced"},
-		{"topic", renderTopicItem("t1", "Fed Policy"), "topic:t1 Fed Policy"},
+		{"driver", renderDriverItem("d1", "Fed Policy"), "driver:d1 Fed Policy"},
 		{"url", renderURLItem("https://example.com", "Example"), "url:https://example.com Example"},
 		{"asset uppercases", renderAssetItem("aapl"), "asset:AAPL"},
 		{"asset trims", renderAssetItem("  btc  "), "asset:BTC"},
@@ -61,7 +61,7 @@ func TestClipTo160(t *testing.T) {
 }
 
 func TestFindIndex(t *testing.T) {
-	items := []string{"asset:AAPL", "thesis:abc 1", "topic:xyz"}
+	items := []string{"asset:AAPL", "thesis:abc 1", "driver:xyz"}
 	if got := findIndex(items, "thesis:abc 1"); got != 1 {
 		t.Errorf("existing: got %d want 1", got)
 	}

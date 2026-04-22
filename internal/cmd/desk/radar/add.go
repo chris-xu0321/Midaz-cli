@@ -10,14 +10,14 @@ import (
 
 // newCmdAdd builds `midaz desk radar add`.
 //
-// Exactly one of --thesis / --topic / --url / --asset / --text is required.
+// Exactly one of --thesis / --driver / --url / --asset / --text is required.
 // The command fetches the current radar items, appends the rendered line, and
 // writes the full list back via PATCH /api/desk/radar (the backend endpoint
 // only supports full-list replacement).
 func newCmdAdd(f *cmdutil.Factory) *cobra.Command {
 	var (
 		thesisID string
-		topicID  string
+		driverID string
 		urlStr   string
 		asset    string
 		text     string
@@ -26,7 +26,7 @@ func newCmdAdd(f *cmdutil.Factory) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "add",
-		Short: "Add an item to the radar (thesis, topic, url, asset, or free-text note)",
+		Short: "Add an item to the radar (thesis, driver, url, asset, or free-text note)",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
@@ -38,7 +38,7 @@ func newCmdAdd(f *cmdutil.Factory) *cobra.Command {
 
 			kind, err := pickOne(map[string]string{
 				"--thesis": thesisID,
-				"--topic":  topicID,
+				"--driver": driverID,
 				"--url":    urlStr,
 				"--asset":  asset,
 				"--text":   text,
@@ -73,15 +73,15 @@ func newCmdAdd(f *cmdutil.Factory) *cobra.Command {
 					}
 				}
 				line = renderThesisItem(thesisID, label)
-			case "--topic":
+			case "--driver":
 				label := strings.TrimSpace(title)
 				if label == "" {
-					label, err = resolveTitle(opts.Ctx, c, "/api/topics/", topicID, "name")
+					label, err = resolveTitle(opts.Ctx, c, "/api/drivers/", driverID, "name")
 					if err != nil {
 						return err
 					}
 				}
-				line = renderTopicItem(topicID, label)
+				line = renderDriverItem(driverID, label)
 			case "--url":
 				if strings.TrimSpace(title) == "" {
 					return output.ErrValidation("--title is required with --url")
@@ -122,11 +122,11 @@ func newCmdAdd(f *cmdutil.Factory) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&thesisID, "thesis", "", "Thesis ID to pin on the radar")
-	cmd.Flags().StringVar(&topicID, "topic", "", "Topic ID to pin on the radar")
+	cmd.Flags().StringVar(&driverID, "driver", "", "Driver ID to pin on the radar")
 	cmd.Flags().StringVar(&urlStr, "url", "", "External URL to add to the radar (requires --title)")
 	cmd.Flags().StringVar(&asset, "asset", "", "Ticker symbol to watch (uppercased)")
 	cmd.Flags().StringVar(&text, "text", "", "Free-form note (max 160 chars)")
-	cmd.Flags().StringVar(&title, "title", "", "Override or provide a human label (used with --thesis/--topic/--url)")
+	cmd.Flags().StringVar(&title, "title", "", "Override or provide a human label (used with --thesis/--driver/--url)")
 	cmd.Flags().BoolVar(&yes, "yes", false, "Confirm the update")
 	return cmd
 }
@@ -144,12 +144,12 @@ func pickOne(flags map[string]string) (string, error) {
 	}
 	if count == 0 {
 		return "", output.ErrWithHint(output.ExitValidation, "validation",
-			"specify one of --thesis, --topic, --url, --asset, --text",
+			"specify one of --thesis, --driver, --url, --asset, --text",
 			"e.g. --thesis <id> --yes")
 	}
 	if count > 1 {
 		return "", output.ErrWithHint(output.ExitValidation, "validation",
-			"specify exactly one of --thesis, --topic, --url, --asset, --text",
+			"specify exactly one of --thesis, --driver, --url, --asset, --text",
 			"")
 	}
 	return chosen, nil

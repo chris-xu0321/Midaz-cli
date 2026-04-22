@@ -1,4 +1,4 @@
-// Package assets hosts `midaz assets …` (list, get, thesis).
+// Package assets hosts `midaz assets …` (list, get, timeline).
 package assets
 
 import (
@@ -10,10 +10,10 @@ import (
 func NewCmdAssets(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "assets",
-		Short: "List and inspect assets with thesis links",
+		Short: "List and inspect assets (bias, contributions, timeline)",
 	}
 	cmd.AddCommand(newCmdList(f))
 	cmd.AddCommand(newCmdGet(f))
-	cmd.AddCommand(newCmdThesis(f))
+	cmd.AddCommand(newCmdTimeline(f))
 	return cmd
 }

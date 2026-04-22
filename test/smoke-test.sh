@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# Smoke test: validates seer-q against a running API.
+# Smoke test: validates midaz against a running API.
 # Usage: bash smoke-test.sh [binary-path] [api-url]
 # Hermetic: uses temp config, explicit API URL, forces JSON output.
 set -euo pipefail
 
-BIN="${1:-seer-q}"
+BIN="${1:-midaz}"
 API_URL="${2:-https://www.midaz.xyz}"
 
 # Hermetic environment: temp config with valid empty JSON, explicit API URL
-export SEER_CONFIG_PATH="$(mktemp)"
-echo '{}' > "$SEER_CONFIG_PATH"
-export SEER_API_URL="$API_URL"
-export SEER_FORMAT="json"
-trap 'rm -f "$SEER_CONFIG_PATH"' EXIT
+export MIDAZ_CONFIG_PATH="$(mktemp)"
+echo '{}' > "$MIDAZ_CONFIG_PATH"
+export MIDAZ_API_URL="$API_URL"
+export MIDAZ_FORMAT="json"
+trap 'rm -f "$MIDAZ_CONFIG_PATH"' EXIT
 
 ERRORS=0
 
@@ -33,10 +33,10 @@ check() {
   fi
 }
 
-echo "=== Seer CLI Smoke Test ==="
+echo "=== Midaz CLI Smoke Test ==="
 echo "  binary: $BIN"
 echo "  api_url: $API_URL"
-echo "  config: $SEER_CONFIG_PATH (isolated)"
+echo "  config: $MIDAZ_CONFIG_PATH (isolated)"
 echo ""
 
 # Core commands (no API required)
@@ -48,11 +48,13 @@ check "config list"   "$BIN" config list
 check "health"        "$BIN" health
 check "doctor"        "$BIN" doctor
 check "market"        "$BIN" market
-check "topics"        "$BIN" topics
+check "drivers"       "$BIN" drivers
+check "driver-links"  "$BIN" driver-links
 check "search"        "$BIN" search "test"
 check "snapshot"      "$BIN" snapshot
 check "claims"        "$BIN" claims
 check "sources"       "$BIN" sources
+check "klines"        "$BIN" klines
 check "usage"         "$BIN" usage
 
 echo ""

@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "data": [
+    {
+      "ts": "2026-04-22T14:30:00Z",
+      "kind": "claim",
+      "statement": "NVIDIA reported data center revenue of $26.1B in Q1, up 89% YoY",
+      "claim_id": "d4e5f6a7-b8c9-0123-def0-123456789abc",
+      "source_id": "e5f6a7b8-c9d0-1234-ef01-23456789abcd",
+      "thesis_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901"
+    },
+    {
+      "ts": "2026-04-21T09:00:00Z",
+      "kind": "signal_change",
+      "signal": "consensus_eps_revision",
+      "direction": "up",
+      "magnitude": 0.08,
+      "why": "Sell-side revisions following Blackwell ramp commentary"
+    }
+  ],
+  "meta": {
+    "count": 2
+  }
+}

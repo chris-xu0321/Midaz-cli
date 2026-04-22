@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "data": {
+    "ok": true,
+    "preferences": {
+      "preferred_language": "zh-CN"
+    }
+  },
+  "meta": {}
+}

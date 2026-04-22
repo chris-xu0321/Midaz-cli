@@ -63,7 +63,7 @@ func TestGet_500(t *testing.T) {
 	defer srv.Close()
 
 	c := New(srv.URL)
-	_, err := c.Get(context.Background(), "/api/topics", nil)
+	_, err := c.Get(context.Background(), "/api/drivers", nil)
 	if err == nil {
 		t.Fatal("expected error for 500")
 	}

@@ -1,6 +1,6 @@
 ---
 name: midaz-shared
-version: 0.7.0
+version: 0.7.2
 description: Midaz CLI shared concepts — auth model, response format, global flags, and safety rules that apply to every midaz skill
 metadata: {"requires":{"bins":["midaz"]}}
 ---
@@ -14,8 +14,8 @@ Foundational knowledge for every `midaz-*` skill. Read this before using the oth
 Midaz is an **Interactive Cognitive Trading Map** plus the intelligence pipeline behind it. From the CLI an agent can mirror everything a user can do in the web app at https://www.midaz.xyz:
 
 - **Account** — sign in, redeem invite codes, onboard, subscribe, manage API keys.
-- **Desk** — edit the radar (watchlist) and playbook (trading rules), toggle public sharing, connect Telegram for alerts, push private intel.
-- **Market** — browse topics, theses, claims, assets, global snapshots, deltas.
+- **Desk** — edit the radar (watchlist) and playbook (trading rules), set language preference, toggle public sharing, connect Telegram for alerts, push private intel.
+- **Market** — browse drivers, theses, claims, assets, klines, global snapshots, deltas.
 
 Everything is JSON-in / JSON-out.
 
@@ -26,12 +26,14 @@ midaz auth {login,logout,status,whoami,keys}
 midaz onboard {status,generate,complete}
 midaz invite redeem <CODE>
 midaz subscription {status,start,portal}
-midaz desk {get,settings,view,share,regenerate,reonboard,radar,playbook,telegram}
+midaz desk {get,settings,view,share,regenerate,reonboard,refresh,radar,playbook,preferences,telegram}
 midaz intel {list,push,rm}
-midaz assets {list,get,thesis}
+midaz assets {list,get,timeline}
+midaz klines [asset_id]
 midaz delta
-midaz search | market | topics | topic | theses | thesis | claims | sources | snapshot | usage | decisions | health
-midaz doctor | version | config | schema | setup
+midaz search | market | drivers | driver | driver-links | theses | thesis | claims | sources | snapshot | usage | decisions | health
+midaz usage by-run <run_id>
+midaz doctor | version | config | schema | skills
 ```
 
 If the user's intent isn't obviously covered, run `midaz schema` to list every registered command, then `midaz schema <command>` for the contract.
@@ -130,3 +132,4 @@ Config path: `~/.config/midaz/config.json` (Linux/macOS) or `%APPDATA%\midaz\con
 4. **Synthesize, don't dump.** Convert JSON into natural language before replying.
 5. **Respect exit code 7.** On subscription-required, ask the user before running `subscription start` unless they already asked to subscribe.
 6. **Thread → thesis.** The product now says "thesis". Use `midaz theses` / `midaz thesis <id>`. `threads` / `thread` still work but are deprecated.
+7. **Topic → driver.** The old topic layer was replaced by the driver ontology. Use `midaz drivers` / `midaz driver <id>` / `midaz driver-links`. The `topics` / `topic` commands are gone.

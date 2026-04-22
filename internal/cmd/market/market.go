@@ -1,8 +1,6 @@
 package market
 
 import (
-	"encoding/json"
-
 	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
 	"github.com/spf13/cobra"
 )
@@ -10,7 +8,7 @@ import (
 func NewCmdMarket(f *cmdutil.Factory) *cobra.Command {
 	return &cobra.Command{
 		Use:   "market",
-		Short: "Global regime + all topics with thesis counts",
+		Short: "Global regime + drivers + thesis memberships (composite)",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
@@ -22,27 +20,21 @@ func NewCmdMarket(f *cmdutil.Factory) *cobra.Command {
 	}
 }
 
-func normalizeMarket(body []byte) (interface{}, map[string]any, error) {
+func normalizeMarket(body []byte) (any, map[string]any, error) {
 	rawMap, err := cmdutil.ParseMap(body)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	viewURL := cmdutil.ExtractViewURL(rawMap)
-
-	topicCount := 0
-	if raw, ok := rawMap["topics"]; ok {
-		var arr []json.RawMessage
-		json.Unmarshal(raw, &arr)
-		topicCount = len(arr)
-	}
+	driverCount := cmdutil.CountArray(rawMap["drivers"])
 
 	data, err := cmdutil.RebuildMap(rawMap)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	meta := map[string]any{"topic_count": topicCount}
+	meta := map[string]any{"driver_count": driverCount}
 	if viewURL != "" {
 		meta["view_url"] = viewURL
 	}

@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "data": [
+    {
+      "from_driver_id": "d0a11111-2222-3333-4444-555555555555",
+      "to_driver_id": "d0c33333-4444-5555-6666-777777777777",
+      "relation_type": "amplifies",
+      "strength": 0.65,
+      "explanation": "AI capex drives semiconductor supply chain capex"
+    },
+    {
+      "from_driver_id": "d0b22222-3333-4444-5555-666666666666",
+      "to_driver_id": "d0d44444-5555-6666-7777-888888888888",
+      "relation_type": "dampens",
+      "strength": 0.32,
+      "explanation": "Energy transition capex competes with rate-sensitive capex"
+    }
+  ],
+  "meta": {
+    "count": 2
+  }
+}

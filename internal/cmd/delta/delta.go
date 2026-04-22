@@ -14,7 +14,7 @@ func NewCmdDelta(f *cmdutil.Factory) *cobra.Command {
 	var hours int
 	cmd := &cobra.Command{
 		Use:   "delta",
-		Short: "Recent claims + theses + topics from the last N hours",
+		Short: "Recent claims + theses + drivers from the last N hours",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts := cmdutil.ResolveRunOpts(cmd, f)

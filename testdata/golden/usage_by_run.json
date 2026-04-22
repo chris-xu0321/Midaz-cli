@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "data": {
+    "pipeline_run_id": "5a9c1f2e-3b7d-4e5f-8c9a-0b1c2d3e4f5a",
+    "total_calls": 42,
+    "total_tokens": 128310,
+    "total_cost_usd": 0.4217,
+    "by_stage": [
+      { "stage": "L2.3A", "calls": 8, "tokens": 22100, "cost_usd": 0.074 },
+      { "stage": "L3.1A", "calls": 12, "tokens": 41200, "cost_usd": 0.139 },
+      { "stage": "L4",    "calls": 22, "tokens": 65010, "cost_usd": 0.209 }
+    ]
+  },
+  "meta": {}
+}

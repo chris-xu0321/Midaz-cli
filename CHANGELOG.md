@@ -1,5 +1,50 @@
 # Changelog
 
+## 0.7.2 — 2026-04-22
+
+Companion release for Seer's post-L4 drift: the `/api/topics*` routes were
+removed in favor of a canonical driver ontology, and several new endpoints
+landed (klines, asset timelines, desk preferences, full pipeline refresh,
+per-run usage). This release closes that gap.
+
+### Breaking
+- **Removed commands** whose backing endpoints no longer exist on Seer:
+  - `midaz topics`, `midaz topic <id>` — `/api/topics*` was dropped in
+    Seer `a5c4c59` ("drop Topic legacy"). Use `midaz drivers` /
+    `midaz driver <id>` instead.
+  - `midaz assets thesis <asset> <thesis>` — `/api/assets/:id/theses/:thesis_id`
+    was removed. Use `midaz assets timeline <asset>` for per-asset event
+    history, or `midaz thesis <id>` for the thesis itself.
+- **`midaz desk radar add --topic` removed**: replaced by `--driver`. Radar
+  lines now use the `driver:` prefix (was `topic:`).
+
+### Added
+- **Driver ontology commands** (canonical replacement for topics):
+  - `midaz drivers` → `GET /api/drivers`
+  - `midaz driver <id>` → `GET /api/drivers/:id`
+  - `midaz driver-links` → `GET /api/driver-links`
+- **Klines** (price history): `midaz klines` and `midaz klines <asset_id>`
+  → `GET /api/klines`, `GET /api/klines/:assetId`.
+- **Assets timeline**: `midaz assets timeline <asset_id> [--limit N]` →
+  `GET /api/assets/:id/timeline`. Replaces the removed `assets thesis`.
+- **Desk preferences**: `midaz desk preferences get` /
+  `midaz desk preferences set --language <code> --yes` →
+  `PATCH /api/desk/preferences`. Supported languages: `en`, `zh-CN`, `ja`,
+  `ko`, `es`, `fr`.
+- **Desk full refresh**: `midaz desk refresh --yes` →
+  `POST /api/desk/refresh`. Triggers a full pipeline refresh (market
+  rebuild + personal desk), distinct from `desk regenerate` which only
+  replays L4.
+- **Usage by-run**: `midaz usage by-run <run_id>` →
+  `GET /api/usage/by-run/:runId` for per-pipeline-run token-cost breakdown.
+
+### Changed
+- `midaz desk radar add --driver` resolves labels against `/api/drivers/:id`
+  using the `name` field (was `/api/topics/:id` with `name`).
+- Skill metadata bumped to `0.7.2`; `midaz-market` and `midaz-desk`
+  rewritten to document drivers, klines, asset timeline, preferences,
+  and the refresh/regenerate/reonboard trio.
+
 ## 0.7.1 — 2026-04-16
 
 ### Added

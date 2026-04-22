@@ -2,7 +2,7 @@
   "ok": true,
   "data": {
     "name": "search",
-    "description": "Fuzzy search across topics, threads, assets",
+    "description": "Fuzzy search across drivers, theses, assets",
     "args": [
       { "name": "query", "required": true, "type": "string" }
     ],

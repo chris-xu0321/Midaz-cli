@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "data": {
+    "assets": [
+      { "asset_id": "NVDA", "driver_count": 3, "net_score": 0.72 },
+      { "asset_id": "BTC", "driver_count": 2, "net_score": 0.41 },
+      { "asset_id": "SPX", "driver_count": 4, "net_score": 0.15 }
+    ]
+  },
+  "meta": {}
+}

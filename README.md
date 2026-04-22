@@ -4,7 +4,7 @@ Query CLI for the [Midaz](https://www.midaz.xyz) Interactive Cognitive Trading M
 
 ## Why `midaz`?
 
-- **Structured market intelligence** — topics, theses, claims, snapshots, assets, and global regime verdicts
+- **Structured market intelligence** — drivers, theses, claims, snapshots, assets, klines, and global regime verdicts
 - **Agent-native** — 5 skills bundled in the binary, installed on demand via `midaz skills install`
 - **JSON envelope output** — machine-readable responses with `view_url` links, exit codes, and error hints
 - **Single binary** — Go, cross-platform, zero runtime dependencies
@@ -63,14 +63,15 @@ Targets: `auto` (detected, default), `claude`, `codex`, `all`, or `--skill-dir <
 ### Human users
 
 ```bash
-midaz search "AI regulation"   # Fuzzy search topics, theses, assets
-midaz market                   # Global regime + all topics
-midaz topic <id>               # Topic detail + theses
+midaz search "AI regulation"   # Fuzzy search drivers, theses, assets
+midaz market                   # Global regime + drivers + thesis memberships
+midaz drivers                  # All active drivers (world-layer)
+midaz driver <id>              # Driver detail + thread members + asset contributions
 midaz thesis <id>              # Thesis detail + claims + market links
 midaz snapshot                 # Latest global regime snapshot
 midaz auth login               # Sign in
 midaz onboard                  # Complete desk onboarding
-midaz desk                     # Manage radar, playbook, sharing, Telegram
+midaz desk                     # Manage radar, playbook, preferences, sharing, Telegram
 ```
 
 All commands return JSON envelopes. Use `--format pretty` for indented output or `--raw` for the raw API response.
@@ -90,7 +91,7 @@ Inside Claude Code or Codex, the skills self-register under `~/.claude/skills` o
 | Skill | Description |
 |-------|-------------|
 | `midaz-shared` | Shared concepts — auth model, response format, global flags, safety rules |
-| `midaz-market` | Search, browse, and analyze topics, theses, claims, assets, deltas, and regime |
+| `midaz-market` | Search, browse, and analyze drivers, theses, claims, assets, klines, deltas, and regime |
 | `midaz-account` | Authenticate, redeem invitations, complete onboarding, and manage subscription |
 | `midaz-desk` | Manage radar, playbook, sharing, Telegram alerts, private intel, asset tracking |
 | `midaz-api-explorer` | Discover commands via schema introspection — fallback when other skills don't fit |

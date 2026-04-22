@@ -10,7 +10,7 @@ ERRORS=0
 echo "=== Skills Validation Test ==="
 
 # Check expected skills exist
-for skill in seer-shared seer-market seer-api-explorer; do
+for skill in midaz-shared midaz-market midaz-api-explorer midaz-account midaz-desk; do
   if [ -f "$CLI_DIR/skills/$skill/SKILL.md" ]; then
     echo "PASS: $skill/SKILL.md exists"
   else

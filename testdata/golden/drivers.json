@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "data": [
+    {
+      "id": "d0a11111-2222-3333-4444-555555555555",
+      "name": "AI infrastructure capex acceleration",
+      "summary": "Hyperscaler capex acceleration and GPU supply chain dynamics",
+      "driver_kind": "secular",
+      "lifecycle": "established",
+      "driver_delta": 0.42,
+      "candidate_assets": ["NVDA", "MSFT", "GOOGL", "AMD"],
+      "thread_count": 8,
+      "view_url": "https://www.midaz.xyz/drivers/d0a11111-2222-3333-4444-555555555555"
+    },
+    {
+      "id": "d0b22222-3333-4444-5555-666666666666",
+      "name": "Energy transition policy tailwinds",
+      "summary": "Policy-driven capex into renewables and grid infrastructure",
+      "driver_kind": "structural",
+      "lifecycle": "accelerating",
+      "driver_delta": 0.18,
+      "candidate_assets": ["NEE", "FSLR", "ENPH"],
+      "thread_count": 4,
+      "view_url": "https://www.midaz.xyz/drivers/d0b22222-3333-4444-5555-666666666666"
+    }
+  ],
+  "meta": {
+    "count": 2
+  }
+}
