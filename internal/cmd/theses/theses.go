@@ -29,7 +29,7 @@ func NewCmdTheses(f *cmdutil.Factory) *cobra.Command {
 					if base == "" {
 						return ""
 					}
-					return base + "/market-read?view=assets&thesis=" + id
+					return base + "/market-read?thesis=" + id
 				}),
 			})
 		},
