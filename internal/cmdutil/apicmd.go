@@ -89,6 +89,50 @@ func NormalizeBareArray(body []byte) (interface{}, map[string]any, error) {
 	return data, map[string]any{"count": len(arr)}, nil
 }
 
+// InjectItemViewURL returns a NormalizeFn for JSON-array responses that adds
+// a `view_url` field to each object in the array, built from the item's `id`
+// via pattern(id). Items that already have a `view_url` are left untouched,
+// as are items without an `id` or when pattern returns "".
+//
+// Used to synthesize per-entity links on list endpoints (e.g. `midaz drivers`,
+// `midaz theses`) where the upstream API only returns a bare array. Skills
+// then have a URL to attach to every named thesis/driver in bulk replies.
+func InjectItemViewURL(pattern func(id string) string) NormalizeFn {
+	return func(body []byte) (interface{}, map[string]any, error) {
+		var arr []map[string]json.RawMessage
+		if err := json.Unmarshal(body, &arr); err != nil {
+			return nil, nil, fmt.Errorf("expected JSON array of objects: %w", err)
+		}
+		for _, item := range arr {
+			if _, has := item["view_url"]; has {
+				continue
+			}
+			id := UnmarshalString(item["id"])
+			if id == "" {
+				continue
+			}
+			u := pattern(id)
+			if u == "" {
+				continue
+			}
+			raw, err := json.Marshal(u)
+			if err != nil {
+				continue
+			}
+			item["view_url"] = raw
+		}
+		data := make([]interface{}, len(arr))
+		for i, item := range arr {
+			rebuilt, err := RebuildMap(item)
+			if err != nil {
+				return nil, nil, err
+			}
+			data[i] = rebuilt
+		}
+		return data, map[string]any{"count": len(arr)}, nil
+	}
+}
+
 // NormalizePassthrough returns the parsed JSON as-is with empty meta.
 // Also accepts empty bodies (returns nil data).
 func NormalizePassthrough(body []byte) (interface{}, map[string]any, error) {

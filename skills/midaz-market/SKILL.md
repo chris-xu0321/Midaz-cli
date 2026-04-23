@@ -1,6 +1,6 @@
 ---
 name: midaz-market
-version: 0.7.2
+version: 0.7.3
 description: Search, browse, and analyze drivers, theses, claims, assets, klines, deltas, and market regime via the midaz CLI
 metadata: {"requires":{"bins":["midaz"]}}
 ---
@@ -98,6 +98,15 @@ midaz health                         # API health
 | Global regime detail | `midaz snapshot` |
 | Per-run cost | `midaz usage by-run RUN_ID` |
 
+## Output Formatting
+
+When mentioning a driver or thesis by name — including in bulk lists like "top 5 drivers today" — make the name itself an inline markdown link to its `view_url`:
+
+- Driver: `the **[<name>](<view_url>)** driver — …`
+- Thesis: `the **[<title>](<view_url>)** thesis — …`
+
+Every item returned by `midaz drivers`, `midaz theses`, `midaz search`, `midaz market` (including the embedded `drivers[]`), and the detail fetches (`midaz driver <id>` / `midaz thesis <id>` via `.meta.view_url`) now carries a `view_url`. Use it every time. Page-level `.meta.view_url` goes at the end of the reply as "view on the map" — it does not replace per-item links.
+
 ## Key Response Fields
 
 **Drivers**
@@ -148,34 +157,64 @@ midaz health                         # API health
 
 ## Examples
 
+Every example below uses the per-item `view_url` on the named driver/thesis. `{view_url}` in the templates is literal — replace with the item's actual URL.
+
 User: "how's the market"
+
 → `midaz market`
-→ Summarize regime_summary, verdict, top drivers by `driver_delta` / `thread_count`
-→ Share the market view_url as a markdown link
-→ Share each driver's view_url as you mention them
+→ Reply pattern:
+  > Regime: {regime_summary}. {one-line verdict from snapshot}.
+  >
+  > Top drivers right now:
+  > - The **[{driver.name}]({driver.view_url})** driver — {one-line why it matters}.
+  > - The **[{driver.name}]({driver.view_url})** driver — …
+  >
+  > [View full market map]({meta.view_url})
+
+User: "top 5 drivers today"
+
+→ `midaz drivers`
+→ Rank by `driver_delta` strengthening + highest `thread_counts.support`
+→ Reply:
+  > 1. **[{driver.name}]({driver.view_url})** — {summary}; {support} supporting claims.
+  > 2. **[{driver.name}]({driver.view_url})** — …
+  > 3. …
 
 User: "latest events"
+
 → `midaz delta --hours 24`
-→ Summarize grouped by thesis: what changed, which drivers were touched, which assets mentioned
+→ Group by thesis; when you name a thesis, link it: **[{thesis.title}]({thesis.view_url})**. When you name the driver that was touched, link it the same way.
 
 User: "analyze NVDA"
-→ `midaz assets get NVDA`
-→ Summarize bias direction, axis_state, top driver contributions
-→ `midaz assets timeline NVDA --limit 20` for recent events
-→ Optionally `midaz klines NVDA` for price context
-→ Share `view_url` for the asset page
+
+→ `midaz assets get NVDA` → bias, axis_state, driver contributions (each has `view_url`)
+→ `midaz assets timeline NVDA --limit 20` → recent events
+→ Optionally `midaz klines NVDA` → price context
+→ Reply pattern:
+  > NVDA is **{bias.direction}** ({axis_state}).
+  >
+  > Main contributions:
+  > - The **[{contrib.title}]({contrib.view_url})** driver — {why}.
+  > - The **[{contrib.title}]({contrib.view_url})** driver — …
+  >
+  > [Asset page]({asset.view_url})
 
 User: "bear case for AI"
-→ `midaz search "AI"`
-→ Filter theses where `bias` is bearish/weakening
-→ `midaz thesis <id>` for each — focus on `risk_case`, contradicting claims
-→ Share thesis view_urls
+
+→ `midaz search "AI"` → filter theses where `bias` is bearish/weakening (each has `view_url`)
+→ `midaz thesis <id>` for the strongest — `.meta.view_url` on each
+→ Reply:
+  > Bearish angles on AI:
+  > - The **[{thesis.title}]({thesis.view_url})** thesis — risk_case: {snapshot.risk_case}; top contradiction: {snapshot.top_contradiction}.
+  > - The **[{thesis.title}]({thesis.view_url})** thesis — …
 
 User: "what claims support thesis X"
-→ `midaz thesis X` — returns embedded `claims[]` for the thesis
-→ Filter claims where `thesis_role` is "support"
-→ Summarize key supporting evidence
+
+→ `midaz thesis X` — embedded `claims[]`, `.meta.view_url` holds the thesis URL
+→ Filter claims where `thesis_role == "support"`
+→ Reply lead with the thesis name linked: `The **[{title}]({meta.view_url})** thesis is backed by: …`
 
 User: "which drivers cause which"
+
 → `midaz driver-links`
-→ Summarize top causal edges (`from_driver_id` → `to_driver_id`, `strength`, `explanation`)
+→ Summarize top causal edges. When you mention either endpoint by name, link it: **[{driver.name}]({driver.view_url})** → **[{driver.name}]({driver.view_url})** ({strength}).

@@ -21,13 +21,27 @@ func NewCmdTheses(f *cmdutil.Factory) *cobra.Command {
 			if status != "" {
 				params.Set("status", status)
 			}
+			base := frontendBase(f)
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
-				Path:      "/api/theses",
-				Params:    params,
-				Normalize: cmdutil.NormalizeBareArray,
+				Path:   "/api/theses",
+				Params: params,
+				Normalize: cmdutil.InjectItemViewURL(func(id string) string {
+					if base == "" {
+						return ""
+					}
+					return base + "/market?thesis=" + id
+				}),
 			})
 		},
 	}
 	cmd.Flags().StringVar(&status, "status", "", "Filter by status (active/weakening/divided/resolved)")
 	return cmd
+}
+
+func frontendBase(f *cmdutil.Factory) string {
+	cfg, err := f.Config()
+	if err != nil || cfg == nil {
+		return ""
+	}
+	return cfg.FrontendURL
 }

@@ -15,10 +15,26 @@ func NewCmdDrivers(f *cmdutil.Factory) *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			opts := cmdutil.ResolveRunOpts(cmd, f)
+			base := frontendBase(f)
 			return cmdutil.RunAPICommand(f, opts, &cmdutil.APISpec{
-				Path:      "/api/drivers",
-				Normalize: cmdutil.NormalizeBareArray,
+				Path: "/api/drivers",
+				Normalize: cmdutil.InjectItemViewURL(func(id string) string {
+					if base == "" {
+						return ""
+					}
+					return base + "/market?driver=" + id
+				}),
 			})
 		},
 	}
+}
+
+// frontendBase returns the configured frontend URL ("" if unavailable) so
+// list normalizers can synthesize per-item `view_url`s.
+func frontendBase(f *cmdutil.Factory) string {
+	cfg, err := f.Config()
+	if err != nil || cfg == nil {
+		return ""
+	}
+	return cfg.FrontendURL
 }

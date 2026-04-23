@@ -1,6 +1,6 @@
 ---
 name: midaz-desk
-version: 0.7.2
+version: 0.7.3
 description: Manage the Midaz desk — radar, playbook, preferences, sharing, Telegram alerts, private intel, and asset tracking via the CLI
 metadata: {"requires":{"bins":["midaz"]}}
 ---
@@ -179,7 +179,7 @@ Fields of interest:
 1. `midaz desk radar get` — confirm current state.
 2. Compose the new item list with the user.
 3. `midaz desk radar set --items "item1, item2, …" --yes`
-4. Report back the `l4_enqueued` status and mention that the personal market read will refresh shortly.
+4. Report back the `l4_enqueued` status and mention that the personal market read will refresh shortly. When you name a thesis or driver that the new radar will match, format it as an inline markdown link to its `view_url` — e.g. `will match the **[<driver_name>](<view_url>)** driver`. Look up the URL via `midaz search` if you don't already have it.
 
 ### "Change my desk output language"
 
@@ -203,11 +203,11 @@ Fields of interest:
 
 ### "Dump everything I know about NVDA"
 
-1. `midaz assets get NVDA` — bias direction, driver contributions.
+1. `midaz assets get NVDA` — bias direction, driver contributions (each has `view_url`).
 2. `midaz assets timeline NVDA --limit 20` — recent events.
 3. `midaz klines NVDA` — price history.
-4. For each contributing driver, `midaz driver <id>` to surface the thesis members.
-5. Share the asset `view_url` + each linked driver / thesis `view_url`.
+4. For each contributing driver, `midaz driver <id>` to surface the thesis members (thesis list items also each carry a `view_url`).
+5. When you name any contributing driver or thesis in the reply, make the name an inline markdown link to its `view_url` — e.g. `the **[<driver_name>](<view_url>)** driver contributes +0.5 on fundamentals`. The asset's own `view_url` goes at the end as `[View NVDA on the map](<url>)`.
 
 ### "Push my morning note to intel"
 

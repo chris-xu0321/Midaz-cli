@@ -1,6 +1,6 @@
 ---
 name: midaz-api-explorer
-version: 0.7.0
+version: 0.7.1
 description: Discover and explore Midaz CLI commands via schema introspection — use when existing skills don't cover the user's need
 metadata: {"requires":{"bins":["midaz"]}}
 ---
@@ -57,7 +57,7 @@ Bypasses the envelope and prints the raw API response. Handy for:
 1. Parse the JSON (`.data` payload when not using `--raw`).
 2. Identify the relevant fields for the user's question.
 3. Synthesize into natural language.
-4. Surface any `view_url` as a markdown link.
+4. When mentioning a driver or thesis by name, make the name itself an inline markdown link to its `view_url` — per-item `view_url` on list/search results and contributions, `.meta.view_url` on single-entity fetches. Never fabricate a URL. Surface page-level `.meta.view_url` separately as `[View on the map](<url>)`.
 
 ## Auth & Subscription Gotchas
 
