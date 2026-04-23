@@ -34,8 +34,6 @@ INSTALL:
     curl -fsSL https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.sh | sh
     (Windows: irm .../install.ps1 | iex)
 
-    Or via npm: npm install -g @midaz/cli
-
     Full setup: https://github.com/SparkssL/Midaz-cli#installation
 
 Run 'midaz auth login' to sign in, then 'midaz onboard' to set up your radar.`,

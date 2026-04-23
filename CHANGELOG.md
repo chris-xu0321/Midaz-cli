@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+### Breaking
+- Removed the npm distribution channel. `npm install -g @midaz/cli` is no
+  longer published; the `@midaz/cli` package, its postinstall downloader,
+  `scripts/run.js`, `scripts/install.js`, `npm/publish.sh`, and
+  `package.json` are all gone. Install via the curl (`install.sh`) or
+  PowerShell (`install.ps1`) one-liners instead. Version is now sourced
+  from the git tag only (goreleaser resolves it in CI).
+- Removed deprecated `seer-q` npm shim, `SEER_*` env var fallbacks, and the
+  `~/.config/seer/` legacy config read. The grace window from v0.6.0 is over —
+  use `midaz` and `MIDAZ_*` env vars. Existing users with config under
+  `~/.config/seer/config.json` must move it to `~/.config/midaz/config.json`
+  (or re-run `midaz config set`).
+
 ## 0.7.2 — 2026-04-22
 
 Companion release for Seer's post-L4 drift: the `/api/topics*` routes were

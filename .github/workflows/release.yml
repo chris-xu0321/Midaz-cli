@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  id-token: write
 
 jobs:
   release:
@@ -21,31 +20,8 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Verify tag matches package.json
-        run: |
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
-          PKG_VERSION="$(node -p "require('./package.json').version")"
-          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
-            echo "::error::Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION). Update package.json before tagging."
-            exit 1
-          fi
-
       - name: Run tests
         run: make test
-
-      - name: Verify npm package contents
-        run: |
-          PACK=$(npm pack --dry-run 2>&1)
-          echo "$PACK"
-          echo "$PACK" | grep "scripts/install.js" || { echo "::error::install.js missing from package"; exit 1; }
-          echo "$PACK" | grep "scripts/run.js" || { echo "::error::run.js missing from package"; exit 1; }
-          node -c scripts/install.js
-          node -c scripts/run.js
 
       # Build binaries + create GitHub release (with binary downloads)
       - name: Build and release
@@ -55,21 +31,3 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Smoke test: verify postinstall can download binary from the just-created release
-      - name: Smoke test postinstall
-        run: |
-          TMPDIR=$(mktemp -d)
-          cd "$TMPDIR"
-          npm init -y > /dev/null 2>&1
-          npm pack "$GITHUB_WORKSPACE" > /dev/null 2>&1
-          TARBALL=$(ls midaz-cli-*.tgz)
-          npm install "$TARBALL"
-          ./node_modules/.bin/seer-q version
-          rm -rf "$TMPDIR"
-
-      # Publish to public npm registry (uses npm Trusted Publishing via OIDC)
-      - name: Publish npm package
-        run: |
-          unset NODE_AUTH_TOKEN
-          npm publish --provenance --access public

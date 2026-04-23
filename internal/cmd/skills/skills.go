@@ -13,7 +13,7 @@ func NewCmdSkills(f *cmdutil.Factory) *cobra.Command {
 		Short: "Manage embedded agent skills",
 		Long: `Manage the skill bundles that ship with the midaz binary.
 
-The installer (curl/PowerShell/npm) only places the binary on your machine.
+The installer (curl/PowerShell) only places the binary on your machine.
 Use "midaz skills install" to unpack skills into your agent directories
 (Claude Code, Codex, or a custom path).`,
 	}

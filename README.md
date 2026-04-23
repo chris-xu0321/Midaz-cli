@@ -27,13 +27,6 @@ Windows (PowerShell):
 irm https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.ps1 | iex
 ```
 
-Alternative install methods:
-
-```bash
-npm install -g @midaz/cli                   # from npm
-go install github.com/SparkssL/Midaz-cli/cmd/midaz@latest   # from source
-```
-
 Once installed, verify the CLI is set up:
 
 ```bash

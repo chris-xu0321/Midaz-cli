@@ -18,18 +18,11 @@ irm https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.ps1 | iex
 
 This installs the `midaz` binary. Run `midaz skills install --yes` afterwards to register agent skills.
 
-### Via npm
-
-```bash
-npm install -g @midaz/cli
-midaz skills install --yes
-```
-
 ### Release (maintainers)
 
 ```bash
-bash npm/publish.sh              # goreleaser + npm publish (single package)
-bash npm/publish.sh --dry-run    # test without publishing
+git tag vX.Y.Z
+git push --tags    # CI runs goreleaser and publishes the GitHub Release
 ```
 
 Skills are embedded in the binary.

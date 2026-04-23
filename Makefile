@@ -1,7 +1,6 @@
 BINARY      := midaz
 MODULE      := github.com/SparkssL/Midaz-cli
 VERSION     := $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
-NPM_VERSION := $(shell node -p "require('./package.json').version" 2>/dev/null || echo dev)
 LDFLAGS     := -s -w -X $(MODULE)/internal/build.Version=$(VERSION)
 PREFIX      ?= /usr/local
 
@@ -14,7 +13,7 @@ test:
 	go test -race -count=1 ./...
 
 clean:
-	rm -f $(BINARY) $(BINARY).exe seer-q seer-q.exe
+	rm -f $(BINARY) $(BINARY).exe
 	rm -rf dist/ bin/
 
 install: build
@@ -22,7 +21,7 @@ install: build
 	cp $(BINARY) $(PREFIX)/bin/$(BINARY)
 
 release:
-	GORELEASER_CURRENT_TAG=v$(NPM_VERSION) goreleaser release --clean --skip=publish
+	goreleaser release --clean --skip=publish
 
 qa: test
 	@echo "=== Skills validation test ==="
