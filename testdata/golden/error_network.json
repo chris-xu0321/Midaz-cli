@@ -3,6 +3,6 @@
   "error": {
     "code": "network",
     "message": "Cannot connect to Seer API at https://www.midaz.xyz",
-    "hint": "check your API URL with: seer-q config get api_url"
+    "hint": "check your API URL with: midaz config get api_url"
   }
 }

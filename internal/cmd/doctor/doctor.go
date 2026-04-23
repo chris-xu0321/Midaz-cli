@@ -39,7 +39,7 @@ func runDoctor(f *cmdutil.Factory, opts *cmdutil.RunOpts) error {
 	if _, err := os.Stat(configPath); err == nil {
 		checks = append(checks, check{"config_source", "pass", "file at " + configPath})
 		passed++
-	} else if envAny("MIDAZ_API_URL", "SEER_API_URL", "MIDAZ_FRONTEND_URL", "SEER_FRONTEND_URL") {
+	} else if envAny("MIDAZ_API_URL", "MIDAZ_FRONTEND_URL") {
 		checks = append(checks, check{"config_source", "pass", "env vars"})
 		passed++
 	} else {

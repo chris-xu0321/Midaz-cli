@@ -122,7 +122,7 @@ midaz health                     # API health check
 midaz setup all --yes            # (Re)install skills to agent directories
 ```
 
-Config path: `~/.config/midaz/config.json` (Linux/macOS) or `%APPDATA%\midaz\config.json` (Windows). A legacy `seer/config.json` is still read as a fallback for one release.
+Config path: `~/.config/midaz/config.json` (Linux/macOS) or `%APPDATA%\midaz\config.json` (Windows).
 
 ## Common Rules
 

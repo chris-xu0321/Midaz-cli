@@ -8,7 +8,7 @@
 //	macOS:   ~/Library/Application Support/midaz/config.json
 //	Linux:   ~/.config/midaz/config.json
 //
-// Override: MIDAZ_CONFIG_PATH (or legacy SEER_CONFIG_PATH) env var
+// Override: MIDAZ_CONFIG_PATH env var
 //
 // Env var mapping:
 //
@@ -16,9 +16,6 @@
 //	MIDAZ_FRONTEND_URL  → frontend_url (default: https://www.midaz.xyz)
 //	MIDAZ_FORMAT        → format       (default: json)
 //	MIDAZ_TOKEN         → bearer token for CI/headless auth
-//
-// Legacy SEER_* env vars are read as a fallback; when both are set the MIDAZ_*
-// value wins.
 package config
 
 import (
@@ -48,21 +45,11 @@ func Defaults() *Config {
 	}
 }
 
-// envFirst returns the first non-empty value from the provided env var names.
-func envFirst(names ...string) string {
-	for _, n := range names {
-		if v := os.Getenv(n); v != "" {
-			return v
-		}
-	}
-	return ""
-}
-
 // ConfigPath returns the preferred config file path (midaz/config.json).
-// If MIDAZ_CONFIG_PATH or legacy SEER_CONFIG_PATH is set, that wins.
+// If MIDAZ_CONFIG_PATH is set, that wins.
 // Otherwise: <userConfigDir>/midaz/config.json.
 func ConfigPath() string {
-	if p := envFirst("MIDAZ_CONFIG_PATH", "SEER_CONFIG_PATH"); p != "" {
+	if p := os.Getenv("MIDAZ_CONFIG_PATH"); p != "" {
 		return p
 	}
 	dir, err := os.UserConfigDir()
@@ -70,20 +57,6 @@ func ConfigPath() string {
 		return filepath.Join(".", "midaz", "config.json")
 	}
 	return filepath.Join(dir, "midaz", "config.json")
-}
-
-// LegacyConfigPath returns the legacy `seer/config.json` path, used as a
-// read-only fallback for one release to avoid forcing users to re-create
-// their config.
-func LegacyConfigPath() string {
-	if p := os.Getenv("SEER_CONFIG_PATH"); p != "" {
-		return p
-	}
-	dir, err := os.UserConfigDir()
-	if err != nil {
-		return ""
-	}
-	return filepath.Join(dir, "seer", "config.json")
 }
 
 // LoadFromFile reads a config JSON file. Returns Defaults() if file does not exist.
@@ -102,7 +75,7 @@ func LoadFromFile(path string) (*Config, error) {
 	return cfg, nil
 }
 
-// Load resolves the full config with precedence: defaults → legacy file → file → env → flags.
+// Load resolves the full config with precedence: defaults → file → env → flags.
 // flagAPIURL and flagFormat are from CLI flags (empty string = not set).
 func Load(flagAPIURL, flagFormat string) (*Config, error) {
 	cfg := Defaults()
@@ -111,23 +84,19 @@ func Load(flagAPIURL, flagFormat string) (*Config, error) {
 	case err == nil:
 		_ = json.Unmarshal(data, cfg)
 	case errors.Is(err, os.ErrNotExist):
-		if legacy := LegacyConfigPath(); legacy != "" {
-			if data, err := os.ReadFile(legacy); err == nil {
-				_ = json.Unmarshal(data, cfg)
-			}
-		}
+		// no file, use defaults
 	default:
 		return nil, err
 	}
 
-	// Env vars override file (MIDAZ_* preferred, SEER_* deprecated fallback).
-	if v := envFirst("MIDAZ_API_URL", "SEER_API_URL"); v != "" {
+	// Env vars override file.
+	if v := os.Getenv("MIDAZ_API_URL"); v != "" {
 		cfg.APIURL = v
 	}
-	if v := envFirst("MIDAZ_FRONTEND_URL", "SEER_FRONTEND_URL"); v != "" {
+	if v := os.Getenv("MIDAZ_FRONTEND_URL"); v != "" {
 		cfg.FrontendURL = v
 	}
-	if v := envFirst("MIDAZ_FORMAT", "SEER_FORMAT"); v != "" {
+	if v := os.Getenv("MIDAZ_FORMAT"); v != "" {
 		cfg.Format = v
 	}
 
@@ -189,32 +158,27 @@ func SetKey(key, value string) error {
 	return Save(cfg)
 }
 
-// Source returns where a key's value is coming from: "flag", "env", "file", "legacy_file", or "default".
+// Source returns where a key's value is coming from: "flag", "env", "file", or "default".
 func Source(key, flagValue string) string {
 	if flagValue != "" {
 		return "flag"
 	}
 
-	var envKeys []string
+	var envKey string
 	switch key {
 	case "api_url":
-		envKeys = []string{"MIDAZ_API_URL", "SEER_API_URL"}
+		envKey = "MIDAZ_API_URL"
 	case "frontend_url":
-		envKeys = []string{"MIDAZ_FRONTEND_URL", "SEER_FRONTEND_URL"}
+		envKey = "MIDAZ_FRONTEND_URL"
 	case "format":
-		envKeys = []string{"MIDAZ_FORMAT", "SEER_FORMAT"}
+		envKey = "MIDAZ_FORMAT"
 	}
-	for _, k := range envKeys {
-		if os.Getenv(k) != "" {
-			return "env"
-		}
+	if envKey != "" && os.Getenv(envKey) != "" {
+		return "env"
 	}
 
 	if fileHasKey(ConfigPath(), key) {
 		return "file"
-	}
-	if legacy := LegacyConfigPath(); legacy != "" && fileHasKey(legacy, key) {
-		return "legacy_file"
 	}
 	return "default"
 }

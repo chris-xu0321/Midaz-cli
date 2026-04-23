@@ -33,7 +33,7 @@ func TestLoadFromFile_Missing(t *testing.T) {
 func TestSetKeyAndLoad(t *testing.T) {
 	tmpDir := t.TempDir()
 	cfgPath := filepath.Join(tmpDir, "config.json")
-	t.Setenv("SEER_CONFIG_PATH", cfgPath)
+	t.Setenv("MIDAZ_CONFIG_PATH", cfgPath)
 
 	// Set a key
 	if err := SetKey("api_url", "http://test:9000"); err != nil {
@@ -53,7 +53,7 @@ func TestSetKeyAndLoad(t *testing.T) {
 func TestLoad_Precedence(t *testing.T) {
 	tmpDir := t.TempDir()
 	cfgPath := filepath.Join(tmpDir, "config.json")
-	t.Setenv("SEER_CONFIG_PATH", cfgPath)
+	t.Setenv("MIDAZ_CONFIG_PATH", cfgPath)
 
 	// Write a config file with format=pretty
 	if err := SetKey("format", "pretty"); err != nil {
@@ -61,7 +61,7 @@ func TestLoad_Precedence(t *testing.T) {
 	}
 
 	// Env var should override file
-	t.Setenv("SEER_FORMAT", "json")
+	t.Setenv("MIDAZ_FORMAT", "json")
 	cfg, err := Load("", "")
 	if err != nil {
 		t.Fatal(err)
@@ -81,14 +81,14 @@ func TestLoad_Precedence(t *testing.T) {
 }
 
 func TestConfigPath_EnvOverride(t *testing.T) {
-	t.Setenv("SEER_CONFIG_PATH", "/custom/path.json")
+	t.Setenv("MIDAZ_CONFIG_PATH", "/custom/path.json")
 	if ConfigPath() != "/custom/path.json" {
 		t.Errorf("expected custom path, got %q", ConfigPath())
 	}
 }
 
 func TestConfigPath_Default(t *testing.T) {
-	t.Setenv("SEER_CONFIG_PATH", "")
+	t.Setenv("MIDAZ_CONFIG_PATH", "")
 	path := ConfigPath()
 	if path == "" {
 		t.Error("expected non-empty default config path")
@@ -102,14 +102,14 @@ func TestSource(t *testing.T) {
 	}
 
 	// Env source
-	t.Setenv("SEER_API_URL", "http://env")
+	t.Setenv("MIDAZ_API_URL", "http://env")
 	if s := Source("api_url", ""); s != "env" {
 		t.Errorf("expected 'env', got %q", s)
 	}
-	os.Unsetenv("SEER_API_URL")
+	os.Unsetenv("MIDAZ_API_URL")
 
 	// Default source (no file, no env)
-	t.Setenv("SEER_CONFIG_PATH", "/nonexistent/config.json")
+	t.Setenv("MIDAZ_CONFIG_PATH", "/nonexistent/config.json")
 	if s := Source("api_url", ""); s != "default" {
 		t.Errorf("expected 'default', got %q", s)
 	}
