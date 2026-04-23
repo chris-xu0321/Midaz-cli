@@ -108,6 +108,10 @@ When mentioning a driver or thesis by name — including in bulk lists like "top
 
 Every item returned by `midaz drivers`, `midaz theses`, `midaz search`, `midaz market` (including the embedded `drivers[]`), and the detail fetches (`midaz driver <id>` / `midaz thesis <id>` via `.meta.view_url`) now carries a `view_url`. Use it every time. Page-level `.meta.view_url` goes at the end of the reply as "view on the map" — it does not replace per-item links.
 
+Click destinations (be accurate when describing links):
+- Driver and thesis `view_url`s open the drivers tab with the entity selected. Thread-member URLs surfaced by `midaz driver <id>` additionally preselect the parent driver, so the rail stays rooted on the parent when the user clicks through.
+- Contribution `view_url`s on `midaz assets get <id>` open the **asset's** page on the assets tab with the contribution panel opened inside that asset's context — do not describe them as "the driver's page."
+
 ## Key Response Fields
 
 **Drivers**
@@ -188,7 +192,7 @@ User: "latest events"
 
 User: "analyze NVDA"
 
-→ `midaz assets get NVDA` → bias, axis_state, driver contributions (each has `view_url`)
+→ `midaz assets get NVDA` → bias, axis_state, driver contributions (each has `view_url` that opens the **asset's** page with that contribution panel open — not the driver's page)
 → `midaz assets timeline NVDA --limit 20` → recent events
 → Optionally `midaz klines NVDA` → price context
 → Reply pattern:

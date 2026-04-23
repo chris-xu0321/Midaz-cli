@@ -204,7 +204,7 @@ Fields of interest:
 
 ### "Dump everything I know about NVDA"
 
-1. `midaz assets get NVDA` — bias direction, driver contributions (each has `view_url`).
+1. `midaz assets get NVDA` — bias direction, driver contributions (each has `view_url` that opens NVDA's own page with that contribution panel highlighted — not a separate driver page).
 2. `midaz assets timeline NVDA --limit 20` — recent events.
 3. `midaz klines NVDA` — price history.
 4. For each contributing driver, `midaz driver <id>` to surface the thesis members (thesis list items also each carry a `view_url`).

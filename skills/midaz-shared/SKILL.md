@@ -129,6 +129,13 @@ Config path: `~/.config/midaz/config.json` (Linux/macOS) or `%APPDATA%\midaz\con
 1. **Run `midaz auth status` at the top of a session** when you're about to call authenticated commands — it returns the user's id, desk id, subscription status, and onboarding state in one call, so you can decide what to do.
 2. **Never drop `--yes` on write commands.** If a command exits 2 with `confirmation_required`, add the flag — don't retry blindly.
 3. **Attach a link after every thesis or driver mention.** When you name a specific thesis or driver by title in your reply — including each item in a bulk list like "top 5 drivers" — make the name itself an inline markdown link to its `view_url`. Example: `the **[AI capex cycle accelerates](<url>)** driver is strengthening`. Find `view_url` on the item itself (lists, search results, contributions) or in `.meta.view_url` (single-entity fetches like `midaz driver <id>` / `midaz thesis <id>`). Page-level `.meta.view_url` is separate — surface it once at the end of the reply as "view on the map", it does not replace per-item links. Never paste raw URLs. Never fabricate a URL — if no `view_url` is present, name the entity without a link (rare: the CLI list normalizers now emit one for every driver/thesis item).
+
+   Canonical `view_url` shapes (so you know what a click opens):
+   - `…/market-read?driver=<id>` — drivers tab, driver selected.
+   - `…/market-read?thesis=<id>` — drivers tab, thesis preview panel opened.
+   - `…/market-read?driver=<parent>&thesis=<id>` — drivers tab, parent driver + thesis both preselected (emitted by `midaz driver <id>` thread members).
+   - `…/market-read?view=assets&asset=<id>` — assets tab, asset selected.
+   - `…/market-read?view=assets&asset=<id>&contrib=<key>` — assets tab with a driver/signal contribution panel opened **inside that asset's context** (emitted by every `contributions[*]` entry on `midaz assets get <id>`).
 4. **Synthesize, don't dump.** Convert JSON into natural language before replying.
 5. **Respect exit code 7.** On subscription-required, ask the user before running `subscription start` unless they already asked to subscribe.
 6. **Thread → thesis.** The product now says "thesis". Use `midaz theses` / `midaz thesis <id>`. `threads` / `thread` still work but are deprecated.
