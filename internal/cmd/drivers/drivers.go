@@ -22,7 +22,7 @@ func NewCmdDrivers(f *cmdutil.Factory) *cobra.Command {
 					if base == "" {
 						return ""
 					}
-					return base + "/market?driver=" + id
+					return base + "/market-read?driver=" + id
 				}),
 			})
 		},

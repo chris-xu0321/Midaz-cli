@@ -75,7 +75,7 @@ func injectDriverURLs(raw json.RawMessage, frontendBase string) (json.RawMessage
 		if id == "" {
 			continue
 		}
-		u, err := json.Marshal(frontendBase + "/market?driver=" + id)
+		u, err := json.Marshal(frontendBase + "/market-read?driver=" + id)
 		if err != nil {
 			continue
 		}
