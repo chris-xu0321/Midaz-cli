@@ -1,7 +1,8 @@
 ---
 name: midaz-desk
 version: 0.7.3
-description: Manage the Midaz desk — radar, playbook, preferences, sharing, Telegram alerts, private intel, and asset tracking via the CLI
+description: "Manages the user's personal Midaz desk — radar (watchlist of assets/theses), playbook (custom trading rules), preferences, sharing, Telegram alerts, private intel notes, and asset tracking — via the midaz CLI. Use this skill whenever the user references their personal desk, radar, watchlist, playbook, or alerts — even if they don't mention Midaz by name."
+when_to_use: "Trigger on phrases like 'my desk', 'my radar', 'my watchlist', 'my playbook', 'update my radar', 'add X to radar', 'remove X from my watchlist', 'my preferences', 'share my desk', 'Telegram alerts', 'mute alerts', 'notify me when', 'push a note', 'private intel', 'track [asset]', 'stop tracking X', 'regenerate my radar', 'reonboard', 'what am I watching', 'what's on my radar'. Also trigger on any first-person possessive followed by desk/radar/playbook terminology."
 metadata: {"requires":{"bins":["midaz"]}}
 ---
 

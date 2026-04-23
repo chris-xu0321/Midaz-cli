@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Added
+- New `midaz-onboard` skill — interactive trader onboarding ritual synced
+  from Seer; produces profile, radar, and playbook and commits them via
+  the existing `midaz onboard complete` / `midaz desk radar set` /
+  `midaz desk playbook set` verbs.
+
+### Fixed
+- `midaz-account` skill: radar cap corrected from `≤5` to `≤12` items to
+  match `internal/cmd/desk/radar/add.go`.
+
 ### Breaking
 - Removed the npm distribution channel. `npm install -g @midaz/cli` is no
   longer published; the `@midaz/cli` package, its postinstall downloader,

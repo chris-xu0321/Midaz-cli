@@ -1,7 +1,8 @@
 ---
 name: midaz-market
 version: 0.7.3
-description: Search, browse, and analyze drivers, theses, claims, assets, klines, deltas, and market regime via the midaz CLI
+description: "Searches, browses, and analyzes market intelligence on the Midaz desk — drivers, theses, claims, assets, klines (price history), deltas (regime shifts), and live market regime — via the midaz CLI. Use this skill whenever the user asks about the market, specific assets (BTC, ETH, stocks, etc.), what's driving price, bull/bear cases, latest events, thesis claims, or price action — even if they don't mention Midaz by name."
+when_to_use: "Trigger on phrases like 'how's the market', 'what's driving X', 'analyze [asset]', 'top drivers', 'bull case for Y', 'bear case', 'market regime', 'what happened with [asset]', 'latest events', 'price history', 'klines', 'theses on X', 'claims supporting Y', 'deltas', 'regime shift', 'search drivers', 'browse theses'. Also trigger on any asset ticker followed by a question (e.g. 'BTC thoughts?', 'SOL outlook')."
 metadata: {"requires":{"bins":["midaz"]}}
 ---
 

@@ -79,7 +79,7 @@ func TestInstallAllCreatesSkills(t *testing.T) {
 		t.Fatalf("skills install all --yes failed: %v", err)
 	}
 
-	expectedSkills := []string{"midaz-shared", "midaz-market", "midaz-api-explorer", "midaz-account", "midaz-desk"}
+	expectedSkills := []string{"midaz-shared", "midaz-market", "midaz-api-explorer", "midaz-account", "midaz-desk", "midaz-onboard"}
 	for _, skill := range expectedSkills {
 		path := filepath.Join(dir, skill, "SKILL.md")
 		if _, err := os.Stat(path); os.IsNotExist(err) {

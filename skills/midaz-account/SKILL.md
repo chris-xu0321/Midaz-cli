@@ -1,7 +1,8 @@
 ---
 name: midaz-account
 version: 0.7.0
-description: Authenticate, redeem invitations, complete onboarding, and manage Midaz subscription from the CLI
+description: "Authenticates, redeems invitations, completes initial onboarding, and manages the user's Midaz subscription via the midaz CLI. Use this skill whenever the user needs to sign in, sign out, check auth state, redeem an invite code, or manage their subscription — even if they don't mention Midaz by name."
+when_to_use: "Trigger on phrases like 'sign in', 'log in', 'login', 'sign out', 'log out', 'am I logged in', 'who am I', 'whoami', 'redeem invite', 'invite code', 'invitation', 'subscription', 'upgrade my plan', 'cancel subscription', 'billing', 'my account', 'account status', 'set up Midaz', 'activate my account', 'credentials'."
 metadata: {"requires":{"bins":["midaz"]}}
 ---
 
@@ -68,7 +69,7 @@ Common failures:
 
 ## Onboarding
 
-A desk is "onboarded" when it has both a **radar** (watchlist, ≤5 items) and a **playbook** (trading rules, ≤20 000 chars). Two paths:
+A desk is "onboarded" when it has both a **radar** (watchlist, ≤12 items) and a **playbook** (trading rules, ≤20 000 chars). Two paths:
 
 ### Guided/freeform (server generates for you)
 

@@ -87,6 +87,7 @@ Inside Claude Code or Codex, the skills self-register under `~/.claude/skills` o
 | `midaz-market` | Search, browse, and analyze drivers, theses, claims, assets, klines, deltas, and regime |
 | `midaz-account` | Authenticate, redeem invitations, complete onboarding, and manage subscription |
 | `midaz-desk` | Manage radar, playbook, sharing, Telegram alerts, private intel, asset tracking |
+| `midaz-onboard` | Interactive 5-round trader onboarding ritual — produces profile + radar + playbook, syncs to the desk |
 | `midaz-api-explorer` | Discover commands via schema introspection — fallback when other skills don't fit |
 
 ## Development

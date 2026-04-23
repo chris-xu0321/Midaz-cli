@@ -1,7 +1,8 @@
 ---
 name: midaz-api-explorer
 version: 0.7.1
-description: Discover and explore Midaz CLI commands via schema introspection — use when existing skills don't cover the user's need
+description: "Discovers and introspects Midaz CLI commands and schemas — lists available commands, dumps JSON schemas for any verb, and surfaces flags/arguments for commands not covered by the dedicated skills. Use this skill whenever the user asks what Midaz can do, requests command-level help, or needs a capability the other midaz-* skills don't cover."
+when_to_use: "Trigger on phrases like 'what can midaz do', 'list midaz commands', 'midaz help', 'show me the schema for X', 'what flags does Y take', 'is there a midaz command for Z', 'explore the API', 'midaz --help', or when the user describes a need the other midaz skills clearly don't handle."
 metadata: {"requires":{"bins":["midaz"]}}
 ---
 
