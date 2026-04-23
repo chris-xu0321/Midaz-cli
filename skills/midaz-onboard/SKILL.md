@@ -1,6 +1,6 @@
 ---
 name: midaz-onboard
-version: 0.8.0
+version: 0.9.0
 description: "Runs the Midaz desk onboarding wizard — a short conversation that collects the trader's style, horizon, markets, focus areas, and language, then calls `midaz onboard generate` so the server synthesizes and publishes radar + playbook atomically. Same contract as the web onboarding page. Use this skill whenever the user wants to set up their Midaz desk, configure what Midaz monitors for them, or regenerate radar / playbook from fresh answers."
 when_to_use: "Trigger on phrases like '/midaz-onboard', 'onboard me', 'set up my desk', 'set up my radar', 'configure my radar from scratch', 'start fresh on Midaz', 'redo onboarding', 'reonboard', 'I want to rebuild my desk', 'describe my setup in my own words'."
 metadata: {"requires":{"bins":["midaz"]}}
@@ -43,6 +43,30 @@ Parse arguments:
 
 ---
 
+## Interactive question pattern
+
+Every step below with a fixed option set MUST be asked through the host
+agent's interactive question tool — **do not** print the markdown list and
+ask the trader to type a choice. Use whichever the host exposes:
+
+- **Claude Code** → `AskUserQuestion`. Hard schema cap: 2–4 options per question, 1–4 questions per call. Has a `multiSelect: bool` flag. Auto-adds an "Other" free-text escape.
+- **Codex** → `ask_user_question` (tabbed questionnaire). No option-count cap in the protocol. Set `isOther: true` on any question that needs a free-text escape. Unavailable under `codex exec` — fall back there.
+
+Shape every question the same way on both hosts:
+
+- Show the **human label** only (e.g. `Read the story`, `Swing`). The underlying enum value (e.g. `discretionary`, `swing`) is never shown to the trader — map label → enum after the answer arrives.
+- Use the option `description` for the web's tagline.
+- Keep headers ≤12 chars. Allowed headers: `Setup mode`, `Style`, `Horizon`, `Markets`, `Focus 1/2`, `Focus 2/2`, `Language`, `Notes`.
+- Always leave a free-text escape. Claude Code adds "Other" automatically. On Codex, set `isOther: true` on `Language`, `Focus 1/2`, `Focus 2/2`, and `Notes`.
+- The interactive tools can't enforce web-level caps like "pick ≤2 trading styles". If the trader exceeds a cap, ask them to drop one — never silently truncate.
+
+**Fallback.** If the interactive tool isn't available (non-interactive
+session, tool hidden by the host's mode, or the call fails), fall back to
+the prior markdown-list prompt + typed answer. The label → enum mapping is
+identical either way, so the downstream payload is unchanged.
+
+---
+
 ## Flow
 
 ### Opening
@@ -54,14 +78,16 @@ Parse arguments:
 
 ### Step 1: Mode
 
-> Two ways to set up:
->
-> - **Guide me** — I'll ask 6 short questions.
-> - **I'll write it myself** — Describe your desk in your own words (one paragraph).
->
-> Which one?
+Ask one single-select interactive question. Header: `Setup mode`.
 
-Route guided → steps 2–7. Route freeform → steps F2–F3.
+> "Let's set up what Midaz watches for you. Want a head start, or do it your way?"
+
+| Label | Enum | Description |
+|-------|------|-------------|
+| Guide me | `guided` | Answer a few quick questions. You can change anything later. |
+| I'll write it myself | `freeform` | Describe your setup in your own words. We'll pre-fill a starter draft. |
+
+Route `guided` → steps 2–7. Route `freeform` → steps F2–F3.
 
 ---
 
@@ -69,12 +95,18 @@ Route guided → steps 2–7. Route freeform → steps F2–F3.
 
 #### Step 2 [2/7]: Trading style
 
-> How do you usually make a trading call? (pick 1 or 2 — your first pick counts a bit more)
->
-> - **Read the story** (`discretionary`) — I weigh the narrative, what else is moving, and my own judgment.
-> - **Follow the rules** (`systematic`) — I trust repeatable signals and wait for clean confirmation.
-> - **Ride the themes** (`thematic`) — I focus on big shifts and multi-month stories.
-> - **Trade the catalysts** (`event_driven`) — I focus on earnings, data prints, and scheduled events.
+Ask one multi-select interactive question. Header: `Style`.
+
+> "How do you usually make a trading call?"
+
+| Label | Enum | Description |
+|-------|------|-------------|
+| Read the story | `discretionary` | I weigh the narrative, what else is moving, and my own judgment. |
+| Follow the rules | `systematic` | I trust repeatable signals and wait for clean confirmation. |
+| Ride the themes | `thematic` | I focus on big shifts and multi-month stories. |
+| Trade the catalysts | `event_driven` | I focus on earnings, data prints, and scheduled events. |
+
+After answer: if the trader picked >2, ask them to drop one (first pick should stay — it counts a bit more).
 
 **Schema:** `trading_style: string[]`, 1–2 of
 `["discretionary", "systematic", "thematic", "event_driven"]`, order preserved.
@@ -83,11 +115,17 @@ Route guided → steps 2–7. Route freeform → steps F2–F3.
 
 #### Step 3 [3/7]: Time horizon
 
-> How long do your trades usually last? (pick 1 or 2)
->
-> - **Intraday** — minutes to hours, I close out before the day ends.
-> - **Swing** (default pick) — holds that work over days to weeks.
-> - **Position** — longer plays, weeks to months.
+Ask one multi-select interactive question. Header: `Horizon`.
+
+> "How long do your trades usually last?"
+
+| Label | Enum | Description |
+|-------|------|-------------|
+| Intraday | `intraday` | Minutes to hours — I close out before the day ends. |
+| Swing | `swing` | Default pick. Holds that work over days to weeks. |
+| Position | `position` | Longer plays — weeks to months. |
+
+After answer: if the trader picked >2, ask them to drop one.
 
 **Schema:** `time_horizon: string[]`, 1–2 of
 `["intraday", "swing", "position"]`.
@@ -96,12 +134,18 @@ Route guided → steps 2–7. Route freeform → steps F2–F3.
 
 #### Step 4 [4/7]: Market scope
 
-> Which markets do you actually trade? (pick up to 3)
->
-> - **Stocks** (`equities`) — single names, sectors, earnings plays.
-> - **Macro** — rates, currencies, policy-driven moves.
-> - **Crypto** — majors like BTC/ETH plus sector narratives.
-> - **A bit of everything** (`multi_asset`, default) — I look across markets before committing.
+Ask one multi-select interactive question. Header: `Markets`.
+
+> "Which markets do you actually trade?"
+
+| Label | Enum | Description |
+|-------|------|-------------|
+| Stocks | `equities` | Single names, sectors, and earnings plays. |
+| Macro | `macro` | Rates, currencies, and policy-driven moves. |
+| Crypto | `crypto` | Majors like BTC/ETH plus sector narratives. |
+| A bit of everything | `multi_asset` | Default pick. I look across markets before committing. |
+
+After answer: if the trader picked >3, ask them to drop one.
 
 **Schema:** `market_scope: string[]`, 1–3 of
 `["equities", "macro", "crypto", "multi_asset"]`.
@@ -110,23 +154,53 @@ Route guided → steps 2–7. Route freeform → steps F2–F3.
 
 #### Step 5 [5/7]: Focus areas
 
-> What topics should Midaz always keep an eye on for you? Pick up to 4, or add your own.
->
-> Presets: Rates path · USD liquidity · AI / semis · China · Energy · Crypto majors · Index flow · Earnings
+Ask **two multi-select questions batched into one interactive call**, both with free-text "Other" enabled (automatic on Claude Code, `isOther: true` on Codex). The question text for both: "What topics should Midaz always keep an eye on for you?"
+
+Question 1 — Header: `Focus 1/2`:
+
+| Label | Description |
+|-------|-------------|
+| Rates path | Fed path, real yields, curve shape. |
+| USD liquidity | Dollar strength, funding, global liquidity. |
+| AI / semis | AI buildout, GPU demand, semi capex. |
+| Crypto majors | BTC / ETH regime, L1 rotations. |
+
+Question 2 — Header: `Focus 2/2`:
+
+| Label | Description |
+|-------|-------------|
+| China | China reopening, policy, property, tech. |
+| Energy | Oil, gas, power, supply shocks. |
+| Index flow | Index / ETF positioning and rebalancing. |
+| Earnings | Earnings season, guidance, reactions. |
+
+Custom labels arrive via the "Other" free-text field on either question (≤80 chars each after trim).
+
+After answer: **merge** Q1 picks + Q2 picks + any "Other" text into a single `focus_areas[]`, preserving selection order. Preset labels must be spelled **exactly** as above (the web sends the same literals). If the merged total is >4, ask the trader to drop some.
 
 Default pre-selection (if trader says "just pick for me"): `["Rates path", "USD liquidity"]`.
 
 **Schema:** `focus_areas: string[]`, 1–4 strings, each ≤80 chars after trim.
-Preset labels must be spelled exactly as above (the web sends the same
-literals). Custom entries are free-form strings.
 
 ---
 
 #### Step 6 [6/7]: Language
 
-> What language should Midaz use when it writes for you?
->
-> `en` · `zh-CN` · `ja` · `ko` · `es` · `fr`
+Ask one single-select interactive question with free-text "Other" enabled (automatic on Claude Code, `isOther: true` on Codex). Header: `Language`.
+
+> "What language should Midaz use?"
+
+| Label | Enum | Description |
+|-------|------|-------------|
+| English | `en` | Everything Midaz writes for you will use English. |
+| 简体中文 | `zh-CN` | Midaz 的所有输出都会使用简体中文。 |
+| Français | `fr` | Midaz écrira tout pour vous en français. |
+| 日本語 | `ja` | Midaz のすべての出力は日本語になります。 |
+
+The "Other" escape covers the remaining supported enums — Korean (`ko`) and Español (`es`). Map the trader's free-text answer to the nearest enum, case-insensitive:
+- `ko`, `korean`, `한국어` → `ko`
+- `es`, `spanish`, `español`, `espanol` → `es`
+- anything else → re-ask politely within the six supported enums.
 
 **Schema:** `preferred_language: "en" | "zh-CN" | "ja" | "ko" | "es" | "fr"`.
 
@@ -134,7 +208,16 @@ literals). Custom entries are free-form strings.
 
 #### Step 7 [7/7]: Notes (optional)
 
-> Anything else we should know? Anything to always flag, anything to ignore? (skip if none)
+Ask one single-select interactive question with free-text "Other" enabled (automatic on Claude Code, `isOther: true` on Codex). Header: `Notes`.
+
+> "Anything else you'd like us to know? Anything to always flag, anything to ignore?"
+
+| Label | Description |
+|-------|-------------|
+| Skip | No extra notes — move on. |
+| Add a note | I'd like to leave a note for Midaz. |
+
+If the trader picks "Add a note" (or types into "Other"), follow up with a plain-text prompt for the body (≤2000 chars, trim). Otherwise record `notes: ""`.
 
 **Schema:** `notes: string` (optional, trim, ≤2000 chars).
 
