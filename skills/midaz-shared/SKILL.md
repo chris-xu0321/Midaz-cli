@@ -1,6 +1,6 @@
 ---
 name: midaz-shared
-version: 0.7.4
+version: 0.7.5
 description: Midaz CLI shared concepts — auth model, response format, global flags, and safety rules that apply to every midaz skill
 metadata: {"requires":{"bins":["midaz"]}}
 ---
@@ -158,6 +158,20 @@ Config path: `~/.config/midaz/config.json` (Linux/macOS) or `%APPDATA%\midaz\con
    - `…/market-read?driver=<parent>&thesis=<id>` — drivers tab, parent driver + thesis both preselected (emitted by `midaz driver <id>` thread members).
    - `…/market-read?view=assets&asset=<id>` — assets tab, asset selected.
    - `…/market-read?view=assets&asset=<id>&contrib=<key>` — assets tab with a driver/signal contribution panel opened **inside that asset's context** (emitted by every `contributions[*]` entry on `midaz assets get <id>`).
+
+   **Desk-aware asset URL exception.** When the asset the user is asking about is on their personal desk, switch the asset link's **target** and **text** so the click lands on their desk, not the public market. Drivers, theses, parent+thesis combos, and contribution URLs are unaffected — only standalone asset links change.
+
+   - **Trigger:** the asset appears in `bias_os.active[]`, `bias_os.armed[]`, or `bias_os.seeds[]` returned by `midaz desk view`. Watchlist entries and `radar_coverage` matches do **not** trigger this rule.
+   - **Detection:** call `midaz desk view` once, the first time you're about to surface any asset URL in the session. Cache `meta.view_url` plus the union of `bias_os.{active,armed,seeds}[].asset` (and `asset_id` if present) for the rest of the session. Re-fetch only after a desk-mutating command (`midaz desk radar set`, `midaz desk track`, `midaz desk untrack`, anything returning `l4_enqueued`).
+   - **Matching:** prefer `asset_id` exact match; otherwise compare the asset's `name` and every entry in `aliases[]` against each bias card's `asset` field, case-insensitively. Do not strip suffixes (`BTC-USD` vs `BTC`) — rely on `aliases[]`.
+   - **URL source:** use `meta.view_url` from `midaz desk view` verbatim. Do **not** construct `<FrontendURL>/desk` client-side.
+   - **Link text patterns** (canonical phrasing — do not drift to "in your desk" / "on the desk" / "on my desk"):
+     - Inline, on desk: `**[NVDA](<desk_url>)** on your desk — …` (drop the trailing "on your desk" on subsequent mentions in the same reply, or when the surrounding sentence already names the desk).
+     - Inline, not on desk: unchanged — `**[NVDA](<view_url>)**`.
+     - Page-level closing, on desk: `[View NVDA on your desk](<desk_url>)` (replaces "on the map").
+     - Page-level closing, not on desk: unchanged — `[View NVDA on the map](<view_url>)`.
+   - **Out of scope (always `/market-read`):** driver `view_url`s, thesis `view_url`s, parent+thesis combos, and contribution URLs (`…?view=assets&asset=<id>&contrib=<key>`). Contribution URLs stay on `/market-read` because the desk page does not reproduce the contribution panel — rewriting them would silently drop context.
+   - **Silent fallback:** if `midaz desk view` is unavailable for any reason (exit 6 auth, exit 7 subscription, `has_invite_access: false`, `onboarded: false`, network error), use the asset's own `view_url` and "on the map" text exactly as before. Do not surface the gating, do not nag.
 4. **Synthesize, don't dump.** Convert JSON into natural language before replying.
 5. **Respect exit code 7.** On subscription-required, ask the user before running `subscription start` unless they already asked to subscribe.
 6. **Thread → thesis.** The product now says "thesis". Use `midaz theses` / `midaz thesis <id>`. `threads` / `thread` still work but are deprecated.

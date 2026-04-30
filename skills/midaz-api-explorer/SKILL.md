@@ -1,6 +1,6 @@
 ---
 name: midaz-api-explorer
-version: 0.7.2
+version: 0.7.3
 description: "Discovers and introspects Midaz CLI commands and schemas — lists available commands, dumps JSON schemas for any verb, and surfaces flags/arguments for commands not covered by the dedicated skills. Use this skill whenever the user asks what Midaz can do, requests command-level help, or needs a capability the other midaz-* skills don't cover."
 when_to_use: "Trigger on phrases like 'what can midaz do', 'list midaz commands', 'midaz help', 'show me the schema for X', 'what flags does Y take', 'is there a midaz command for Z', 'explore the API', 'midaz --help', or when the user describes a need the other midaz skills clearly don't handle."
 metadata: {"requires":{"bins":["midaz"]}}
@@ -58,7 +58,7 @@ Bypasses the envelope and prints the raw API response. Handy for:
 1. Parse the JSON (`.data` payload when not using `--raw`).
 2. Identify the relevant fields for the user's question.
 3. Synthesize into natural language.
-4. When mentioning a driver or thesis by name, make the name itself an inline markdown link to its `view_url` — per-item `view_url` on list/search results and contributions, `.meta.view_url` on single-entity fetches. Never fabricate a URL. Surface page-level `.meta.view_url` separately as `[View on the map](<url>)`.
+4. When mentioning a driver or thesis by name, make the name itself an inline markdown link to its `view_url` — per-item `view_url` on list/search results and contributions, `.meta.view_url` on single-entity fetches. Never fabricate a URL. Surface page-level `.meta.view_url` separately as `[View on the map](<url>)`. For asset links specifically, also check desk membership (`midaz desk view` → `bias_os.{active,armed,seeds}`) and switch the target to the desk's `meta.view_url` and the text to `… on your desk` when the asset is on the user's desk; see midaz-shared §Desk-aware asset URL exception.
 
 ## Auth & Subscription Gotchas
 

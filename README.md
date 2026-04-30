@@ -33,6 +33,34 @@ Once installed, verify the CLI is set up:
 midaz version
 ```
 
+### Install via AI agent
+
+If you're inside Claude Code, Codex, or another coding agent, you can hand it the install command and let it do the work. Paste these prompts in order:
+
+**1. Install the CLI** — paste the one-liner together with a short instruction so the agent runs it.
+
+Windows:
+
+```
+irm https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.ps1 | iex   install the cli for me
+```
+
+macOS / Linux:
+
+```
+curl -fsSL https://raw.githubusercontent.com/SparkssL/Midaz-cli/main/install.sh | sh   install the cli for me
+```
+
+**2. Install the skills** — once the CLI is on your PATH:
+
+```
+install the skills for me
+```
+
+The agent will run `midaz skills install --yes` and place the bundles under `~/.claude/skills` or `~/.codex/skills` depending on your host.
+
+**3. Start a new session** so your agent picks up the newly installed skills. After restarting, you can drive Midaz in plain language — e.g., *"search drivers for AI regulation"* or *"show the global market regime"*.
+
 ### Login
 
 Most write endpoints and your desk require an account:

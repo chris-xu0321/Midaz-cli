@@ -1,6 +1,6 @@
 ---
 name: midaz-market
-version: 0.7.3
+version: 0.7.4
 description: "Searches, browses, and analyzes market intelligence on the Midaz desk — drivers, theses, claims, assets, klines (price history), deltas (regime shifts), and live market regime — via the midaz CLI. Use this skill whenever the user asks about the market, specific assets (BTC, ETH, stocks, etc.), what's driving price, bull/bear cases, latest events, thesis claims, or price action — even if they don't mention Midaz by name."
 when_to_use: "Trigger on phrases like 'how's the market', 'what's driving X', 'analyze [asset]', 'top drivers', 'bull case for Y', 'bear case', 'market regime', 'what happened with [asset]', 'latest events', 'price history', 'klines', 'theses on X', 'claims supporting Y', 'deltas', 'regime shift', 'search drivers', 'browse theses'. Also trigger on any asset ticker followed by a question (e.g. 'BTC thoughts?', 'SOL outlook')."
 metadata: {"requires":{"bins":["midaz"]}}
@@ -117,6 +117,7 @@ Every item returned by `midaz drivers`, `midaz theses`, `midaz search`, `midaz m
 Click destinations (be accurate when describing links):
 - Driver and thesis `view_url`s open the drivers tab with the entity selected. Thread-member URLs surfaced by `midaz driver <id>` additionally preselect the parent driver, so the rail stays rooted on the parent when the user clicks through.
 - Contribution `view_url`s on `midaz assets get <id>` open the **asset's** page on the assets tab with the contribution panel opened inside that asset's context — do not describe them as "the driver's page."
+- **Asset links** flip when the asset is on the user's desk: target switches to the desk page (`meta.view_url` from `midaz desk view`) and the text becomes `… on your desk` instead of `… on the map`. Drivers, theses, and contribution URLs are unaffected. See midaz-shared §Desk-aware asset URL exception (Common Rule 3) for the trigger, matching, caching, and silent-fallback details.
 
 ## Key Response Fields
 
@@ -181,7 +182,7 @@ The web at `/market-read` has two tabs that shape how to present results:
   4. Mention `verdict.risks[]` if any are flagged.
   5. End with `[View market on the map](<meta.view_url>)`.
 
-- **Assets tab** (asset fan + list rail) — when the user drills into an asset, lead with `bias.direction` + `bias.axis_state` translated to prose, then list `driver_contributions` sorted by absolute axis-vote magnitude. For each contribution, render: linked driver name, `role`, the dominant axis (fund/macro/flows + signed score), and `why` in one sentence.
+- **Assets tab** (asset fan + list rail) — when the user drills into an asset, lead with `bias.direction` + `bias.axis_state` translated to prose, then list `driver_contributions` sorted by absolute axis-vote magnitude. For each contribution, render: linked driver name, `role`, the dominant axis (fund/macro/flows + signed score), and `why` in one sentence. Before linking the asset name itself, consult `midaz desk view` — if the asset is in the user's `bias_os`, the link routes to the desk page with `… on your desk` text (see midaz-shared §Desk-aware asset URL exception).
 
 Mirror these structures rather than dumping a flat list of drivers or a JSON object.
 

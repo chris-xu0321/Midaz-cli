@@ -1,6 +1,6 @@
 ---
 name: midaz-desk
-version: 0.7.3
+version: 0.7.4
 description: "Manages the user's personal Midaz desk — radar (watchlist of assets/theses), playbook (custom trading rules), preferences, sharing, Telegram alerts, private intel notes, and asset tracking — via the midaz CLI. Use this skill whenever the user references their personal desk, radar, watchlist, playbook, or alerts — even if they don't mention Midaz by name."
 when_to_use: "Trigger on phrases like 'my desk', 'my radar', 'my watchlist', 'my playbook', 'update my radar', 'add X to radar', 'remove X from my watchlist', 'my preferences', 'share my desk', 'Telegram alerts', 'mute alerts', 'notify me when', 'push a note', 'private intel', 'track [asset]', 'stop tracking X', 'regenerate my radar', 'reonboard', 'what am I watching', 'what's on my radar'. Also trigger on any first-person possessive followed by desk/radar/playbook terminology."
 metadata: {"requires":{"bins":["midaz"]}}
@@ -298,7 +298,11 @@ Fields of interest:
 2. `midaz assets timeline NVDA --limit 20` — recent events.
 3. `midaz klines NVDA` — price history.
 4. For each contributing driver, `midaz driver <id>` to surface the thesis members (thesis list items also each carry a `view_url`).
-5. When you name any contributing driver or thesis in the reply, make the name an inline markdown link to its `view_url` — e.g. `the **[<driver_name>](<view_url>)** driver contributes +0.5 on fundamentals`. The asset's own `view_url` goes at the end as `[View NVDA on the map](<url>)`.
+5. **Check desk membership before linking the asset.** Run `midaz desk view` (cache for the session) and look up NVDA in `bias_os.{active,armed,seeds}[].asset` (match by `asset_id` first, else case-insensitive name + `aliases[]`). When you name any contributing driver or thesis in the reply, make the name an inline markdown link to its `view_url` — e.g. `the **[<driver_name>](<view_url>)** driver contributes +0.5 on fundamentals`. Driver and thesis URLs always point at `/market-read` regardless of desk membership.
+   - **NVDA is on the desk** (`bias_os` hit): on first inline mention, render `**[NVDA](<desk meta.view_url>)** on your desk`; on subsequent mentions in the same reply, plain `**[NVDA](<desk meta.view_url>)**`. Close the reply with `[View NVDA on your desk](<desk meta.view_url>)` instead of `[View NVDA on the map](<url>)`.
+   - **NVDA is not on the desk** (or `desk view` is unavailable): render `**[NVDA](<asset view_url>)**` inline and `[View NVDA on the map](<asset view_url>)` at the close — exactly as before. Do not surface the desk gating to the user.
+   - Contribution URLs (`?contrib=<key>`) always stay on `/market-read` so the contribution panel context is preserved; only the standalone asset link flips.
+   - General rule lives at midaz-shared §Desk-aware asset URL exception (Common Rule 3).
 
 ### "Push my morning note to intel"
 
