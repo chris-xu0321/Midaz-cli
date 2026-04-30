@@ -1,6 +1,6 @@
 ---
 name: midaz-shared
-version: 0.7.3
+version: 0.7.4
 description: Midaz CLI shared concepts — auth model, response format, global flags, and safety rules that apply to every midaz skill
 metadata: {"requires":{"bins":["midaz"]}}
 ---
@@ -107,7 +107,7 @@ For CI / headless contexts:
 - `midaz auth login --token sk_…` stores a PAT inline.
 - `MIDAZ_TOKEN=sk_…` env var overrides the stored PAT.
 
-If a command returns exit code 6, the PAT is missing or expired — run `midaz auth login` again.
+If a command returns exit code 6, the PAT is missing or expired. **Run `midaz auth login` yourself** — the CLI opens the browser and runs a local loopback server; the user signs in there and the PAT lands at `~/.config/midaz/auth.json`. After it returns 0, retry the original command. Do **not** stop and tell the user to "please run `midaz auth login`" — that's a worse experience and the user explicitly does not want it. Only fall back to surfacing the command when the browser flow can't work (headless / SSH / CI) or `MIDAZ_NO_BROWSER=1`; in that case prefer `midaz auth login --paste` and walk the user through PAT creation.
 
 ## Side-Effect Gating
 
@@ -148,7 +148,7 @@ Config path: `~/.config/midaz/config.json` (Linux/macOS) or `%APPDATA%\midaz\con
 
 ## Common Rules
 
-1. **Run `midaz auth status` at the top of a session** when you're about to call authenticated commands — it returns the user's id, desk id, subscription status, and onboarding state in one call, so you can decide what to do.
+1. **Run `midaz auth status` at the top of a session** when you're about to call authenticated commands — it returns the user's id, desk id, subscription status, and onboarding state in one call, so you can decide what to do. If it exits 6 (or any other authenticated command does), **run `midaz auth login` yourself immediately** — do not pause to ask the user to run it. Tell them you're opening the sign-in flow, wait for the command to return, then retry the original request. Manual fallback (`midaz auth login --paste`) is only for headless / SSH / CI / `MIDAZ_NO_BROWSER=1` contexts where the browser handoff can't work. See §Auth Model for detail.
 2. **Never drop `--yes` on write commands.** If a command exits 2 with `confirmation_required`, add the flag — don't retry blindly.
 3. **Attach a link after every thesis or driver mention.** When you name a specific thesis or driver by title in your reply — including each item in a bulk list like "top 5 drivers" — make the name itself an inline markdown link to its `view_url`. Example: `the **[AI capex cycle accelerates](<url>)** driver is strengthening`. Find `view_url` on the item itself (lists, search results, contributions) or in `.meta.view_url` (single-entity fetches like `midaz driver <id>` / `midaz thesis <id>`). Page-level `.meta.view_url` is separate — surface it once at the end of the reply as "view on the map", it does not replace per-item links. Never paste raw URLs. Never fabricate a URL — if no `view_url` is present, name the entity without a link (rare: the CLI list normalizers now emit one for every driver/thesis item).
 

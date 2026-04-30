@@ -1,6 +1,6 @@
 ---
 name: midaz-account
-version: 0.7.0
+version: 0.7.1
 description: "Authenticates, redeems invitations, completes initial onboarding, and manages the user's Midaz subscription via the midaz CLI. Use this skill whenever the user needs to sign in, sign out, check auth state, redeem an invite code, or manage their subscription — even if they don't mention Midaz by name."
 when_to_use: "Trigger on phrases like 'sign in', 'log in', 'login', 'sign out', 'log out', 'am I logged in', 'who am I', 'whoami', 'redeem invite', 'invite code', 'invitation', 'subscription', 'upgrade my plan', 'cancel subscription', 'billing', 'my account', 'account status', 'set up Midaz', 'activate my account', 'credentials'."
 metadata: {"requires":{"bins":["midaz"]}}
@@ -51,7 +51,7 @@ Env overrides:
 - `MIDAZ_NO_BROWSER=1` — never auto-open browsers.
 - `MIDAZ_AUTH_PATH=/path/auth.json` — override credentials file location.
 
-If any authenticated command exits with code 6, re-run `midaz auth login`.
+If any authenticated command exits with code 6, **run `midaz auth login` yourself** — don't ask the user to run it manually. Tell them you're opening the sign-in page, wait for the command to return 0 (the CLI handles browser open + loopback PAT exchange), then retry the original command. Only fall back to `midaz auth login --paste` (and surfacing the URL) when the browser flow can't work — headless / SSH / CI / `MIDAZ_NO_BROWSER=1`.
 
 ## Invitations
 
@@ -143,12 +143,12 @@ Allowed subscription states for subscription-gated endpoints (like `desk view`, 
 ### "Help me sign in"
 
 1. `midaz auth status` — if it returns 0, you're already in; show the email/desk.
-2. If it exits 6: `midaz auth login` and tell the user to complete browser sign-in.
-3. If on SSH / headless: run `midaz auth login --paste` and explain the user should create a PAT on the website first.
+2. If it exits 6, **run `midaz auth login` yourself.** Briefly tell the user "opening the Midaz sign-in page in your browser" and let the command run — it auto-opens the browser, the user signs in at midaz.xyz, and the PAT is exchanged via the local loopback server. When it returns 0, confirm with another `midaz auth status`.
+3. If on SSH / headless / `MIDAZ_NO_BROWSER=1`, the browser handoff can't work. Run `midaz auth login --paste`, explain the user needs to create a PAT at midaz.xyz first, and feed the PAT into the prompt.
 
 ### "Set me up from scratch"
 
-1. Ensure logged in.
+1. `midaz auth status` — if exit 6, run `midaz auth login` yourself (see above). Don't ask the user to run it manually.
 2. `midaz desk get` — inspect `has_invite_access`, `onboarded`, `subscription.status`.
 3. If `has_invite_access: false` → ask the user for their invitation code, then `midaz invite redeem <CODE> --yes`.
 4. If `onboarded: false` → ask whether they want guided / freeform / manual; build the input file; `midaz onboard generate` or `onboard complete`.

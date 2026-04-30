@@ -1,6 +1,6 @@
 ---
 name: midaz-onboard
-version: 0.9.0
+version: 0.9.1
 description: "Runs the Midaz desk onboarding wizard — a short conversation that collects the trader's style, horizon, markets, focus areas, and language, then calls `midaz onboard generate` so the server synthesizes and publishes radar + playbook atomically. Same contract as the web onboarding page. Use this skill whenever the user wants to set up their Midaz desk, configure what Midaz monitors for them, or regenerate radar / playbook from fresh answers."
 when_to_use: "Trigger on phrases like '/midaz-onboard', 'onboard me', 'set up my desk', 'set up my radar', 'configure my radar from scratch', 'start fresh on Midaz', 'redo onboarding', 'reonboard', 'I want to rebuild my desk', 'describe my setup in my own words'."
 metadata: {"requires":{"bins":["midaz"]}}
@@ -260,8 +260,14 @@ If `yes`, move to **Persistence**.
 
 ## Persistence
 
-After confirmation, execute in order. The trader must be signed in
-(`midaz auth login`) or have `MIDAZ_TOKEN` set in their environment.
+After confirmation, execute in order. The trader must be signed in or
+have `MIDAZ_TOKEN` set. If `midaz auth status` exits 6, **run
+`midaz auth login` yourself** before continuing — don't pause to ask the
+trader to run it manually. The CLI auto-opens the browser; the trader
+signs in at midaz.xyz and the PAT lands at `~/.config/midaz/auth.json`.
+Headless / SSH / CI / `MIDAZ_NO_BROWSER=1` is the only context where you
+should fall back to surfacing `midaz auth login --paste` for the trader
+to run.
 
 1. `mkdir -p ~/Documents/midaz-profiles`
 2. Write the payload to `~/Documents/midaz-profiles/{name}-setup.json`
@@ -381,7 +387,8 @@ generated pair (same as the web's "redo onboarding" button).
 
 ## Degradation
 
-- **midaz unavailable / not signed in** → save `{name}-setup.json` locally, tell the trader exactly the command to run when they have auth: `midaz onboard generate --mode {mode} --from-file ~/Documents/midaz-profiles/{name}-setup.json --yes`
+- **Not signed in** → run `midaz auth login` yourself first; only fall back to surfacing the resume command (`midaz onboard generate --mode {mode} --from-file ~/Documents/midaz-profiles/{name}-setup.json --yes`) if the browser handoff isn't available (headless / SSH / CI / `MIDAZ_NO_BROWSER=1`). In every case, save `{name}-setup.json` locally first so the work isn't lost.
+- **midaz unavailable** (binary missing, network down) → save `{name}-setup.json` locally and surface the resume command above plus the underlying error.
 - **Trader exits mid-flow** → save partial answers under `{name}-setup.json` with a `status: "incomplete"` field; resume next time from the first unanswered step
 - **Trader rejects an answer the system chose** → respect it and re-ask; never override
 - **"Just set it up for me"** → apply the web's defaults: `trading_style=["discretionary"]`, `time_horizon=["swing"]`, `market_scope=["multi_asset"]`, `focus_areas=["Rates path","USD liquidity"]`, detect language from locale, empty notes

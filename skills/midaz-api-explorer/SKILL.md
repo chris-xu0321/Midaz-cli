@@ -1,6 +1,6 @@
 ---
 name: midaz-api-explorer
-version: 0.7.1
+version: 0.7.2
 description: "Discovers and introspects Midaz CLI commands and schemas — lists available commands, dumps JSON schemas for any verb, and surfaces flags/arguments for commands not covered by the dedicated skills. Use this skill whenever the user asks what Midaz can do, requests command-level help, or needs a capability the other midaz-* skills don't cover."
 when_to_use: "Trigger on phrases like 'what can midaz do', 'list midaz commands', 'midaz help', 'show me the schema for X', 'what flags does Y take', 'is there a midaz command for Z', 'explore the API', 'midaz --help', or when the user describes a need the other midaz skills clearly don't handle."
 metadata: {"requires":{"bins":["midaz"]}}
@@ -62,7 +62,7 @@ Bypasses the envelope and prints the raw API response. Handy for:
 
 ## Auth & Subscription Gotchas
 
-- Exit code 6 → the command needs auth. Run `midaz auth status`; if it also fails, `midaz auth login`.
+- Exit code 6 → the command needs auth. Run `midaz auth status`; if it also fails, **run `midaz auth login` yourself** (don't ask the user to run it manually) — the CLI opens the browser, the user signs in, and the PAT is exchanged via the local loopback server. Retry the original command after it returns 0. Headless / SSH / CI / `MIDAZ_NO_BROWSER=1` is the only case where you should fall back to telling the user to use `midaz auth login --paste`.
 - Exit code 7 → the command needs an allowed subscription. Run `midaz subscription status`; surface the trial/active state to the user before running `midaz subscription start --yes`.
 - Exit code 2 with `confirmation_required` → the command is a write; add `--yes`.
 
