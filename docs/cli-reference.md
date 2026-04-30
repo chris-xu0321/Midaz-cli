@@ -103,7 +103,7 @@ midaz snapshot                  # Latest global regime snapshot
 ```bash
 midaz desk get                  # Desk summary (name, shared, subscription, onboarded)
 midaz desk settings             # Owner-only: radar, playbook, telegram (GET /api/desk/settings)
-midaz desk view                 # Personal market read (GET /api/desk/view, subscription-gated)
+midaz desk view                 # Personal market read (GET /api/desks/<own-slug>/read, subscription-gated)
 midaz desk share --on --yes     # Toggle public sharing
 midaz desk regenerate --yes     # Rebuild personal desk only (fast)
 midaz desk reonboard  --yes     # Resubmit current radar + playbook to trigger a rebuild

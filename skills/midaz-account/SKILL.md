@@ -114,7 +114,7 @@ midaz onboard status   # reads `onboarded` from GET /api/desk
 
 ## Subscription (Stripe)
 
-Midaz Prime is $39/mo with a 14-day trial. Subscription status is on the desk:
+Midaz Prime is currently in beta at $9.99/mo (launch price will be $49/mo); a 14-day trial is available. Stripe Checkout shows the live price — never quote a hardcoded number that you remember from elsewhere; surface what `midaz subscription start` returns or send the user to Checkout. Subscription status is on the desk:
 
 ```
 midaz subscription status   # reads subscription object from GET /api/desk

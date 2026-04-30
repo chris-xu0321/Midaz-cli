@@ -87,7 +87,7 @@ var Commands = []CommandDef{
 		Name:        "desk",
 		Description: "Manage your desk: radar, playbook, preferences, sharing, Telegram",
 		Endpoints: []string{
-			"GET /api/desk", "GET /api/desk/settings", "GET /api/desk/view",
+			"GET /api/desk", "GET /api/desk/settings", "GET /api/desks/{slug}/read",
 			"PATCH /api/desk*", "PATCH /api/desk/preferences",
 			"DELETE /api/desk/telegram",
 			"POST /api/desk/radar/pin", "DELETE /api/desk/radar/pin", "GET /api/desk/radar/pins",

@@ -9,18 +9,97 @@ metadata: {"requires":{"bins":["midaz"]}}
 # Midaz Desk
 
 > Read [midaz-shared](../midaz-shared/SKILL.md) for auth/envelope basics and [midaz-account](../midaz-account/SKILL.md) for signin/onboarding.
+>
+> Treat `midaz` as the only source of market data (see midaz-shared §Source of Truth) and treat field names as agent-facing only (see midaz-shared §Presentation Rules — never echo raw field paths to the user).
 
-Everything a signed-in user can do inside their desk at `/desk/view` and `/desk/settings`, exposed as CLI commands. All write commands require `--yes`.
+Everything a signed-in user can do inside their desk at `/desk` and `/desk/settings`, exposed as CLI commands. All write commands require `--yes`.
 
 ## Desk Read Commands
 
 ```
 midaz desk get          # Summary (name, shared flag, subscription, has_invite_access, onboarded)
-midaz desk settings     # Owner-only: radar, playbook, telegram status  (GET /api/desk/settings)
-midaz desk view         # Personal market read — subscription-gated     (GET /api/desk/view)
+midaz desk settings     # Owner-only: radar, playbook, telegram status   (GET /api/desk/settings)
+midaz desk view         # Personal market read — subscription-gated      (GET /api/desks/<own-slug>/read)
 ```
 
-`desk get` is the cheapest way to inspect state at the start of a session.
+`desk get` is the cheapest way to inspect state at the start of a session. `desk view` returns the **PersonalViewModel** (with `delta_packet` for owners and members) — see §Reading the desk view below.
+
+## Reading the desk view (agent-facing field map)
+
+> Field names below tell *you* how to parse the response — never echo them to the user (see midaz-shared §Presentation Rules). Translate to natural prose, group by decision verbs, and link assets to their `view_url`.
+
+`midaz desk view` returns a **PersonalViewModel**:
+
+```
+meta            desk_id, refresh_id, generated_at, mode, quiet
+delta           summary, items[], overflow_count             ← what changed since last refresh
+horizon         window ("next_7d"), items[]                  ← upcoming catalysts on radar
+market_read     posture, key_themes, risk_notes, private_overrides
+bias_os         active[], armed[], seeds[]                   ← BiasCards by lifecycle
+watchlist       [{ ticker, source, note }]
+radar_coverage  tracked_assets, untracked_radar_items, tracked_themes
+```
+
+### BiasCard
+
+Each entry in `bias_os.active[]` / `armed[]` / `seeds[]` is a **BiasCard**. Read these fields, present as prose:
+
+- Identity: `bias_id`, `asset`, `direction` (long|short), `state` (active|armed|seed)
+- Conviction layer: `conviction` (high|medium|low), `cognition_state` (reinforcing|holding|weakening|under_pressure|broken)
+- Trader-prose: `summary`, `why_now`, `break_condition`, `next_catalysts`, `private_edge`
+- Axis scores — three flavors, all on **-5 (max bearish) to +5 (max bullish)** across `fund` / `macro` / `flows`:
+  - `axis_scores` — pipeline output (objective)
+  - `axis_scores_my_lens` — playbook-adjusted (the user's own lens) — **prefer this when summarizing**
+  - `axis_scores_full` — intel-adjusted (incorporates private notes)
+- Drivers/signals: `top_support_drivers[]`, `top_risk_drivers[]`, `top_support_signals[]`, `top_risk_signals[]`
+- Provenance: `source_thread_ids[]`, `source_intel_ids[]`, `personal_intel_refs[]`
+- Event history: `last_change` (single most recent), `bias_event_history[]` — `before_scores` / `after_scores` let you describe trajectory
+- Lifecycle / momentum: `transition` (new|held|promoted|demoted), `change_type` (new_emergence|escalation|shift|fading), `intensity` (1-5), `momentum_state`, `trader_action`
+
+### BiasBoard organization (mirror the UI)
+
+The web UI groups BiasCards by `trader_action` into five decision verbs: **Trim/Exit**, **Add**, **Promote**, **Watch**, **Hold**. When summarizing a desk view, mirror this grouping — never dump cards in raw JSON order.
+
+Order the reply:
+
+1. **Trim/Exit** + **Add** (action items) from `bias_os.active`
+2. **Promote** (escalation candidates)
+3. **Watch** (typically `bias_os.armed`)
+4. **Hold** (steady-state)
+
+For each card, surface `direction` + `conviction`, the `axis_scores_my_lens` lean translated into prose, `why_now`, and `break_condition`. Link the asset name to its `view_url`.
+
+### DeltaPacket (`delta_packet`, members only)
+
+When the user is an owner or a member of a shared desk, the response carries `delta_packet`:
+
+```
+refresh_id, previous_refresh_id, verdict_changed, old_stance, new_stance, gate_reason
+notify, matched_radar_items
+changed_drivers[]   name, change (new|strengthened|weakened|resolved), bias, assets
+changed_threads[]   thread_id, title, change, new_bias, assets, one_liner
+affected_assets[], summary
+```
+
+When the user asks "what's new on my desk", lead with the `summary` line, then walk `changed_drivers` + `changed_threads` grouped by `change`. Mention `matched_radar_items` so the user knows *why* this surfaced. Don't echo the field names.
+
+### Example output (user-facing — copy this style)
+
+> Since last refresh, two things shifted:
+>
+> - The Fed-pivot driver strengthened — that lifted **GLD** and **TLT** on your watchlist.
+> - The AI-capex thesis weakened slightly — flows rolled negative.
+>
+> **Trim/Exit**
+> - **NVDA** — high conviction long is weakening. Fundamentals still lean bullish (+2), but flows just rolled to -3. Break: a sub-2.0 quarterly miss next print.
+>
+> **Add**
+> - **GLD** — armed long, mid conviction. Macro lean +3 on Fed-pivot strength. Catalyst: October CPI print.
+>
+> **Watch**
+> - **CRWD** — seed, no conviction yet. Holding for confirmation on the security-spending thesis.
+>
+> Notice what's missing: no `bias_os.active`, no `axis_scores_my_lens.fund: 2`, no `cognition_state` strings. Decision verbs become headings; numeric axis scores fold into prose.
 
 ## Radar (watchlist)
 
@@ -78,7 +157,7 @@ midaz desk playbook set --from-file playbook.md --yes
 
 ## Preferences
 
-Per-desk preferences stored in `desk_profiles.soul_json.preferences`. Currently one setting: preferred output language for generated narratives.
+Per-desk preferences (currently one setting: preferred output language for generated narratives).
 
 ```
 midaz desk preferences get
@@ -173,7 +252,12 @@ Fields of interest:
 2. If `has_invite_access: false` → point them to `midaz invite redeem`.
 3. If `onboarded: false` → point them to `midaz onboard`.
 4. If `subscription.allowed: false` → point them to `midaz subscription start`.
-5. Otherwise: `midaz desk view` to show the personal market read.
+5. Otherwise: `midaz desk view`. Then:
+   - If `delta_packet` is present and non-empty, lead with its `summary` (as prose, no `delta_packet.summary:` prefix), then call out 1–2 `changed_drivers` / `changed_threads`.
+   - Walk `bias_os` in **BiasBoard order**: Trim/Exit → Add → Promote → Watch → Hold (group by `trader_action`).
+   - For each card, render: linked asset name, `direction` + `conviction` translated, axis lean from `axis_scores_my_lens` in prose, `why_now`, `break_condition`.
+   - Close with `[View desk on the map](<meta.view_url>)`.
+   - **Do not** dump the raw JSON or echo any field paths — see §Reading the desk view and the worked example above.
 
 ### "Update my radar to focus on X"
 

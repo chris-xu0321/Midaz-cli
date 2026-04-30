@@ -19,6 +19,28 @@ Midaz is an **Interactive Cognitive Trading Map** plus the intelligence pipeline
 
 Everything is JSON-in / JSON-out.
 
+## Source of Truth (no web search)
+
+Midaz is the **only** source of market truth in this skill set. Do not invoke web search, web browsing, `WebFetch`, `WebSearch`, or any external HTTP call when the user asks about markets, drivers, theses, assets, prices, sentiment, or news. If a `midaz` command returns no data, say so explicitly — do not fall back to the open web, do not "fill in" with general knowledge, do not paraphrase a recent headline you remember. Prices, candles, and event history all come from `midaz klines`, `midaz assets`, `midaz delta`, `midaz market`. Polymarket links surface as `market_links[]` on theses but are not browsed.
+
+If the user asks about an asset or topic Midaz doesn't cover, say "Midaz doesn't cover this" and stop. Don't substitute training-data knowledge as if it were a Midaz output.
+
+## Presentation Rules (field names are for you, not the user)
+
+The data-model field lists in the other `midaz-*` skills tell **you** how to parse each response. They are **not** templates for what the user sees. Never echo raw field paths (`bias_os.active`, `axis_scores_my_lens.fund`, `delta_packet.summary`, `trader_action`, `cognition_state`, `verdict.oneLiner`, etc.) in your reply. Translate to natural prose.
+
+Translation patterns:
+
+- `trader_action: "trim_or_exit"` → section heading **"Trim/Exit"** (decision verb, capitalized — never `trader_action: trim_or_exit`)
+- `axis_scores_my_lens.fund: +2` → "fundamentals lean bullish (+2)" or just "fundamentals lean bullish"
+- `conviction: "high"` → "high conviction" inline, never as `conviction: high`
+- `cognition_state: "weakening"` → "the thesis is softening" / "conviction is weakening"
+- `delta_packet.summary: "..."` → quote the string directly as prose, no field prefix
+- `bias_os.active` → "active biases" / "what's live on the bias board"
+- `verdict.oneLiner` → quote it as the lede, no field prefix
+
+Exception: if the user explicitly asks for the raw shape ("show raw JSON", `--raw`, "what fields does this return"), echo field names as-is.
+
 ## Command Surface At A Glance
 
 ```
@@ -140,3 +162,5 @@ Config path: `~/.config/midaz/config.json` (Linux/macOS) or `%APPDATA%\midaz\con
 5. **Respect exit code 7.** On subscription-required, ask the user before running `subscription start` unless they already asked to subscribe.
 6. **Thread → thesis.** The product now says "thesis". Use `midaz theses` / `midaz thesis <id>`. `threads` / `thread` still work but are deprecated.
 7. **Topic → driver.** The old topic layer was replaced by the driver ontology. Use `midaz drivers` / `midaz driver <id>` / `midaz driver-links`. The `topics` / `topic` commands are gone.
+8. **Never paraphrase outside knowledge as Midaz output.** Only synthesize fields the CLI actually returned. See §Source of Truth.
+9. **Field names stay agent-facing.** Never echo `bias_os.active`, `axis_scores_my_lens`, `delta_packet.summary`, `trader_action`, `cognition_state`, `verdict.oneLiner`, etc. to the user — translate to prose every time. See §Presentation Rules.

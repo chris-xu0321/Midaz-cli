@@ -21,7 +21,7 @@ documents.
 ## Constraints
 
 - Never make trading decisions — only collect the trader's setup preferences
-- All market data must come from `midaz` — never fabricate radar or playbook bullets
+- **Never web-search, web-browse, or fabricate radar/playbook content.** The server LLM does the writing — your job is only to collect the trader's preferences and call `midaz onboard generate`. Do not pre-populate `focus_areas` from headlines you remember.
 - Enum values and limits below are authoritative — do not invent new options or exceed maximums (server-side Zod will reject them)
 - Always confirm answers before submitting — revise if the trader disagrees
 - Watching ≠ conviction — radar is an information net, not a position sheet
@@ -300,11 +300,10 @@ After confirmation, execute in order. The trader must be signed in
      --yes
    ```
 
-   This is **atomic**: the server runs the LLM, writes `radar_md` and
-   `playbook_md` to `desk_profiles`, sets `onboarding_completed_at`, and
-   enqueues one L4 synthesis run with `reason=onboard`. Do **not** follow
-   it with `midaz onboard complete` — that is a separate workflow for
-   submitting pre-written markdown.
+   This is **atomic**: the server runs the LLM, writes the radar and
+   playbook to the trader's desk, marks onboarding complete, and enqueues
+   a refresh. Do **not** follow it with `midaz onboard complete` — that is
+   a separate workflow for submitting pre-written markdown.
 
 4. Parse the response envelope's `data` object. It contains:
 
