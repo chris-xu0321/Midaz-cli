@@ -4,8 +4,9 @@ Query CLI for the [Midaz](https://www.midaz.xyz) Interactive Cognitive Trading M
 
 ## Why `midaz`?
 
-- **Structured market intelligence** — drivers, theses, claims, snapshots, assets, klines, and global regime verdicts
-- **Agent-native** — 5 skills bundled in the binary, installed on demand via `midaz skills install`
+- **Structured market intelligence** — drivers, theses, claims, snapshots, assets, klines, options context, and global regime verdicts
+- **Full desk control** — positions (DB-owned trader stances), tracked-asset monitoring scope, radar, playbook, preferences, sharing, Telegram alerts, private intel
+- **Agent-native** — 6 skills bundled in the binary, installed on demand via `midaz skills install`
 - **JSON envelope output** — machine-readable responses with `view_url` links, exit codes, and error hints
 - **Single binary** — Go, cross-platform, zero runtime dependencies
 
@@ -84,15 +85,21 @@ Targets: `auto` (detected, default), `claude`, `codex`, `all`, or `--skill-dir <
 ### Human users
 
 ```bash
-midaz search "AI regulation"   # Fuzzy search drivers, theses, assets
-midaz market                   # Global regime + drivers + thesis memberships
-midaz drivers                  # All active drivers (world-layer)
-midaz driver <id>              # Driver detail + thread members + asset contributions
-midaz thesis <id>              # Thesis detail + claims + market links
-midaz snapshot                 # Latest global regime snapshot
-midaz auth login               # Sign in
-midaz onboard                  # Complete desk onboarding
-midaz desk                     # Manage radar, playbook, preferences, sharing, Telegram
+midaz search "AI regulation"                   # Fuzzy search drivers, theses, assets
+midaz market                                   # Global regime + scope=market drivers
+midaz drivers                                  # All active drivers (market + specific scope)
+midaz driver <id>                              # Driver detail + thread members + asset contributions
+midaz thesis <id>                              # Thesis detail + claims + market links
+midaz snapshot                                 # Latest global regime snapshot
+midaz auth login                               # Sign in
+midaz onboard                                  # Complete desk onboarding
+midaz desk view                                # Personal desk (positions + monitored assets)
+midaz desk position open --asset NVDA \
+       --direction long --thesis "..." --yes   # Open a trader position
+midaz desk tracked-assets set \
+       --items "NVDA,GLD,US10Y" --yes          # Set L4 monitoring scope
+midaz assets options NVDA                      # IV term structure / skew / top OI
+midaz assistant events                         # Recent Gate-A notifications
 ```
 
 All commands return JSON envelopes. Use `--format pretty` for indented output or `--raw` for the raw API response.
@@ -114,7 +121,7 @@ Inside Claude Code or Codex, the skills self-register under `~/.claude/skills` o
 | `midaz-shared` | Shared concepts — auth model, response format, global flags, safety rules |
 | `midaz-market` | Search, browse, and analyze drivers, theses, claims, assets, klines, deltas, and regime |
 | `midaz-account` | Authenticate, redeem invitations, complete onboarding, and manage subscription |
-| `midaz-desk` | Manage radar, playbook, sharing, Telegram alerts, private intel, asset tracking |
+| `midaz-desk` | Manage positions, monitored assets (tracked-assets scope), radar, playbook, sharing, Telegram alerts, private intel |
 | `midaz-onboard` | Interactive 5-round trader onboarding ritual — produces profile + radar + playbook, syncs to the desk |
 | `midaz-api-explorer` | Discover commands via schema introspection — fallback when other skills don't fit |
 

@@ -4,6 +4,7 @@ package registry
 
 import (
 	"github.com/SparkssL/Midaz-cli/internal/cmd/assets"
+	"github.com/SparkssL/Midaz-cli/internal/cmd/assistant"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/auth"
 	"github.com/SparkssL/Midaz-cli/internal/cmd/claims"
 	cmdconfig "github.com/SparkssL/Midaz-cli/internal/cmd/config"
@@ -85,14 +86,17 @@ var Commands = []CommandDef{
 	// --- Desk -----------------------------------------------------------------
 	{
 		Name:        "desk",
-		Description: "Manage your desk: radar, playbook, preferences, sharing, Telegram",
+		Description: "Manage your desk: radar, playbook, preferences, sharing, Telegram, positions, tracked-assets",
 		Endpoints: []string{
 			"GET /api/desk", "GET /api/desk/settings", "GET /api/desks/{slug}/read",
-			"PATCH /api/desk*", "PATCH /api/desk/preferences",
-			"DELETE /api/desk/telegram",
+			"PATCH /api/desk*", "PATCH /api/desk/preferences", "PATCH /api/desk/tracked-assets",
+			"POST /api/desk/telegram/link-token", "DELETE /api/desk/telegram",
 			"POST /api/desk/radar/pin", "DELETE /api/desk/radar/pin", "GET /api/desk/radar/pins",
 			"POST /api/desk/personal-desk/regenerate", "POST /api/desk/refresh",
 			"POST /api/desk/onboard",
+			"POST /api/desks/{slug}/positions",
+			"PATCH /api/desks/{slug}/positions/{id}",
+			"POST /api/desks/{slug}/positions/{id}/close",
 		},
 		NewCmd: desk.NewCmdDesk,
 	},
@@ -165,9 +169,13 @@ var Commands = []CommandDef{
 	},
 	{
 		Name:        "assets",
-		Description: "List and inspect assets (bias, contributions, timeline)",
-		Endpoints:   []string{"GET /api/assets", "GET /api/assets/{id}", "GET /api/assets/{id}/timeline"},
-		NewCmd:      assets.NewCmdAssets,
+		Description: "List and inspect assets (bias, contributions, timeline, options)",
+		Endpoints: []string{
+			"GET /api/assets", "GET /api/assets/{id}",
+			"GET /api/assets/{id}/timeline",
+			"GET /api/assets/{id}/options-context",
+		},
+		NewCmd: assets.NewCmdAssets,
 	},
 	{
 		Name:        "klines",
@@ -205,10 +213,17 @@ var Commands = []CommandDef{
 	},
 	{
 		Name:        "usage",
-		Description: "Token usage and cost summary",
+		Description: "Token usage and cost summary (pipeline + assistant)",
 		Flags:       []FlagDef{{Name: "since"}},
 		Endpoints:   []string{"GET /api/usage", "GET /api/usage/by-run/{run_id}"},
 		NewCmd:      usage.NewCmdUsage,
+	},
+	{
+		Name:        "assistant",
+		Description: "Desk assistant events feed",
+		Flags:       []FlagDef{{Name: "after"}, {Name: "limit"}},
+		Endpoints:   []string{"GET /api/assistant/events"},
+		NewCmd:      assistant.NewCmdAssistant,
 	},
 	{
 		Name:        "decisions",

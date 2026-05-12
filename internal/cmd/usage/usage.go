@@ -1,6 +1,7 @@
 package usage
 
 import (
+	"encoding/json"
 	"net/url"
 
 	"github.com/SparkssL/Midaz-cli/internal/cmdutil"
@@ -67,6 +68,23 @@ func normalizeUsage(body []byte) (any, map[string]any, error) {
 	sinceVal := cmdutil.UnmarshalString(rawMap["since"])
 	totalCalls := cmdutil.UnmarshalInt(rawMap["total_calls"])
 
+	// Assistant usage is a sibling totals block alongside pipeline `by_stage`.
+	// Surface its top-line cost + call count in meta so a pretty-print line
+	// distinguishes desk-assistant spend from pipeline spend at a glance.
+	var assistantCalls int
+	var assistantCost float64
+	if raw, ok := rawMap["assistant"]; ok {
+		var nested struct {
+			Total struct {
+				CallCount    int     `json:"call_count"`
+				TotalCostUSD float64 `json:"total_cost_usd"`
+			} `json:"total"`
+		}
+		_ = json.Unmarshal(raw, &nested)
+		assistantCalls = nested.Total.CallCount
+		assistantCost = nested.Total.TotalCostUSD
+	}
+
 	data, err := cmdutil.RebuildMap(rawMap)
 	if err != nil {
 		return nil, nil, err
@@ -80,6 +98,10 @@ func normalizeUsage(body []byte) (any, map[string]any, error) {
 	}
 	if sinceVal != "" {
 		meta["since"] = sinceVal
+	}
+	if assistantCalls > 0 || assistantCost > 0 {
+		meta["assistant_calls"] = assistantCalls
+		meta["assistant_cost_usd"] = assistantCost
 	}
 
 	return data, meta, nil

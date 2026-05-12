@@ -1,6 +1,6 @@
 ---
 name: midaz-account
-version: 0.7.1
+version: 0.7.2
 description: "Authenticates, redeems invitations, completes initial onboarding, and manages the user's Midaz subscription via the midaz CLI. Use this skill whenever the user needs to sign in, sign out, check auth state, redeem an invite code, or manage their subscription — even if they don't mention Midaz by name."
 when_to_use: "Trigger on phrases like 'sign in', 'log in', 'login', 'sign out', 'log out', 'am I logged in', 'who am I', 'whoami', 'redeem invite', 'invite code', 'invitation', 'subscription', 'upgrade my plan', 'cancel subscription', 'billing', 'my account', 'account status', 'set up Midaz', 'activate my account', 'credentials'."
 metadata: {"requires":{"bins":["midaz"]}}
@@ -26,6 +26,8 @@ A fresh user goes through these steps in order. Run `midaz auth status` first if
 ```
 
 Use `midaz desk get` after each step to verify the state you expect.
+
+`midaz desk settings` additionally returns an `asset_universe[]` (each item: `asset_id`, `name`, `aliases[]`). It's the authoritative list of asset ids the L4 pipeline accepts — use it to validate before calling `midaz desk tracked-assets set/add/remove` so you don't have to handle the 400 invalid-asset path.
 
 ## Authentication
 

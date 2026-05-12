@@ -1,6 +1,6 @@
 ---
 name: midaz-onboard
-version: 0.9.1
+version: 0.9.2
 description: "Runs the Midaz desk onboarding wizard — a short conversation that collects the trader's style, horizon, markets, focus areas, and language, then calls `midaz onboard generate` so the server synthesizes and publishes radar + playbook atomically. Same contract as the web onboarding page. Use this skill whenever the user wants to set up their Midaz desk, configure what Midaz monitors for them, or regenerate radar / playbook from fresh answers."
 when_to_use: "Trigger on phrases like '/midaz-onboard', 'onboard me', 'set up my desk', 'set up my radar', 'configure my radar from scratch', 'start fresh on Midaz', 'redo onboarding', 'reonboard', 'I want to rebuild my desk', 'describe my setup in my own words'."
 metadata: {"requires":{"bins":["midaz"]}}
@@ -367,6 +367,15 @@ midaz desk playbook set --from-file ~/Documents/midaz-profiles/{name}-playbook.m
 
 Individual radar line edits can use `midaz desk radar add / remove` instead
 of rewriting the file — see the desk skill.
+
+```bash
+# Adjust the tracked-assets list (the L4 monitoring scope) — distinct
+# from the radar. Onboarding seeds tracked_asset_ids server-side, but
+# post-onboard edits go through these verbs, not `radar set`.
+midaz desk tracked-assets set --items "NVDA,GLD,US10Y" --yes
+midaz desk tracked-assets add --items "AMD,QQQ" --yes
+midaz desk tracked-assets remove --items "TLT" --yes
+```
 
 ### Full regenerate
 

@@ -1,8 +1,8 @@
 ---
 name: midaz-market
-version: 0.7.4
-description: "Searches, browses, and analyzes market intelligence on the Midaz desk — drivers, theses, claims, assets, klines (price history), deltas (regime shifts), and live market regime — via the midaz CLI. Use this skill whenever the user asks about the market, specific assets (BTC, ETH, stocks, etc.), what's driving price, bull/bear cases, latest events, thesis claims, or price action — even if they don't mention Midaz by name."
-when_to_use: "Trigger on phrases like 'how's the market', 'what's driving X', 'analyze [asset]', 'top drivers', 'bull case for Y', 'bear case', 'market regime', 'what happened with [asset]', 'latest events', 'price history', 'klines', 'theses on X', 'claims supporting Y', 'deltas', 'regime shift', 'search drivers', 'browse theses'. Also trigger on any asset ticker followed by a question (e.g. 'BTC thoughts?', 'SOL outlook')."
+version: 0.8.0
+description: "Searches, browses, and analyzes market intelligence on the Midaz desk — drivers, theses, claims, assets, klines (price history), deltas (regime shifts), options context, and live market regime — via the midaz CLI. Use this skill whenever the user asks about the market, specific assets (BTC, ETH, stocks, etc.), what's driving price, bull/bear cases, latest events, options-market context, thesis claims, or price action — even if they don't mention Midaz by name."
+when_to_use: "Trigger on phrases like 'how's the market', 'what's driving X', 'analyze [asset]', 'top drivers', 'bull case for Y', 'bear case', 'market regime', 'what happened with [asset]', 'latest events', 'price history', 'klines', 'options', 'IV', 'skew', 'theses on X', 'claims supporting Y', 'deltas', 'regime shift', 'search drivers', 'browse theses'. Also trigger on any asset ticker followed by a question (e.g. 'BTC thoughts?', 'SOL outlook')."
 metadata: {"requires":{"bins":["midaz"]}}
 ---
 
@@ -52,9 +52,11 @@ midaz sources --tier 1              # Tier-1 only
 midaz assets list                    # All assets with bias + contribution counts
 midaz assets list --tier 1           # Filter by tier
 midaz assets list --bias bullish     # Filter by bias
-midaz assets get ASSET_ID            # Asset detail + driver contributions
+midaz assets get ASSET_ID            # Asset detail + driver/signal contributions
 midaz assets timeline ASSET_ID       # Event timeline for one asset
 midaz assets timeline ASSET_ID --limit 50
+midaz assets options ASSET_ID        # Options surface (IV, skew, term structure, top OI)
+midaz assets options ASSET_ID --max-days 30
 ```
 
 ### Klines (price history)
@@ -96,6 +98,7 @@ midaz health                         # API health
 | Sector deep-dive | `midaz search "KEYWORDS"` → `midaz driver ID` |
 | Specific thesis | `midaz search "KEYWORDS"` → `midaz thesis ID` |
 | Analyze an asset | `midaz assets get TICKER` + `midaz assets timeline TICKER` |
+| Options / vol / skew | `midaz assets options TICKER` |
 | Price history | `midaz klines TICKER` |
 | Driver graph | `midaz driver-links` |
 | Latest events | `midaz delta --hours 24` or `midaz claims` |
@@ -124,11 +127,15 @@ Click destinations (be accurate when describing links):
 > Agent-facing field map. The names below tell *you* how to parse each response — never echo them to the user (see midaz-shared §Presentation Rules). Translate to natural prose, mirror the UI organization (next section), and link drivers/theses/assets to their `view_url`.
 
 **Drivers**
-- `id`, `name`, `summary`, `driver_kind`, `lifecycle`
+- `id`, `name`, `summary`, `lifecycle`
+- `scope` — `"market"` (universe-wide force) or `"specific"` (per-asset). Canonical replacement for the old `driver_kind`; older clients still see `driver_kind` as an alias on `/api/drivers` and `/api/drivers/:id` but new code should read `scope`.
+- `base_case_thesis` — derived server-side from `mechanism_explanation` (with `summary` as fallback). The legacy `pricing_state` field is now always empty.
 - `driver_delta` — recent activity score
 - `candidate_assets[]` — assets the driver projects onto
 - `thread_count` — theses that reference this driver
 - `view_url`
+
+`/api/market` (i.e. `midaz market`) returns **scope=market drivers only** — universe-wide forces. Per-asset / scope=specific drivers no longer appear there; for those use `midaz drivers` (full list) or `midaz assets get <id>` (per-asset contribution panel).
 
 **Market (composite — `midaz market` returns a GlobalMarketViewModel)**
 - `meta` — `snapshotId`, `version`, `createdAt`, `regimeSummary` (one-line regime)
@@ -154,16 +161,26 @@ Click destinations (be accurate when describing links):
 
 **Assets**
 - `asset_id`, `name`, `aliases[]`, `asset_class`, `tier`
-- `bias.{direction,axis_state,resonance_n}`
-- `driver_contributions[]` — per-driver `role` + axis votes on **fund / macro / flows**, each on **-5 (max bearish) to +5 (max bullish)** + `why`
+- `bias.{direction,axis_state,resonance_n}`, `dominant_horizon` (`short|medium|long|null`), `horizon_mix` (`pure|mixed`)
+- `contributions[]` — unified driver + signal list. Each row carries `source_type` (`driver|signal`), `source_key`, `role` (`primary|secondary|context|ignore`), `direction` (`bullish|bearish|neutral`), axis votes on **fund / macro / flows** (each on **-5..+5**), `why`, and `horizon_bucket` (`short|medium|long|null`). Signal rows additionally carry `confidence` (0..1) and a `signal_*` provenance block.
 - `view_url`
 
 **Asset timeline**
 - List of events (claims, deltas, signal changes) for an asset, newest first.
 
+**Asset options (`midaz assets options`)**
+- `provider`, `recency`, `realtime`, `coverage_note`, `underlying_price`, `contract_count`, `expiration_count`, `proxy_for`
+- `tenors[]` — `{target_days, expiration, dte, atm_iv, call_atm_iv, put_atm_iv}` at 7/30/60d
+- `term_structure` — `{state: "front_loaded|normal|back_loaded|unavailable", front_atm_iv, mid_atm_iv, spread}`
+- `skew` — `{state: "downside_hedge_expensive|upside_calls_expensive|balanced|unavailable", put_90_iv, call_110_iv, put_call_skew}`
+- `positioning` — `{put_call_open_interest_ratio, put_call_volume_ratio, max_call_oi_strike, max_put_oi_strike, gamma_oi_peak_strike, top_oi_strikes[]}`
+- `flow` — `{most_active_contract, highest_volume_oi_contract}`
+- `surface.points[]` — DTE × moneyness × IV scatter (with delta/gamma/theta/vega per contract)
+- `summary` — one-line text summary
+
 **Klines**
 - List: `{ assets: [{ asset_id, driver_count, net_score }] }`
-- Detail: `{ history: [...], latest: {...} }`
+- Detail: `{ history: [...], latest: {...} }`. Each `contribution_baseline.entries[]` row carries `source_type`, `source_key`, `role`, `direction`, `raw`/`effective` axis vectors, `confidence`, `horizon_bucket` (new), and `why`. The legacy `gravity_tier` / `gravity_delta` fields have been removed; weight is now a function of `role` × `confidence` (for signals) only.
 
 **Delta**
 - Returns canonical JSONB — new claims grouped by thesis and driver.
@@ -182,7 +199,7 @@ The web at `/market-read` has two tabs that shape how to present results:
   4. Mention `verdict.risks[]` if any are flagged.
   5. End with `[View market on the map](<meta.view_url>)`.
 
-- **Assets tab** (asset fan + list rail) — when the user drills into an asset, lead with `bias.direction` + `bias.axis_state` translated to prose, then list `driver_contributions` sorted by absolute axis-vote magnitude. For each contribution, render: linked driver name, `role`, the dominant axis (fund/macro/flows + signed score), and `why` in one sentence. Before linking the asset name itself, consult `midaz desk view` — if the asset is in the user's `bias_os`, the link routes to the desk page with `… on your desk` text (see midaz-shared §Desk-aware asset URL exception).
+- **Assets tab** (asset fan + list rail) — when the user drills into an asset, lead with `bias.direction` + `bias.axis_state` translated to prose, then list `contributions` sorted by absolute axis-vote magnitude. For each contribution, render: linked driver/signal name, `role`, the dominant axis (fund/macro/flows + signed score), `horizon_bucket` if set, and `why` in one sentence. Before linking the asset name itself, consult `midaz desk view` — if the asset is in `positions[]` or `monitored_assets[]`, the link routes to the desk page with `… on your desk` text (see midaz-shared §Desk-aware asset URL exception).
 
 Mirror these structures rather than dumping a flat list of drivers or a JSON object.
 

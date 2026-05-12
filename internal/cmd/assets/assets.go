@@ -15,5 +15,6 @@ func NewCmdAssets(f *cmdutil.Factory) *cobra.Command {
 	cmd.AddCommand(newCmdList(f))
 	cmd.AddCommand(newCmdGet(f))
 	cmd.AddCommand(newCmdTimeline(f))
+	cmd.AddCommand(newCmdOptions(f))
 	return cmd
 }

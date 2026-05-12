@@ -1,6 +1,6 @@
 ---
 name: midaz-shared
-version: 0.7.5
+version: 0.8.0
 description: Midaz CLI shared concepts — auth model, response format, global flags, and safety rules that apply to every midaz skill
 metadata: {"requires":{"bins":["midaz"]}}
 ---
@@ -27,16 +27,16 @@ If the user asks about an asset or topic Midaz doesn't cover, say "Midaz doesn't
 
 ## Presentation Rules (field names are for you, not the user)
 
-The data-model field lists in the other `midaz-*` skills tell **you** how to parse each response. They are **not** templates for what the user sees. Never echo raw field paths (`bias_os.active`, `axis_scores_my_lens.fund`, `delta_packet.summary`, `trader_action`, `cognition_state`, `verdict.oneLiner`, etc.) in your reply. Translate to natural prose.
+The data-model field lists in the other `midaz-*` skills tell **you** how to parse each response. They are **not** templates for what the user sees. Never echo raw field paths (`positions[].axis_scores`, `monitored_assets[].current_read`, `position_health`, `attention_level`, `delta_packet.summary`, `axis_scores_my_lens.fund`, `verdict.oneLiner`, etc.) in your reply. Translate to natural prose.
 
 Translation patterns:
 
-- `trader_action: "trim_or_exit"` → section heading **"Trim/Exit"** (decision verb, capitalized — never `trader_action: trim_or_exit`)
+- `position_health: "under_pressure"` → section heading **"Under pressure"** (state verb, capitalized — never `position_health: under_pressure`)
+- `attention_level: "high"` → "high attention" / put the asset at the top of a Monitoring list, never `attention_level: high`
+- `current_read: "bearish"` → "leaning bearish" / "the read is bearish", never `current_read: bearish`
 - `axis_scores_my_lens.fund: +2` → "fundamentals lean bullish (+2)" or just "fundamentals lean bullish"
-- `conviction: "high"` → "high conviction" inline, never as `conviction: high`
-- `cognition_state: "weakening"` → "the thesis is softening" / "conviction is weakening"
+- `bias_direction: "long"` → "long position" / "you're long X" inline, never as `bias_direction: long`
 - `delta_packet.summary: "..."` → quote the string directly as prose, no field prefix
-- `bias_os.active` → "active biases" / "what's live on the bias board"
 - `verdict.oneLiner` → quote it as the lede, no field prefix
 
 Exception: if the user explicitly asks for the raw shape ("show raw JSON", `--raw`, "what fields does this return"), echo field names as-is.
@@ -48,11 +48,15 @@ midaz auth {login,logout,status,whoami,keys}
 midaz onboard {status,generate,complete}
 midaz invite redeem <CODE>
 midaz subscription {status,start,portal}
-midaz desk {get,settings,view,share,regenerate,reonboard,refresh,radar,playbook,preferences,telegram}
+midaz desk {get,settings,view,share,regenerate,reonboard,refresh,
+             radar,playbook,preferences,telegram,
+             position {open,update,close},
+             tracked-assets {get,set,add,remove}}
 midaz intel {list,push,rm}
-midaz assets {list,get,timeline}
+midaz assets {list,get,timeline,options}
 midaz klines [asset_id]
 midaz delta
+midaz assistant events
 midaz search | market | drivers | driver | driver-links | theses | thesis | claims | sources | snapshot | usage | decisions | health
 midaz usage by-run <run_id>
 midaz doctor | version | config | schema | skills
@@ -161,9 +165,9 @@ Config path: `~/.config/midaz/config.json` (Linux/macOS) or `%APPDATA%\midaz\con
 
    **Desk-aware asset URL exception.** When the asset the user is asking about is on their personal desk, switch the asset link's **target** and **text** so the click lands on their desk, not the public market. Drivers, theses, parent+thesis combos, and contribution URLs are unaffected — only standalone asset links change.
 
-   - **Trigger:** the asset appears in `bias_os.active[]`, `bias_os.armed[]`, or `bias_os.seeds[]` returned by `midaz desk view`. Watchlist entries and `radar_coverage` matches do **not** trigger this rule.
-   - **Detection:** call `midaz desk view` once, the first time you're about to surface any asset URL in the session. Cache `meta.view_url` plus the union of `bias_os.{active,armed,seeds}[].asset` (and `asset_id` if present) for the rest of the session. Re-fetch only after a desk-mutating command (`midaz desk radar set`, `midaz desk track`, `midaz desk untrack`, anything returning `l4_enqueued`).
-   - **Matching:** prefer `asset_id` exact match; otherwise compare the asset's `name` and every entry in `aliases[]` against each bias card's `asset` field, case-insensitively. Do not strip suffixes (`BTC-USD` vs `BTC`) — rely on `aliases[]`.
+   - **Trigger:** the asset appears in `positions[].asset` or `monitored_assets[].asset` returned by `midaz desk view`. Watchlist entries and `radar_coverage` matches do **not** trigger this rule.
+   - **Detection:** call `midaz desk view` once, the first time you're about to surface any asset URL in the session. Cache `meta.view_url` plus the union of `positions[].asset` ∪ `monitored_assets[].asset` for the rest of the session. Re-fetch only after a desk-mutating command — any of `midaz desk radar {set,add,remove,pin,unpin}`, `midaz desk position {open,update,close}`, `midaz desk tracked-assets {set,add,remove}`, `midaz desk playbook set`, `midaz desk preferences set`, `midaz desk regenerate`, `midaz desk reonboard`, or `midaz desk refresh`. Anything returning `l4_enqueued: true` is a re-fetch signal.
+   - **Matching:** prefer `asset` exact match (uppercase); otherwise compare the asset's `name` and every entry in `aliases[]` against each card's `asset` field, case-insensitively. Do not strip suffixes (`BTC-USD` vs `BTC`) — rely on `aliases[]`.
    - **URL source:** use `meta.view_url` from `midaz desk view` verbatim. Do **not** construct `<FrontendURL>/desk` client-side.
    - **Link text patterns** (canonical phrasing — do not drift to "in your desk" / "on the desk" / "on my desk"):
      - Inline, on desk: `**[NVDA](<desk_url>)** on your desk — …` (drop the trailing "on your desk" on subsequent mentions in the same reply, or when the surrounding sentence already names the desk).
@@ -177,4 +181,4 @@ Config path: `~/.config/midaz/config.json` (Linux/macOS) or `%APPDATA%\midaz\con
 6. **Thread → thesis.** The product now says "thesis". Use `midaz theses` / `midaz thesis <id>`. `threads` / `thread` still work but are deprecated.
 7. **Topic → driver.** The old topic layer was replaced by the driver ontology. Use `midaz drivers` / `midaz driver <id>` / `midaz driver-links`. The `topics` / `topic` commands are gone.
 8. **Never paraphrase outside knowledge as Midaz output.** Only synthesize fields the CLI actually returned. See §Source of Truth.
-9. **Field names stay agent-facing.** Never echo `bias_os.active`, `axis_scores_my_lens`, `delta_packet.summary`, `trader_action`, `cognition_state`, `verdict.oneLiner`, etc. to the user — translate to prose every time. See §Presentation Rules.
+9. **Field names stay agent-facing.** Never echo `positions[].axis_scores`, `monitored_assets[].current_read`, `position_health`, `attention_level`, `bias_direction`, `delta_packet.summary`, `axis_scores_my_lens`, `verdict.oneLiner`, etc. to the user — translate to prose every time. See §Presentation Rules.

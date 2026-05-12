@@ -1,29 +1,101 @@
 # Changelog
 
-## Unreleased
+## 0.8.0 — 2026-05-12
 
-### Added
-- New `midaz-onboard` skill — interactive trader onboarding ritual synced
-  from Seer; produces profile, radar, and playbook and commits them via
-  the existing `midaz onboard complete` / `midaz desk radar set` /
-  `midaz desk playbook set` verbs.
+Companion release for Seer's L4 v2 desk-view reshape, the L3.1A driver-
+ontology rename, and the new Telegram Mini App / desk-assistant family.
+Every breaking field rename downstream of `cace832` (the previous CLI
+sync point) is reflected here; the CLI binary itself remains backward-
+compatible because the read paths are JSON passthroughs.
 
-### Fixed
-- `midaz-account` skill: radar cap corrected from `≤5` to `≤12` items to
-  match `internal/cmd/desk/radar/add.go`.
+### Added — new CLI verbs
 
-### Breaking
+- **Positions** (DB-owned trader stances). Three new write verbs against
+  the Seer position lifecycle (Seer `f4637e5`):
+  - `midaz desk position open --asset NVDA --direction long --thesis "…" --yes`
+    → `POST /api/desks/{slug}/positions`.
+  - `midaz desk position update <id> [--direction] [--thesis] --yes`
+    → `PATCH /api/desks/{slug}/positions/{id}`.
+  - `midaz desk position close <id> --yes`
+    → `POST /api/desks/{slug}/positions/{id}/close`.
+- **Tracked-asset scope** (L4 monitoring scope; distinct from the radar):
+  - `midaz desk tracked-assets get` — current list + valid universe.
+  - `midaz desk tracked-assets set --items "NVDA,GLD,US10Y" --yes`
+    (also `--from-file`) → `PATCH /api/desk/tracked-assets`.
+  - `midaz desk tracked-assets add --items "AMD" --yes` — list-and-merge.
+  - `midaz desk tracked-assets remove --items "TLT" --yes` — list-and-prune.
+- **Asset options context**: `midaz assets options <id> [--max-days 7..180]`
+  → `GET /api/assets/{id}/options-context`. Surfaces IV term structure,
+  skew state, top OI strikes, and the options surface (DTE × moneyness × IV).
+- **Assistant events**: `midaz assistant events [--after ISO] [--limit N]`
+  → `GET /api/assistant/events`. Owner-only, subscription-gated.
+  `/api/assistant/chat` remains out of scope (interactive REPL).
+
+### Changed
+
+- **`midaz desk telegram connect`** now POSTs `/api/desk/telegram/link-token`
+  and uses the returned single-use deep link (10-minute window). Older
+  Seer that hasn't shipped link-token falls back automatically to the
+  legacy bot-username flow (`flow: "legacy_bot_username"` in the response).
+- **`midaz usage`** normalizer now surfaces `assistant_calls` and
+  `assistant_cost_usd` in `.meta` so pretty-print distinguishes desk-
+  assistant spend from pipeline spend. The `assistant.*` block in the
+  response body is passed through unchanged.
+- **`midaz desk settings`** normalizer surfaces `universe_size`,
+  `tracked_count`, `radar_items`, and `open_positions` counts in `.meta`.
+  The body now includes `asset_universe[]` (per Seer `f4637e5`).
+- **Driver field renames** (Seer `ea11498`) — surfaced via skill docs,
+  no Go code change because the CLI is a passthrough:
+  - `driver_kind` → `scope` ("market" or "specific"). The old name is
+    preserved as a backward-compat alias only on `/api/drivers` and
+    `/api/drivers/:id`; new code should read `scope`.
+  - `base_case_thesis` now derives from `mechanism_explanation`.
+  - `pricing_state` is empty.
+  - `/api/market` returns scope=market drivers only — for per-asset
+    drivers use `midaz assets get <id>` or `midaz drivers`.
+- **Klines** lost `gravity_tier` / `gravity_delta`; each axis entry now
+  carries `horizon_bucket` (`short|medium|long|null`). Driver and signal
+  contributions on `/api/assets/:id` also gained `horizon_bucket`.
+
+### Breaking — skills
+
+The desk view payload `view` no longer carries `bias_os.{active,armed,seeds}[]`.
+It now carries `view_schema_version: 2` plus `positions[]` (DB-owned
+trader positions, with `bias_direction` + `entry_thesis` + a
+`position_health` lifecycle) and `monitored_assets[]` (L4 watch cards
+with `current_read` + `attention_level` + `entry_trigger`). Skills have
+been rewritten to walk the new arrays; the desk-aware asset-URL cache
+key in `midaz-shared` switched from `bias_os.{active,armed,seeds}[].asset`
+to `positions[].asset ∪ monitored_assets[].asset`. The CLI binary still
+works because `midaz desk view` is a passthrough, but every agent recipe
+that grouped by `trader_action` or referenced `bias_os.*` was rewritten.
+
+### Breaking — distribution (rolled forward from Unreleased)
+
 - Removed the npm distribution channel. `npm install -g @midaz/cli` is no
   longer published; the `@midaz/cli` package, its postinstall downloader,
   `scripts/run.js`, `scripts/install.js`, `npm/publish.sh`, and
   `package.json` are all gone. Install via the curl (`install.sh`) or
   PowerShell (`install.ps1`) one-liners instead. Version is now sourced
   from the git tag only (goreleaser resolves it in CI).
-- Removed deprecated `seer-q` npm shim, `SEER_*` env var fallbacks, and the
-  `~/.config/seer/` legacy config read. The grace window from v0.6.0 is over —
-  use `midaz` and `MIDAZ_*` env vars. Existing users with config under
-  `~/.config/seer/config.json` must move it to `~/.config/midaz/config.json`
-  (or re-run `midaz config set`).
+- Removed deprecated `seer-q` npm shim, `SEER_*` env var fallbacks, and
+  the `~/.config/seer/` legacy config read. The grace window from v0.6.0
+  is over — use `midaz` and `MIDAZ_*` env vars. Existing users with
+  config under `~/.config/seer/config.json` must move it to
+  `~/.config/midaz/config.json` (or re-run `midaz config set`).
+
+### Skill bumps
+
+| Skill | Old | New |
+|-------|-----|-----|
+| `midaz-desk` | 0.7.4 | **0.8.0** |
+| `midaz-shared` | 0.7.5 | **0.8.0** |
+| `midaz-market` | 0.7.4 | **0.8.0** |
+| `midaz-api-explorer` | 0.7.3 | 0.7.4 |
+| `midaz-account` | 0.7.1 | 0.7.2 |
+| `midaz-onboard` | 0.9.1 | 0.9.2 |
+
+Reinstall with `midaz skills install --target <claude|codex|all> --force --yes`.
 
 ## 0.7.2 — 2026-04-22
 
